@@ -13,6 +13,10 @@
 
 <Sidebar.Provider>
 	<TeaBar />
-	<Sidebar.Trigger />
-	{@render children()}
+	<main class="flex flex-col flex-1 w-full">
+		<Sidebar.Trigger />
+		<section class="p-4">
+			{@render children()}
+		</section>
+	</main>
 </Sidebar.Provider>
