@@ -5,7 +5,10 @@ mod sysinfo;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![sysinfo::computer::computer_info])
+        .invoke_handler(tauri::generate_handler![
+            sysinfo::computer::computer_info,
+            sysinfo::display::display_info
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
