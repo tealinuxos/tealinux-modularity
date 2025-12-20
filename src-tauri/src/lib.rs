@@ -7,7 +7,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             sysinfo::computer::computer_info,
-            sysinfo::display::display_info
+            sysinfo::display::display_info,
+            sysinfo::audio::audio_info
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

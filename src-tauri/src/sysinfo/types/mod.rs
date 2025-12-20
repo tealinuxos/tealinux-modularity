@@ -1,3 +1,4 @@
+pub mod sound_fastfetch;
 pub mod cpu_fastfetch;
 pub mod display_fastfetch;
 pub mod gpu_fastfetch;
