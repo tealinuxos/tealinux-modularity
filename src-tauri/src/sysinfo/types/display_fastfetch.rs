@@ -43,7 +43,7 @@ pub struct ManufactureDate {
 pub struct Output {
     pub width: i64,
     pub height: i64,
-    pub refresh_rate: i64,
+    pub refresh_rate: f64,
     pub drr_status: Option<serde_json::Value>,
 }
 
