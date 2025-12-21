@@ -24,16 +24,11 @@ impl Computer {
         let os_vec: OSFastfetch = fetch_module("OS");
         let kernel_vec: KernelFastfetch = fetch_module("Kernel");
 
-        let cpu_item = cpu_vec
-            .into_iter()
-            .next()
-            .expect("CPU Data is not found!");
+        let cpu_item = cpu_vec.into_iter().next().expect("CPU Data is not found!");
 
         let processor = format!(
             "{} {}x{} Core",
-            cpu_item.result.cpu,
-            cpu_item.result.cores.physical,
-            cpu_item.result.cores.logical
+            cpu_item.result.cpu, cpu_item.result.cores.physical, cpu_item.result.cores.logical
         );
 
         let kernel_item = kernel_vec
@@ -43,17 +38,14 @@ impl Computer {
 
         let kernel_version = format!(
             "{} {}",
-            kernel_item.result.release,
-            kernel_item.result.architecture
+            kernel_item.result.release, kernel_item.result.architecture
         );
 
         let username = user_vec
             .into_iter()
             .next()
-            .map(|item| {
-                item.result.into_iter().map(|u| u.name).collect()
-            })
-            .unwrap_or_else(|| vec![]);
+            .map(|item| item.result.into_iter().map(|u| u.name).collect())
+            .unwrap_or_default();
 
         let mem_item = mem_vec.into_iter().next().expect("Data Memory Error");
         let os_item = os_vec.into_iter().next().expect("Data OS Error");

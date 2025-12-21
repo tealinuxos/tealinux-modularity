@@ -18,7 +18,7 @@ impl Audio {
                     .map(|a| format!("{} with {}", a.name, a.platform_api))
                     .collect()
             })
-            .unwrap_or_else(|| vec![]);
+            .unwrap_or_default();
 
         Audio {
             devices: audio_item,

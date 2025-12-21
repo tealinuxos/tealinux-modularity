@@ -23,7 +23,7 @@ impl Display {
             .into_iter()
             .next()
             .map(|item| item.result.into_iter().map(|g| g.name).collect())
-            .unwrap_or_else(|| vec![]);
+            .unwrap_or_default();
 
         let display_item = display_vec
             .into_iter()
@@ -39,7 +39,7 @@ impl Display {
                     })
                     .collect()
             })
-            .unwrap_or_else(|| vec![]);
+            .unwrap_or_default();
 
         let wm_item = wm_vec
             .into_iter()
