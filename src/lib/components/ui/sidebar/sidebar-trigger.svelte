@@ -33,7 +33,7 @@
 		</Button>
 		<Button
 			onclick={async () => await appWindow.close()}
-			class="h-full hover:bg-red-400 hover:text-red-900"
+			class="h-full hover:bg-red-400 dark:hover:bg-red-400 hover:text-white"
 			variant="ghost"
 		>
 			<X />
