@@ -21,7 +21,7 @@
 	const appWindow = getCurrentWindow();
 </script>
 
-<nav class="border-b h-[57px] bg-sidebar text-sidebar-foreground flex flex-row justify-end">
+<nav class="border-b h-[57px] bg-sidebar text-sidebar-foreground flex flex-row justify-end sticky top-0 z-999 w-full">
 	<!-- TODO: Search Component -->
 	<!-- <p>test</p> -->
 	<ButtonGroup.Root class="h-full" aria-label="Button group">
