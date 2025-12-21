@@ -1,6 +1,6 @@
 use crate::sysinfo::{types::sound_fastfetch::SoundFastfetch, utils::fetch_module::fetch_module};
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, specta::Type)]
 pub struct Audio {
     devices: Vec<String>,
 }
@@ -27,6 +27,7 @@ impl Audio {
 }
 
 #[tauri::command]
+#[specta::specta]
 pub fn audio_info() -> Audio {
     Audio::new()
 }

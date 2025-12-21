@@ -5,7 +5,7 @@ use crate::sysinfo::{
     utils::fetch_module::fetch_module,
 };
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, specta::Type)]
 pub struct Display {
     monitor_name: Vec<String>,
     graphic_cards: Vec<String>,
@@ -56,6 +56,7 @@ impl Display {
 }
 
 #[tauri::command]
+#[specta::specta]
 pub fn display_info() -> Display {
     Display::new()
 }

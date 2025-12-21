@@ -7,7 +7,7 @@ use crate::sysinfo::{
     utils::fetch_module::fetch_module,
 };
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, specta::Type)]
 pub struct Computer {
     pub processor: String,
     pub memory: i64, // on bytes
@@ -61,6 +61,7 @@ impl Computer {
 }
 
 #[tauri::command]
+#[specta::specta]
 pub fn computer_info() -> Computer {
     Computer::new()
 }
