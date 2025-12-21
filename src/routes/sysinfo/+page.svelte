@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import * as Accordion from '$lib/components/ui/accordion/';
 	import { Skeleton } from '$lib/components/ui/skeleton';
+	import prettyBytes from 'pretty-bytes';
 
 	type AsyncState<T> =
 		| { status: 'loading' }
@@ -81,13 +82,17 @@
 					<span class="text-muted-foreground italic text-xs">- Empty -</span>
 				{/if}
 			{:else}
-				{value}
+				{#if key === 'memory'}
+					{prettyBytes(value as bigint, { binary: true, minimumFractionDigits: 2 })}
+				{:else}
+					{value}
+				{/if}
 			{/if}
 		</div>
 	</div>
 {/snippet}
 
-{#snippet stateRenderer(state: AsyncState<Computer| Display| Audio>)}
+{#snippet stateRenderer(state: AsyncState<Computer | Display | Audio>)}
 	{#if state.status === 'loading'}
 		{@render loadingSkeleton()}
 	{:else if state.status === 'error'}
