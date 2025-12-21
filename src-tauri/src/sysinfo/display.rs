@@ -33,7 +33,7 @@ impl Display {
                     .into_iter()
                     .map(|d| {
                         format!(
-                            "{}: {}x{}@{}",
+                            "{}: {}x{}@{}hz",
                             d.name, d.output.width, d.output.height, d.output.refresh_rate
                         )
                     })
