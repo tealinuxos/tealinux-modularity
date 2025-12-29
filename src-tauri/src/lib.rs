@@ -3,6 +3,7 @@ use specta_typescript::Typescript;
 use tauri_specta::{collect_commands, Builder};
 
 mod installer;
+mod splash;
 mod sysinfo;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -10,7 +11,8 @@ pub fn run() {
     let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
         sysinfo::computer::computer_info,
         sysinfo::display::display_info,
-        sysinfo::audio::audio_info
+        sysinfo::audio::audio_info,
+        splash::display_splash::init_configuration_file,
     ]);
 
     #[cfg(debug_assertions)]
