@@ -13,6 +13,25 @@ async displayInfo() : Promise<Display> {
 },
 async audioInfo() : Promise<Audio> {
     return await TAURI_INVOKE("audio_info");
+},
+async initConfigurationFile() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("init_configuration_file") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async checkConfigurationFile() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("check_configuration_file") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async showMainWindow() : Promise<void> {
+    await TAURI_INVOKE("show_main_window");
 }
 }
 

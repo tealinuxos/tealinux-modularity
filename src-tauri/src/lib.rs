@@ -13,6 +13,8 @@ pub fn run() {
         sysinfo::display::display_info,
         sysinfo::audio::audio_info,
         splash::display_splash::init_configuration_file,
+        splash::display_splash::check_configuration_file,
+        splash::display_splash::show_main_window,
     ]);
 
     #[cfg(debug_assertions)]
