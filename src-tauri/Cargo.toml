@@ -29,3 +29,5 @@ duct = "1.1.1"
 specta = "=2.0.0-rc.22"
 tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
 specta-typescript = "0.0.9"
+toml = "0.9.10"
+anyhow = "1.0.100"
