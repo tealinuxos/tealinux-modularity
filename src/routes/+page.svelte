@@ -96,20 +96,31 @@
 		out:fade={{ duration: 200 }}
 		class="col-start-1 row-start-1 flex items-center justify-center flex-col text-center w-full"
 	>
-		<img
-			src="tealinux-splash.png"
-			alt="Tealinux Logo"
-			class="w-40 md:w-52 lg:w-60 h-auto object-contain"
-		/>
-
-		<h1 class="font-bold text-2xl md:text-3xl lg:text-4xl text-[#54CD4C] mt-6 px-4">
-			Welcome to TealinuxOS
+		<h1
+			class="shimmer text-[#999999] shimmer-color-[#FFFFFF] font-bold text-[18rem] leading-none antialiased transform-gpu translate-z-0 backface-hidden"
+		>
+			LILYA
 		</h1>
+		<div
+			class="h-3 w-[20rem] rounded-full bg-linear-to-r from-[#54CD4C] via-[#3F9A39] to-[#2A6726] mb-8"
+		></div>
 
-		<p class="text-[#99A1AF] text-sm md:text-lg lg:text-xl mt-4 max-w-2xl px-4 leading-relaxed">
-			A powerful, customizable Linux distribution designed for developers, security professionals,
-			and tech enthusiasts.
+		<p class="font-medium text-3xl text-[#999999] tracking-[20%]">
+			BY <span
+				class="text-[#54CD4C] relative pr-6
+      after:content-['']
+      after:absolute
+      after:w-4
+      after:h-8
+      after:bg-[url('/tealinux.svg')]
+      after:bg-contain
+      after:bg-no-repeat
+      after:-top-1"
+			>
+				TealinuxOS
+			</span>
 		</p>
+		<p class="font-medium tracking-[20%] text-[#999999] leading-[181%]">RELEASED ON MAY 2026</p>
 	</div>
 {/snippet}
 
