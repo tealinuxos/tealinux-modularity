@@ -1,7 +1,21 @@
-# Tauri + SvelteKit + TypeScript
+# Tealinux Modularitea
 
-This template should help get you started developing with Tauri, SvelteKit and TypeScript in Vite.
+Tealinux modularitea is a set of GUI apps that mimic how microsoft store and KDE utility behave, this allow you to install apps easily, tune your linux as you needs, and help optimize something in your system
 
-## Recommended IDE Setup
+# building
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+```sh
+git clone git@github.com:tealinuxos/tealinux-modularity.git && \
+cd tealinux-modularity && bun install && bunx tauri dev
+```
+
+note that, you need this dependencies as its need to function properly
+
+- pkexec (rootkit utility)
+- GTK
+- bun (for building)
+
+also, please set your ENV to `TEALINUX_BUILD=dev` or `TEALINUX_BUILD=prod` when building, this allow you to avoid clicking dangerous parts of this software (such changing grub theme, disabling swap, etc). Another option is `TEALINUX_BUILD_SHOW_SPLASH=boolean`, allow you to force show splash screen by overriding `$HOME/.config/tealinux-modularity` file 
+
+# License 
+MIT
