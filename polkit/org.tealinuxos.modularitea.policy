@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "- //freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+
+  <vendor>TeaLinuxOS</vendor>
+  <vendor_url>https://tealinuxos.org/</vendor_url>
+
+  <!-- Modularitea Pacman -->
+  <action id="org.tealinuxos.modularitea.pacman">
+    <description>Run Modularitea Pacman Helper</description>
+    <message>Authentication is required to manage packages via Modularitea</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/bin/modularitea-pacman</annotate>
+  </action>
+
+  <!-- Modularitea Grub -->
+  <action id="org.tealinuxos.modularitea.grub">
+    <description>Run Modularitea GRUB Helper</description>
+    <message>Authentication is required to configure GRUB via Modularitea</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/bin/modularitea-grub</annotate>
+  </action>
+
+  <!-- Modularitea Systemctl -->
+  <action id="org.tealinuxos.modularitea.systemctl">
+    <description>Run Modularitea Systemd Helper</description>
+    <message>Authentication is required to manage services via Modularitea</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/bin/modularitea-systemctl</annotate>
+  </action>
+
+  <!-- Modularitea Settings -->
+  <action id="org.tealinuxos.modularitea.settings">
+    <description>Run Modularitea Settings Helper</description>
+    <message>Authentication is required to change system settings via Modularitea</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/bin/modularitea-settings</annotate>
+  </action>
+
+</policyconfig>

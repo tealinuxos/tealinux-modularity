@@ -25,18 +25,35 @@ pub fn check_configuration_file() -> Result<bool, String> {
 #[specta::specta]
 pub fn show_main_window(window: tauri::Window) {
     let is_initialized = check_configuration_file().unwrap_or(false);
+    eprintln!("[show_main_window] is_initialized: {}", is_initialized);
 
     if is_initialized {
-        window.get_webview_window("main").unwrap().show().unwrap();
+        match window.get_webview_window("main") {
+            Some(main_win) => {
+                if let Err(e) = main_win.show() {
+                    eprintln!("[show_main_window] Failed to show main window: {}", e);
+                } else {
+                    eprintln!("[show_main_window] Main window shown successfully");
+                }
+            }
+            None => eprintln!("[show_main_window] Could not find 'main' window"),
+        }
         if let Some(splashscreen) = window.get_webview_window("splashscreen") {
-            splashscreen.close().unwrap();
+            if let Err(e) = splashscreen.close() {
+                eprintln!("[show_main_window] Failed to close splashscreen: {}", e);
+            }
         }
     } else {
-        window
-            .get_webview_window("splashscreen")
-            .unwrap()
-            .show()
-            .unwrap();
+        match window.get_webview_window("splashscreen") {
+            Some(splash_win) => {
+                if let Err(e) = splash_win.show() {
+                    eprintln!("[show_main_window] Failed to show splashscreen: {}", e);
+                } else {
+                    eprintln!("[show_main_window] Splashscreen shown successfully");
+                }
+            }
+            None => eprintln!("[show_main_window] Could not find 'splashscreen' window"),
+        }
     }
 }
 

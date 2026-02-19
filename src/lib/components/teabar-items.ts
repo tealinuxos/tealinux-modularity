@@ -2,9 +2,9 @@ import { House, Info, SlidersHorizontal, Wrench } from '@lucide/svelte';
 
 export const teabarItems = [
 	{
-		href: '/home',
 		label: 'Home',
-		icon: House
+		href: '/',
+		icon: House,
 	},
 	{
 		href: '/sysinfo',

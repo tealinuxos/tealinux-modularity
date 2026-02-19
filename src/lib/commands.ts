@@ -14,6 +14,69 @@ async displayInfo() : Promise<Display> {
 async audioInfo() : Promise<Audio> {
     return await TAURI_INVOKE("audio_info");
 },
+/**
+ * Install packages via pacman (uses pkexec for root)
+ */
+async installPackages(packages: string[]) : Promise<BackendResult> {
+    return await TAURI_INVOKE("install_packages", { packages });
+},
+/**
+ * Remove packages via pacman (uses pkexec for root)
+ */
+async removePackages(packages: string[]) : Promise<BackendResult> {
+    return await TAURI_INVOKE("remove_packages", { packages });
+},
+/**
+ * Update pacman database (uses pkexec for root)
+ */
+async updateDb() : Promise<BackendResult> {
+    return await TAURI_INVOKE("update_db");
+},
+/**
+ * Check if a specific package is installed (read-only, no root)
+ */
+async checkPackageInstalled(packageName: string) : Promise<boolean> {
+    return await TAURI_INVOKE("check_package_installed", { packageName });
+},
+/**
+ * Install a full profile.
+ * 
+ * This reads the profile data from the frontend (which already parsed the TOML),
+ * then calls pacman install + systemctl enable as needed.
+ */
+async installProfile(profileName: string, packages: string[], services: string[]) : Promise<BackendResult> {
+    return await TAURI_INVOKE("install_profile", { profileName, packages, services });
+},
+/**
+ * Uninstall a profile's packages
+ */
+async uninstallProfile(profileName: string, packages: string[], services: string[]) : Promise<BackendResult> {
+    return await TAURI_INVOKE("uninstall_profile", { profileName, packages, services });
+},
+/**
+ * Enable a service via systemctl (uses pkexec for root)
+ */
+async enableService(serviceName: string, startNow: boolean) : Promise<BackendResult> {
+    return await TAURI_INVOKE("enable_service", { serviceName, startNow });
+},
+/**
+ * Disable a service via systemctl (uses pkexec for root)
+ */
+async disableService(serviceName: string, stopNow: boolean) : Promise<BackendResult> {
+    return await TAURI_INVOKE("disable_service", { serviceName, stopNow });
+},
+/**
+ * Load all profiles from the profiles directory
+ */
+async listProfiles() : Promise<ProfileInfo[]> {
+    return await TAURI_INVOKE("list_profiles");
+},
+/**
+ * Get a single profile by ID
+ */
+async getProfile(profileId: string) : Promise<ProfileInfo | null> {
+    return await TAURI_INVOKE("get_profile", { profileId });
+},
 async initConfigurationFile() : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("init_configuration_file") };
@@ -46,8 +109,13 @@ async showMainWindow() : Promise<void> {
 /** user-defined types **/
 
 export type Audio = { devices: string[] }
+export type BackendResult = { success: boolean; stdout: string; stderr: string; exit_code: number }
 export type Computer = { processor: string; memory: bigint; operating_system: string; kernel_version: string; username: string[] }
 export type Display = { monitor_name: string[]; graphic_cards: string[]; display_protocol: string; display_windows_manager: string }
+/**
+ * Profile metadata from TOML files
+ */
+export type ProfileInfo = { id: string; name: string; description: string; version: string; author: string; category: string; packages_install: string[]; packages_aur: string[]; services_enable: string[]; package_count: number }
 
 /** tauri-specta globals **/
 

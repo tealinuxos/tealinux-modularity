@@ -21,9 +21,9 @@
 	const appWindow = getCurrentWindow();
 </script>
 
-<nav class="border-b h-[57px] bg-sidebar text-sidebar-foreground flex flex-row justify-end sticky top-0 z-999 w-full">
-	<!-- TODO: Search Component -->
-	<!-- <p>test</p> -->
+<nav
+	class="border-b h-[57px] bg-sidebar text-sidebar-foreground flex flex-row justify-end sticky top-0 z-999 w-full"
+>
 	<ButtonGroup.Root class="h-full" aria-label="Button group">
 		<Button onclick={async () => await appWindow.minimize()} class="h-full" variant="ghost">
 			<Minus />
@@ -39,22 +39,4 @@
 			<X />
 		</Button>
 	</ButtonGroup.Root>
-
 </nav>
-<!-- px-4 py-4  -->
-<!-- <Button
-	data-sidebar="trigger"
-	data-slot="sidebar-trigger"
-	variant="ghost"
-	size="icon"
-	class={cn("size-7", className)}
-	type="button"
-	onclick={(e) => {
-		onclick?.(e);
-		sidebar.toggle();
-	}}
-	{...restProps}
-> -->
-<!-- <PanelLeftIcon /> -->
-<!-- <span class="sr-only">Toggle Sidebar</span> -->
-<!-- </Button> -->

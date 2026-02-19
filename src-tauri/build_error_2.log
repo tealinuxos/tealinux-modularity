@@ -1,0 +1,28 @@
+    Blocking waiting for file lock on build directory
+warning: tealinux-modularity@0.1.0: Environment variable TEALINUX_BUILD is not set during build. Automatically set to dev. See https://github.com/tealinuxos/tealinux-modularity#building
+warning: tealinux-modularity@0.1.0: TEALINUX_BUILD is set to: dev
+    Checking tealinux-modularity v0.1.0 (/home/lbi/Documents/doscom/projekkatanyakurangbanyak/tealinux-2026/all-modularitea/tealinux-modularity/src-tauri)
+warning: enum `Profile` is never used
+ --> src/installer/profiler.rs:3:6
+  |
+3 | enum Profile {
+  |      ^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated items `packages`, `install_packages`, and `from_str` are never used
+  --> src/installer/profiler.rs:10:8
+   |
+ 9 | impl Profile {
+   | ------------ associated items in this implementation
+10 |     fn packages(&self) -> (Vec<&'static str>, Vec<&'static str>) {
+   |        ^^^^^^^^
+...
+21 |     fn install_packages(&self) {
+   |        ^^^^^^^^^^^^^^^^
+...
+56 |     fn from_str(s: &str) -> Option<Self> {
+   |        ^^^^^^^^
+
+warning: `tealinux-modularity` (lib) generated 2 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 14.62s

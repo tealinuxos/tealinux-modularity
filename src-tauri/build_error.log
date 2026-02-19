@@ -1,0 +1,84 @@
+warning: tealinux-modularity@0.1.0: Environment variable TEALINUX_BUILD is not set during build. Automatically set to dev. See https://github.com/tealinuxos/tealinux-modularity#building
+warning: tealinux-modularity@0.1.0: TEALINUX_BUILD is set to: dev
+    Checking tealinux-modularity v0.1.0 (/home/lbi/Documents/doscom/projekkatanyakurangbanyak/tealinux-2026/all-modularitea/tealinux-modularity/src-tauri)
+error[E0433]: failed to resolve: could not find `__specta__fn__install_packages` in `backend_runner`
+  --> src/lib.rs:12:57
+   |
+12 |       let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
+   |  _________________________________________________________^
+13 | |         sysinfo::computer::computer_info,
+14 | |         sysinfo::display::display_info,
+15 | |         sysinfo::audio::audio_info,
+...  |
+22 | |         splash::display_splash::show_main_window,
+23 | |     ]);
+   | |_____^ could not find `__specta__fn__install_packages` in `backend_runner`
+   |
+   = note: this error originates in the macro `$crate::function::_fn_datatype_internal` which comes from the expansion of the macro `collect_commands` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0433]: failed to resolve: could not find `__specta__fn__remove_packages` in `backend_runner`
+  --> src/lib.rs:12:57
+   |
+12 |       let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
+   |  _________________________________________________________^
+13 | |         sysinfo::computer::computer_info,
+14 | |         sysinfo::display::display_info,
+15 | |         sysinfo::audio::audio_info,
+...  |
+22 | |         splash::display_splash::show_main_window,
+23 | |     ]);
+   | |_____^ could not find `__specta__fn__remove_packages` in `backend_runner`
+   |
+   = note: this error originates in the macro `$crate::function::_fn_datatype_internal` which comes from the expansion of the macro `collect_commands` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0433]: failed to resolve: could not find `__specta__fn__update_db` in `backend_runner`
+  --> src/lib.rs:12:57
+   |
+12 |       let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
+   |  _________________________________________________________^
+13 | |         sysinfo::computer::computer_info,
+14 | |         sysinfo::display::display_info,
+15 | |         sysinfo::audio::audio_info,
+...  |
+22 | |         splash::display_splash::show_main_window,
+23 | |     ]);
+   | |_____^ could not find `__specta__fn__update_db` in `backend_runner`
+   |
+   = note: this error originates in the macro `$crate::function::_fn_datatype_internal` which comes from the expansion of the macro `collect_commands` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0433]: failed to resolve: could not find `__specta__fn__install_profile` in `backend_runner`
+  --> src/lib.rs:12:57
+   |
+12 |       let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
+   |  _________________________________________________________^
+13 | |         sysinfo::computer::computer_info,
+14 | |         sysinfo::display::display_info,
+15 | |         sysinfo::audio::audio_info,
+...  |
+22 | |         splash::display_splash::show_main_window,
+23 | |     ]);
+   | |_____^ could not find `__specta__fn__install_profile` in `backend_runner`
+   |
+   = note: this error originates in the macro `$crate::function::_fn_datatype_internal` which comes from the expansion of the macro `collect_commands` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unused import: `tauri::ipc::Response`
+ --> src/installer/backend_runner.rs:5:5
+  |
+5 | use tauri::ipc::Response;
+  |     ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `profile_name`
+   --> src/installer/backend_runner.rs:110:30
+    |
+110 | pub async fn install_profile(profile_name: String) -> BackendResult {
+    |                              ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_profile_name`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+For more information about this error, try `rustc --explain E0433`.
+warning: `tealinux-modularity` (lib) generated 2 warnings
+warning: tealinux-modularity@0.1.0: Environment variable TEALINUX_BUILD is not set during build. Automatically set to dev. See https://github.com/tealinuxos/tealinux-modularity#building
+warning: tealinux-modularity@0.1.0: TEALINUX_BUILD is set to: dev
+error: could not compile `tealinux-modularity` (lib) due to 4 previous errors; 2 warnings emitted
