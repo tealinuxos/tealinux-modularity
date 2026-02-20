@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Hero from '$lib/components/home/Hero.svelte';
 	import ProfileCard from '$lib/components/home/ProfileCard.svelte';
-	import ProfileDetailModal from '$lib/components/home/ProfileDetailModal.svelte';
+
 	import { commands, type ProfileInfo, type BackendResult } from '$lib/commands';
 	import { onMount } from 'svelte';
 	import { Loader2, RefreshCw, AlertCircle } from 'lucide-svelte';
@@ -13,12 +13,6 @@
 
 	// Install states per profile id
 	let installStates: Record<string, 'idle' | 'installing' | 'success' | 'error'> = $state({});
-
-	// Modal state
-	let selectedProfile: ProfileInfo | null = $state(null);
-	let modalOpen = $state(false);
-	let modalInstallState: 'idle' | 'installing' | 'success' | 'error' = $state('idle');
-	let modalInstallMessage = $state('');
 
 	// ─── Load profiles from backend on mount ──────────────────────────────────────
 	onMount(async () => {
@@ -97,24 +91,6 @@
 	function handleCardInstall(profile: ProfileInfo) {
 		handleInstall(profile);
 	}
-
-	function handleViewDetail(profile: ProfileInfo) {
-		selectedProfile = profile;
-		modalOpen = true;
-		modalInstallState = installStates[profile.id] || 'idle';
-		modalInstallMessage = '';
-	}
-
-	function handleModalClose() {
-		modalOpen = false;
-		selectedProfile = null;
-		modalInstallState = 'idle';
-		modalInstallMessage = '';
-	}
-
-	function handleModalInstall(profile: ProfileInfo) {
-		handleInstall(profile);
-	}
 </script>
 
 <div class="flex flex-col gap-6 p-6 h-full overflow-y-auto">
@@ -168,7 +144,6 @@
 					servicesCount={profile.services_enable.length}
 					installState={installStates[profile.id] || 'idle'}
 					onInstall={() => handleCardInstall(profile)}
-					onViewDetail={() => handleViewDetail(profile)}
 				/>
 			{/each}
 		</div>
@@ -176,11 +151,3 @@
 </div>
 
 <!-- Profile Detail Modal -->
-<ProfileDetailModal
-	profile={selectedProfile}
-	open={modalOpen}
-	installState={modalInstallState}
-	installMessage={modalInstallMessage}
-	onClose={handleModalClose}
-	onInstall={handleModalInstall}
-/>

@@ -1,16 +1,6 @@
 <script lang="ts">
-	import {
-		Download,
-		Package,
-		ChevronRight,
-		Shield,
-		Server,
-		Code2,
-		Wrench,
-		Loader2,
-		Check,
-		X
-	} from 'lucide-svelte';
+	import { Download, Package, ChevronRight, Loader2, Check, X } from 'lucide-svelte';
+	import { getCategoryIcon, getCategoryColor, getCategoryBadgeColor } from '$lib/utils/category';
 
 	interface Props {
 		id: string;
@@ -21,7 +11,7 @@
 		packages: string[];
 		servicesCount: number;
 		onInstall: () => void;
-		onViewDetail: () => void;
+
 		installState: 'idle' | 'installing' | 'success' | 'error';
 	}
 
@@ -34,37 +24,13 @@
 		packages,
 		servicesCount,
 		onInstall,
-		onViewDetail,
+
 		installState = 'idle'
 	}: Props = $props();
 
-	const categoryIcons: Record<string, any> = {
-		security: Shield,
-		development: Code2,
-		server: Server,
-		tools: Wrench,
-		default: Package
-	};
-
-	const categoryColors: Record<string, string> = {
-		security: 'from-red-500/20 to-red-600/5 border-red-500/30',
-		development: 'from-blue-500/20 to-blue-600/5 border-blue-500/30',
-		server: 'from-purple-500/20 to-purple-600/5 border-purple-500/30',
-		tools: 'from-amber-500/20 to-amber-600/5 border-amber-500/30',
-		default: 'from-green-500/20 to-green-600/5 border-green-500/30'
-	};
-
-	const categoryBadgeColors: Record<string, string> = {
-		security: 'bg-red-500/20 text-red-400 border-red-500/30',
-		development: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-		server: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-		tools: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-		default: 'bg-green-500/20 text-green-400 border-green-500/30'
-	};
-
-	let IconComponent = $derived(categoryIcons[category] || categoryIcons['default']);
-	let gradientClass = $derived(categoryColors[category] || categoryColors['default']);
-	let badgeClass = $derived(categoryBadgeColors[category] || categoryBadgeColors['default']);
+	let IconComponent = $derived(getCategoryIcon(category));
+	let gradientClass = $derived(getCategoryColor(category));
+	let badgeClass = $derived(getCategoryBadgeColor(category));
 </script>
 
 <div
@@ -154,13 +120,13 @@
 					Install
 				{/if}
 			</button>
-			<button
-				onclick={onViewDetail}
-				class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium border border-input hover:bg-accent hover:text-accent-foreground transition-all duration-200 active:scale-[0.98]"
+			<a
+				href="/home/{id}"
+				class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium border border-input hover:bg-accent hover:text-accent-foreground transition-all duration-200 active:scale-[0.98] text-foreground decoration-0"
 			>
 				Details
 				<ChevronRight class="w-4 h-4" />
-			</button>
+			</a>
 		</div>
 	</div>
 </div>
