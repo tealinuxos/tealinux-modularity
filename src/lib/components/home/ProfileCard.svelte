@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Download, Package, ChevronRight, Loader2, Check, X } from 'lucide-svelte';
+	import { Download, Package, ChevronRight, Server, Loader2, Check, X } from 'lucide-svelte';
 	import { getCategoryIcon, getCategoryColor, getCategoryBadgeColor } from '$lib/utils/category';
 
 	interface Props {
