@@ -4,12 +4,14 @@
 	import TeaSplashFooter from './partials/TeaSplashFooter.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Item from '$lib/components/ui/item/';
+	import * as Dialog from '$lib/components/ui/dialog/';
 	import {
 		ChevronRight,
 		Cog,
 		Download,
 		PanelsLeftBottom,
 		Sparkle,
+		Check,
 		type Icon
 	} from '@lucide/svelte';
 	import { commands } from '$lib/commands';
@@ -22,7 +24,7 @@
 
 	const totalSteps = 3;
 
-	const menusList: MenuProps[] = [
+	const MENU_LISTS: MenuProps[] = [
 		{
 			title: 'Desktop Customization',
 			description: 'Add or install other Desktop Environments for your maximum setup',
@@ -43,6 +45,14 @@
 			description: 'Dive into a world of features waiting for you to explore!',
 			icon: Sparkle
 		}
+	];
+
+	const CHANGELOG_LISTS: string[] = [
+		'Interactive onboarding experience with multi-step introduction',
+		'Modernized "Latest News" section with GitHub-inspired aesthetics',
+		'Revamped GRUB Customizer featuring intuitive wallpaper selection',
+		'Enhanced UI responsiveness with optimized fluid animations',
+		'Improved visual contrast and readability for AMOLED themes'
 	];
 
 	let currentStep = $state(0);
@@ -80,7 +90,7 @@
 			{:else if currentStep === 1}
 				{@render StepsTwo()}
 			{:else if currentStep === 2}
-				{@render StepsThree(menusList)}
+				{@render StepsThree()}
 			{/if}
 		</div>
 	</section>
@@ -150,24 +160,11 @@
 		</p>
 
 		<p class="text-[#6A7282] text-xs md:text-sm">Released on December 24, 2024</p>
-
-		<div class="mt-2">
-			<Button
-				class="backdrop-blur-md border border-[#00C95033] bg-gradient-to-b from-[#0000001A] to-[#54CD4C1A] shadow-lg
-                text-sm md:text-base px-6 py-2 rounded-full text-white
-                hover:border-[#00C950]
-                hover:from-[#0000004D]
-                hover:to-[#54CD4C4D]
-                hover:scale-105
-                transition-all duration-300 ease-in-out"
-			>
-				What's new in TeaLinuxOS
-			</Button>
-		</div>
+		{@render ChangelogModal()}
 	</div>
 {/snippet}
 
-{#snippet StepsThree(menusList: MenuProps[])}
+{#snippet StepsThree()}
 	<div
 		in:fly={{ x: 20, duration: 500, delay: 200 }}
 		out:fade={{ duration: 200 }}
@@ -185,7 +182,7 @@
 		</div>
 
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-			{#each menusList as menu, i (i)}
+			{#each MENU_LISTS as menu, i (i)}
 				<Item.Root
 					variant="outline"
 					class="
@@ -232,4 +229,41 @@
 			{/each}
 		</div>
 	</div>
+{/snippet}
+
+{#snippet ChangelogModal()}
+	<Dialog.Root>
+		<Dialog.Trigger class="mt-2">
+			<Button
+				class="backdrop-blur-md border border-[#00C95033] bg-gradient-to-b from-[#0000001A] to-[#54CD4C1A] shadow-lg
+                  text-sm md:text-base px-6 py-2 rounded-full text-white
+                  hover:border-[#00C950]
+                  hover:from-[#0000004D]
+                  hover:to-[#54CD4C4D]
+                  hover:scale-105
+                  transition-all duration-300 ease-in-out"
+			>
+				What's new in TeaLinuxOS
+			</Button>
+		</Dialog.Trigger>
+		<Dialog.Content
+			class="min-w-2xl bg-[#0D0D0D] border-[#00C950]/20 border drop-shadow-2xl text-white rounded-lg"
+		>
+			<Dialog.Header>
+				<Dialog.Title>What's new in TeaLinuxOS</Dialog.Title>
+			</Dialog.Header>
+			<section class="flex flex-col gap-y-4 mt-2">
+				{#each CHANGELOG_LISTS as item (item)}
+					<div class="flex flex-row gap-x-4">
+						<div class="size-6 rounded-full bg-[#54CD4C]/10 flex items-center justify-center">
+							<Check class="text-[#54CD4C] size-4" />
+						</div>
+						<p>
+							{item}
+						</p>
+					</div>
+				{/each}
+			</section>
+		</Dialog.Content>
+	</Dialog.Root>
 {/snippet}
