@@ -93,6 +93,8 @@
 	}
 </script>
 
+
+
 <div class="flex flex-col gap-6 p-6 h-full overflow-y-auto">
 	<!-- Hero Section -->
 	<Hero profileCount={profiles.length} />

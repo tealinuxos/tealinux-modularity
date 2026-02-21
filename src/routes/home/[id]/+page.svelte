@@ -5,11 +5,10 @@
 	import { Loader2, AlertTriangle } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
 
-	import ProfileHeroCard from '$lib/components/home/ProfileHeroCard.svelte';
 	import PreviewTab from '$lib/components/home/PreviewTab.svelte';
 	import PackageListTab from '$lib/components/home/PackageListTab.svelte';
 	import InstallActionBar from '$lib/components/home/InstallActionBar.svelte';
-
+	
 	// ─── Props & State ────────────────────────────────────────────────────────────
 	let profileId = $derived(page.params.id);
 	let profile: ProfileInfo | null = $state(null);
@@ -122,7 +121,7 @@
 	// Computed stats
 	let selectedCount = $derived(selectedPackages.size);
 	let allInstalled = $derived(
-		!!profile && installedPackages.size === profile.packages_install.length
+		profile ? installedPackages.size === profile.packages_install.length : false
 	);
 	let totalSize = $derived('~1.2 GB');
 	let estTime = $derived('~' + Math.max(1, Math.ceil(selectedCount / 5)) + ' mins');
@@ -147,26 +146,26 @@
 				</button>
 			</div>
 		{:else}
-			<div class="p-6 max-w-5xl mx-auto space-y-6">
-				<ProfileHeroCard
-					{profile}
-					{allInstalled}
-					{activeTab}
-					onTabChange={(tab) => (activeTab = tab)}
-				/>
-
-				{#if activeTab === 'preview'}
-					<PreviewTab {profile} />
-				{/if}
-
-				{#if activeTab === 'package'}
-					<PackageListTab
-						packages={profile.packages_install}
-						{selectedPackages}
-						{installedPackages}
-						onToggle={togglePackage}
+			<div class="p-6 max-w-5xl mx-auto">
+				<div class="rounded-3xl bg-card border border-border shadow-2xl overflow-hidden relative">
+					<PreviewTab
+						{profile}
+						{allInstalled}
+						{activeTab}
+						onTabChange={(tab) => (activeTab = tab)}
 					/>
-				{/if}
+
+					{#if activeTab === 'package'}
+						<div class="p-8 pt-0">
+							<PackageListTab
+								packages={profile.packages_install}
+								{selectedPackages}
+								{installedPackages}
+								onToggle={togglePackage}
+							/>
+						</div>
+					{/if}
+				</div>
 			</div>
 		{/if}
 	</div>

@@ -11,19 +11,28 @@
 	let { packages, selectedPackages, installedPackages, onToggle }: Props = $props();
 </script>
 
-<div class="space-y-4">
-	<div class="bg-card border border-border rounded-xl overflow-hidden divide-y divide-border">
+<div class="space-y-6 mt-4">
+	<div class="flex items-center gap-3">
+		<div
+			class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20"
+		>
+			<Package class="w-4 h-4 text-primary" />
+		</div>
+		<h2 class="text-xl font-bold">Manage Packages</h2>
+	</div>
+
+	<div class="border border-border rounded-2xl overflow-hidden divide-y divide-border bg-muted/20">
 		{#each packages as pkg}
 			{@const installed = installedPackages.has(pkg)}
 			{@const selected = selectedPackages.has(pkg)}
 
 			<button
 				onclick={() => !installed && onToggle(pkg)}
-				class={`w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors ${installed ? 'opacity-75 cursor-default' : 'cursor-pointer'}`}
+				class={`w-full flex items-center justify-between p-5 hover:bg-muted/50 transition-colors ${installed ? 'opacity-75 cursor-default' : 'cursor-pointer'}`}
 			>
 				<div class="flex items-center gap-4">
 					<div
-						class={`w-10 h-10 rounded-lg flex items-center justify-center ${installed ? 'bg-green-500/10 text-green-500' : 'bg-muted text-muted-foreground'}`}
+						class={`w-10 h-10 rounded-xl flex items-center justify-center border ${installed ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-background text-muted-foreground border-border shadow-sm'}`}
 					>
 						{#if installed}
 							<Check class="w-5 h-5" />
@@ -32,25 +41,25 @@
 						{/if}
 					</div>
 					<div class="text-left">
-						<div class="font-medium text-foreground flex items-center gap-2">
-							{pkg}
+						<div class="font-bold text-foreground flex items-center gap-3">
+							<span class="text-base">{pkg}</span>
 							{#if installed}
 								<span
-									class="text-[10px] uppercase font-bold text-green-500 bg-green-500/10 px-1.5 py-0.5 rounded"
+									class="text-[10px] uppercase font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20 tracking-wider"
 									>Installed</span
 								>
 							{/if}
 						</div>
-						<div class="text-xs text-muted-foreground">Official Repository</div>
+						<div class="text-xs text-muted-foreground font-medium mt-0.5">Official Repository</div>
 					</div>
 				</div>
 
 				{#if !installed}
 					<div
-						class={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${selected ? 'bg-primary border-primary text-primary-foreground' : 'border-input bg-background'}`}
+						class={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all duration-200 ${selected ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105' : 'border-input bg-background shadow-inner'}`}
 					>
 						{#if selected}
-							<Check class="w-3.5 h-3.5" />
+							<Check class="w-4 h-4" strokeWidth={3} />
 						{/if}
 					</div>
 				{/if}
