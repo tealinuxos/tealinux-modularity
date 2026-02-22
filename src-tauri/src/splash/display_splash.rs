@@ -62,7 +62,8 @@ pub fn init_configuration_file_() -> Result<(), anyhow::Error> {
 
     let config = Initialized { initialized: true };
 
-    let toml_string = toml::to_string(&config).context("Failed to create TOML string")?;
+    let toml_string =
+        modularitea_libs::toml::to_string(&config).context("Failed to create TOML string")?;
 
     std::fs::write(path, toml_string).context("Failed to write configuration to file")?;
 
@@ -73,7 +74,8 @@ pub fn check_configuration_file_() -> Result<bool, anyhow::Error> {
     let path = check_home_path()?;
 
     let init_file = std::fs::read_to_string(&path).context("Failed to Read Configuration File")?;
-    let config: Initialized = toml::from_str(&init_file).context("Failed to parse TOML string")?;
+    let config: Initialized =
+        modularitea_libs::toml::from_str(&init_file).context("Failed to parse TOML string")?;
 
     Ok(config.initialized)
 }

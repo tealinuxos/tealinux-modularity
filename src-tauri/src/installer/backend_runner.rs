@@ -1,3 +1,4 @@
+use modularitea_libs::infrastructure::Pacman;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::process::Command;
@@ -103,17 +104,7 @@ pub async fn remove_packages(packages: Vec<String>, force: bool) -> BackendResul
 
     for pkg in &packages {
         // Resolve real package name (handles virtual packages like 'netcat')
-        let real_name = match Command::new("pacman").arg("-Qq").arg(pkg).output() {
-            Ok(o) if o.status.success() => {
-                let resolved = String::from_utf8_lossy(&o.stdout).trim().to_string();
-                if resolved.is_empty() {
-                    pkg.clone()
-                } else {
-                    resolved.lines().next().unwrap_or(pkg).to_string()
-                }
-            }
-            _ => pkg.clone(),
-        };
+        let real_name = Pacman::resolve_package(pkg);
 
         if real_name != *pkg {
             eprintln!("[remove_packages] Resolved '{}' to '{}'", pkg, real_name);
@@ -359,13 +350,5 @@ pub async fn disable_service(service_name: String, stop_now: bool) -> BackendRes
 #[tauri::command]
 #[specta::specta]
 pub async fn check_package_installed(package_name: String) -> bool {
-    let output = Command::new("pacman")
-        .arg("-Qi")
-        .arg(&package_name)
-        .output();
-
-    match output {
-        Ok(o) => o.status.success(),
-        Err(_) => false,
-    }
+    Pacman::is_installed(&package_name).unwrap_or(false)
 }
