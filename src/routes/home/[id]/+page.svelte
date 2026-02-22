@@ -27,6 +27,13 @@
 	let installState: 'idle' | 'installing' | 'success' | 'error' = $state('idle');
 	let installMessage = $state('');
 
+	// Uninstall state
+	let selectedUninstallPackages: Set<string> = $state(new Set());
+	let uninstallState: 'idle' | 'uninstalling' | 'success' | 'error' = $state('idle');
+	let uninstallMessage = $state('');
+	let showForceConfirm = $state(false);
+	let hasDependencyError = $state(false);
+
 	// ─── Lifecycle ────────────────────────────────────────────────────────────────
 	onMount(async () => {
 		await loadProfile();
@@ -69,6 +76,9 @@
 					selectedPackages.delete(pkg);
 				}
 			}
+			// Trigger reactivity
+			installedPackages = new Set(installedPackages);
+			selectedPackages = new Set(selectedPackages);
 		} catch (e) {
 			console.error('Error checking package status:', e);
 		} finally {
@@ -85,6 +95,17 @@
 			selectedPackages.add(pkg);
 		}
 		selectedPackages = new Set(selectedPackages);
+	}
+
+	function toggleUninstallPackage(pkg: string) {
+		if (!installedPackages.has(pkg)) return;
+
+		if (selectedUninstallPackages.has(pkg)) {
+			selectedUninstallPackages.delete(pkg);
+		} else {
+			selectedUninstallPackages.add(pkg);
+		}
+		selectedUninstallPackages = new Set(selectedUninstallPackages);
 	}
 
 	async function handleInstall() {
@@ -118,8 +139,83 @@
 		}
 	}
 
+	async function handleUninstall(force: boolean = false) {
+		if (!profile || selectedUninstallPackages.size === 0) return;
+
+		uninstallState = 'uninstalling';
+		uninstallMessage = '';
+		showForceConfirm = false;
+		hasDependencyError = false;
+
+		try {
+			const packagesToRemove = Array.from(selectedUninstallPackages);
+			console.log(`[uninstall] Removing packages (force=${force}): ${packagesToRemove.join(', ')}`);
+
+			const result: BackendResult = await commands.removePackages(packagesToRemove, force);
+
+			// Re-check actual status of each package (handles partial success)
+			for (const pkg of packagesToRemove) {
+				const stillInstalled = await commands.checkPackageInstalled(pkg);
+				if (!stillInstalled) {
+					// Package was successfully removed
+					installedPackages.delete(pkg);
+					selectedUninstallPackages.delete(pkg);
+					selectedPackages.add(pkg);
+				}
+			}
+			installedPackages = new Set(installedPackages);
+			selectedPackages = new Set(selectedPackages);
+			selectedUninstallPackages = new Set(selectedUninstallPackages);
+
+			if (result.success) {
+				uninstallState = 'success';
+				uninstallMessage = result.stdout || 'Packages removed successfully.';
+
+				setTimeout(() => {
+					uninstallState = 'idle';
+				}, 2000);
+			} else {
+				// Check if it's a dependency error (offer force-remove)
+				const isDependencyIssue =
+					result.stderr.includes('depend on it') ||
+					result.stderr.includes('required by') ||
+					result.stderr.includes('Cannot remove');
+
+				hasDependencyError = isDependencyIssue && !force;
+
+				const hasSuccesses = result.stdout.includes('✓');
+				uninstallState = 'error';
+				uninstallMessage = hasSuccesses
+					? 'Some packages removed. ' + result.stderr
+					: result.stderr || 'Uninstall failed.';
+			}
+		} catch (e) {
+			console.error('Uninstall error:', e);
+			uninstallState = 'error';
+			uninstallMessage = String(e);
+		}
+	}
+
+	async function handleForceUninstall() {
+		await handleUninstall(true);
+	}
+
+	async function handleUninstallAll() {
+		if (!profile) return;
+
+		// Select all installed packages for uninstall
+		for (const pkg of installedPackages) {
+			selectedUninstallPackages.add(pkg);
+		}
+		selectedUninstallPackages = new Set(selectedUninstallPackages);
+
+		// Then trigger uninstall
+		await handleUninstall();
+	}
+
 	// Computed stats
 	let selectedCount = $derived(selectedPackages.size);
+	let uninstallCount = $derived(selectedUninstallPackages.size);
 	let allInstalled = $derived(
 		profile ? installedPackages.size === profile.packages_install.length : false
 	);
@@ -129,7 +225,12 @@
 
 <div class="flex flex-col h-full bg-background relative overflow-hidden">
 	{#if profile && !loading && !error}
-		<HeroDetail {profile} onInstall={handleInstall} />
+		<HeroDetail
+			{profile}
+			{allInstalled}
+			onInstall={handleInstall}
+			onUninstall={handleUninstallAll}
+		/>
 	{/if}
 	<div class="flex-1 overflow-y-auto">
 		{#if loading}
@@ -164,7 +265,9 @@
 								packages={profile.packages_install}
 								{selectedPackages}
 								{installedPackages}
+								{selectedUninstallPackages}
 								onToggle={togglePackage}
+								onToggleUninstall={toggleUninstallPackage}
 							/>
 						</div>
 					{/if}
@@ -176,11 +279,17 @@
 	{#if profile && !loading && !error}
 		<InstallActionBar
 			{selectedCount}
+			{uninstallCount}
 			{totalSize}
 			{estTime}
 			{installState}
 			{installMessage}
+			{uninstallState}
+			{uninstallMessage}
+			{hasDependencyError}
 			onInstall={handleInstall}
+			onUninstall={() => handleUninstall()}
+			onForceUninstall={handleForceUninstall}
 			onCancel={() => goto('/')}
 		/>
 	{/if}

@@ -21,10 +21,12 @@ async installPackages(packages: string[]) : Promise<BackendResult> {
     return await TAURI_INVOKE("install_packages", { packages });
 },
 /**
- * Remove packages via pacman (uses pkexec for root)
+ * Remove packages via pacman (uses pkexec for root).
+ * Tries each package individually so one dependency failure doesn't block the rest.
+ * When `force` is true, uses `-Rdd` (skip dependency checks) instead of `-R`.
  */
-async removePackages(packages: string[]) : Promise<BackendResult> {
-    return await TAURI_INVOKE("remove_packages", { packages });
+async removePackages(packages: string[], force: boolean) : Promise<BackendResult> {
+    return await TAURI_INVOKE("remove_packages", { packages, force });
 },
 /**
  * Update pacman database (uses pkexec for root)
@@ -32,9 +34,6 @@ async removePackages(packages: string[]) : Promise<BackendResult> {
 async updateDb() : Promise<BackendResult> {
     return await TAURI_INVOKE("update_db");
 },
-/**
- * Check if a specific package is installed (read-only, no root)
- */
 async checkPackageInstalled(packageName: string) : Promise<boolean> {
     return await TAURI_INVOKE("check_package_installed", { packageName });
 },

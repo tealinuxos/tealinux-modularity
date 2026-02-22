@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
-use std::process::Command;
 use specta::Type;
+use std::process::Command;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct BackendResult {
@@ -45,12 +45,19 @@ fn run_pkexec(binary_path: &str, args: &[&str]) -> BackendResult {
     cmd.arg(binary_path);
     cmd.args(args);
 
-    eprintln!("[backend_runner] Running: pkexec {} {}", binary_path, args.join(" "));
+    eprintln!(
+        "[backend_runner] Running: pkexec {} {}",
+        binary_path,
+        args.join(" ")
+    );
 
     match cmd.output() {
         Ok(output) => {
             let result = BackendResult::from_output(output);
-            eprintln!("[backend_runner] Exit code: {}, success: {}", result.exit_code, result.success);
+            eprintln!(
+                "[backend_runner] Exit code: {}, success: {}",
+                result.exit_code, result.success
+            );
             if !result.stderr.is_empty() {
                 eprintln!("[backend_runner] stderr: {}", result.stderr);
             }
@@ -59,8 +66,6 @@ fn run_pkexec(binary_path: &str, args: &[&str]) -> BackendResult {
         Err(e) => BackendResult::error(&format!("Failed to spawn pkexec: {}", e)),
     }
 }
-
-
 
 /// Install packages via pacman (uses pkexec for root)
 #[tauri::command]
@@ -78,19 +83,96 @@ pub async fn install_packages(packages: Vec<String>) -> BackendResult {
     run_pkexec("pacman", &args)
 }
 
-/// Remove packages via pacman (uses pkexec for root)
+/// Remove packages via pacman (uses pkexec for root).
+/// Tries each package individually so one dependency failure doesn't block the rest.
+/// When `force` is true, uses `-Rdd` (skip dependency checks) instead of `-R`.
 #[tauri::command]
 #[specta::specta]
-pub async fn remove_packages(packages: Vec<String>) -> BackendResult {
+pub async fn remove_packages(packages: Vec<String>, force: bool) -> BackendResult {
     if packages.is_empty() {
         return BackendResult::error("No packages specified");
     }
 
-    let mut args = vec!["-Rns", "--noconfirm"];
-    let pkg_refs: Vec<&str> = packages.iter().map(|s| s.as_str()).collect();
-    args.extend_from_slice(&pkg_refs);
+    let remove_flag = if force { "-Rdd" } else { "-R" };
+    eprintln!("[remove_packages] Mode: {} (force={})", remove_flag, force);
 
-    run_pkexec("pacman", &args)
+    let mut all_stdout = String::new();
+    let mut all_stderr = String::new();
+    let mut succeeded = 0u32;
+    let mut failed = 0u32;
+
+    for pkg in &packages {
+        // Resolve real package name (handles virtual packages like 'netcat')
+        let real_name = match Command::new("pacman").arg("-Qq").arg(pkg).output() {
+            Ok(o) if o.status.success() => {
+                let resolved = String::from_utf8_lossy(&o.stdout).trim().to_string();
+                if resolved.is_empty() {
+                    pkg.clone()
+                } else {
+                    resolved.lines().next().unwrap_or(pkg).to_string()
+                }
+            }
+            _ => pkg.clone(),
+        };
+
+        if real_name != *pkg {
+            eprintln!("[remove_packages] Resolved '{}' to '{}'", pkg, real_name);
+        }
+
+        eprintln!("[remove_packages] Removing '{}'...", real_name);
+        let result = run_pkexec("pacman", &[remove_flag, "--noconfirm", &real_name]);
+
+        if result.success {
+            succeeded += 1;
+            all_stdout.push_str(&format!("✓ Removed '{}'\n", pkg));
+        } else {
+            // Check if it's a "target not found" error
+            if result.stderr.contains("target not found") {
+                // Double check if it's actually gone
+                let is_still_there = check_package_installed(pkg.clone()).await;
+                if !is_still_there {
+                    succeeded += 1;
+                    all_stdout.push_str(&format!("✓ '{}' was already not present\n", pkg));
+                    continue;
+                }
+            }
+
+            failed += 1;
+            // Check if it's a dependency issue
+            if result.stderr.contains("could not satisfy dependencies")
+                || result.stderr.contains("breaks dependency")
+            {
+                let detailed_msg = result
+                    .stderr
+                    .lines()
+                    .find(|l| l.contains("required by"))
+                    .map(|l| l.trim_start_matches(":: ").trim())
+                    .unwrap_or("other packages depend on it");
+
+                all_stderr.push_str(&format!("✗ Cannot remove '{}': {}\n", pkg, detailed_msg));
+            } else {
+                all_stderr.push_str(&format!(
+                    "✗ Failed to remove '{}': {}\n",
+                    pkg,
+                    result.stderr.trim()
+                ));
+            }
+        }
+    }
+
+    if succeeded > 0 {
+        all_stdout.push_str(&format!("\n{} package(s) removed successfully.", succeeded));
+    }
+    if failed > 0 {
+        all_stderr.push_str(&format!("\n{} package(s) could not be removed.", failed));
+    }
+
+    BackendResult {
+        success: failed == 0,
+        stdout: all_stdout,
+        stderr: all_stderr,
+        exit_code: if failed == 0 { 0 } else { 1 },
+    }
 }
 
 /// Update pacman database (uses pkexec for root)
@@ -115,8 +197,12 @@ pub async fn install_profile(
         return BackendResult::error("No profile name specified");
     }
 
-    eprintln!("[install_profile] Installing profile '{}': {} packages, {} services",
-        profile_name, packages.len(), services.len());
+    eprintln!(
+        "[install_profile] Installing profile '{}': {} packages, {} services",
+        profile_name,
+        packages.len(),
+        services.len()
+    );
 
     let mut all_stdout = String::new();
     let mut all_stderr = String::new();
@@ -128,14 +214,20 @@ pub async fn install_profile(
         if db_result.success {
             all_stdout.push_str("✓ Package database updated\n");
         } else {
-            all_stderr.push_str(&format!("⚠ Database update warning: {}\n", db_result.stderr));
+            all_stderr.push_str(&format!(
+                "⚠ Database update warning: {}\n",
+                db_result.stderr
+            ));
             // Don't fail — continue with install, it might still work
         }
     }
 
     // Step 1: Install packages via pacman
     if !packages.is_empty() {
-        eprintln!("[install_profile] Installing {} packages...", packages.len());
+        eprintln!(
+            "[install_profile] Installing {} packages...",
+            packages.len()
+        );
 
         let mut args = vec!["-S", "--noconfirm", "--needed"];
         let pkg_refs: Vec<&str> = packages.iter().map(|s| s.as_str()).collect();
@@ -154,7 +246,10 @@ pub async fn install_profile(
             };
         }
 
-        all_stdout.push_str(&format!("✓ {} packages installed successfully\n", packages.len()));
+        all_stdout.push_str(&format!(
+            "✓ {} packages installed successfully\n",
+            packages.len()
+        ));
     }
 
     // Step 2: Enable services via systemctl
@@ -167,13 +262,19 @@ pub async fn install_profile(
             if result.success {
                 all_stdout.push_str(&format!("✓ Service '{}' enabled and started\n", svc));
             } else {
-                all_stderr.push_str(&format!(" Failed to enable service '{}': {}\n", svc, result.stderr));
+                all_stderr.push_str(&format!(
+                    " Failed to enable service '{}': {}\n",
+                    svc, result.stderr
+                ));
                 // Don't fail the whole profile — just warn
             }
         }
     }
 
-    all_stdout.push_str(&format!("\n Profile '{}' installed successfully!", profile_name));
+    all_stdout.push_str(&format!(
+        "\n Profile '{}' installed successfully!",
+        profile_name
+    ));
 
     BackendResult {
         success: true,
@@ -255,7 +356,6 @@ pub async fn disable_service(service_name: String, stop_now: bool) -> BackendRes
     }
 }
 
-/// Check if a specific package is installed (read-only, no root)
 #[tauri::command]
 #[specta::specta]
 pub async fn check_package_installed(package_name: String) -> bool {
