@@ -1,143 +1,269 @@
 <script lang="ts">
-	import Hero from '$lib/components/home/Hero.svelte';
-	import ProfileCard from '$lib/components/home/ProfileCard.svelte';
+	import { fade, fly } from 'svelte/transition';
+	import TeaSplashBar from './partials/TeaSplashBar.svelte';
+	import TeaSplashFooter from './partials/TeaSplashFooter.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import * as Item from '$lib/components/ui/item/';
+	import * as Dialog from '$lib/components/ui/dialog/';
+	import {
+		ChevronRight,
+		Cog,
+		Download,
+		PanelsLeftBottom,
+		Sparkle,
+		Check,
+		type Icon
+	} from '@lucide/svelte';
+	import { commands } from '$lib/commands';
 
-	import { commands, type ProfileInfo, type BackendResult } from '$lib/commands';
-	import { onMount } from 'svelte';
-	import { Loader2, RefreshCw, AlertCircle } from 'lucide-svelte';
-
-	// ─── State ────────────────────────────────────────────────────────────────────
-	let profiles: ProfileInfo[] = $state([]);
-	let loading = $state(true);
-	let loadError = $state('');
-
-	// Install states per profile id
-	let installStates: Record<string, 'idle' | 'installing' | 'success' | 'error'> = $state({});
-
-	// ─── Load profiles from backend on mount ──────────────────────────────────────
-	onMount(async () => {
-		await loadProfiles();
-	});
-
-	async function loadProfiles() {
-		loading = true;
-		loadError = '';
-		try {
-			profiles = await commands.listProfiles();
-			// Initialize install states
-			for (const p of profiles) {
-				installStates[p.id] = 'idle';
-			}
-		} catch (e) {
-			console.error('Failed to load profiles:', e);
-			loadError = String(e);
-		} finally {
-			loading = false;
-		}
+	interface MenuProps {
+		title: string;
+		description: string;
+		icon: typeof Icon;
 	}
 
-	// ─── Install handler ──────────────────────────────────────────────────────────
-	async function handleInstall(profile: ProfileInfo) {
-		installStates[profile.id] = 'installing';
+	const totalSteps = 3;
 
-		try {
-			// Only install official packages via backend (pacman)
-			// AUR packages cannot be installed via pkexec pacman and need a separate user-level flow (yay/paru)
-			const officialPackages = profile.packages_install;
-			const aurPackages = profile.packages_aur;
+	const MENU_LISTS: MenuProps[] = [
+		{
+			title: 'Desktop Customization',
+			description: 'Add or install other Desktop Environments for your maximum setup',
+			icon: PanelsLeftBottom
+		},
+		{
+			title: 'GRUB Theme Changer',
+			description: 'Customize your linux bootloader theme with ease',
+			icon: Cog
+		},
+		{
+			title: 'Install Profile',
+			description: 'No more specialized linux, feel free to change your linux profile',
+			icon: Download
+		},
+		{
+			title: 'Discover More',
+			description: 'Dive into a world of features waiting for you to explore!',
+			icon: Sparkle
+		}
+	];
 
-			if (aurPackages.length > 0) {
-				console.warn(`[install] Skipping AUR packages for now: ${aurPackages.join(', ')}`);
-			}
+	const CHANGELOG_LISTS: string[] = [
+		'Interactive onboarding experience with multi-step introduction',
+		'Modernized "Latest News" section with GitHub-inspired aesthetics',
+		'Revamped GRUB Customizer featuring intuitive wallpaper selection',
+		'Enhanced UI responsiveness with optimized fluid animations',
+		'Improved visual contrast and readability for AMOLED themes'
+	];
 
-			console.log(`[install] Profile: ${profile.name}`);
-			console.log(`[install] Official Packages: ${officialPackages.join(', ')}`);
-			console.log(`[install] Services: ${profile.services_enable.join(', ')}`);
+	let currentStep = $state(0);
 
-			const result: BackendResult = await commands.installProfile(
-				profile.id,
-				officialPackages,
-				profile.services_enable
-			);
-
-			console.log('[install] Result:', result);
-
-			if (result.success) {
-				installStates[profile.id] = 'success';
-			} else {
-				installStates[profile.id] = 'error';
-			}
-		} catch (e) {
-			console.error('[install] Error:', e);
-			installStates[profile.id] = 'error';
+	const nextHandler = async () => {
+		if (currentStep < totalSteps - 1) {
+			currentStep += 1;
+			return;
 		}
 
-		// Auto-reset error state after 5s so user can retry
-		if (installStates[profile.id] === 'error') {
-			setTimeout(() => {
-				installStates[profile.id] = 'idle';
-			}, 5000);
-		}
-	}
+		const data = await commands.initConfigurationFile();
 
-	function handleCardInstall(profile: ProfileInfo) {
-		handleInstall(profile);
-	}
+		if (data.status === 'ok') {
+			await commands.showMainWindow();
+		} else {
+			//  TODO: MAKE IT TOAST / MODAL
+			console.error('Error initializing configuration file:', data.error);
+		}
+	};
+
+	const backHandler = () => {
+		currentStep -= 1;
+	};
 </script>
 
-<div class="flex flex-col gap-6 p-6 h-full overflow-y-auto">
-	<!-- Hero Section -->
-	<Hero profileCount={profiles.length} />
+<main class="h-screen w-full bg-[#0D0D0D] p-4 md:p-8 flex flex-col overflow-hidden text-white">
+	<div class="shrink-0">
+		<TeaSplashBar />
+	</div>
 
-	<!-- Loading State -->
-	{#if loading}
-		<div class="flex flex-col items-center justify-center py-20 gap-4">
-			<Loader2 class="w-8 h-8 text-primary animate-spin" />
-			<p class="text-muted-foreground text-sm">Loading profiles...</p>
+	<section class="flex-1 flex flex-col items-center justify-center w-full relative">
+		<div class="grid place-items-center w-full max-w-7xl mx-auto px-4">
+			{#if currentStep === 0}
+				{@render StepsOne()}
+			{:else if currentStep === 1}
+				{@render StepsTwo()}
+			{:else if currentStep === 2}
+				{@render StepsThree()}
+			{/if}
 		</div>
-	{:else if loadError}
-		<!-- Error State -->
-		<div
-			class="flex flex-col items-center justify-center py-16 gap-4 bg-destructive/5 rounded-2xl border border-destructive/20"
+	</section>
+
+	<div class="shrink-0">
+		<TeaSplashFooter {currentStep} {totalSteps} onBack={backHandler} onNext={nextHandler} />
+	</div>
+</main>
+
+{#snippet StepsOne()}
+	<div
+		in:fly={{ x: 20, duration: 500, delay: 200 }}
+		out:fade={{ duration: 200 }}
+		class="col-start-1 row-start-1 flex items-center justify-center flex-col text-center w-full"
+	>
+		<h1
+			class="shimmer text-[#999999] shimmer-color-[#FFFFFF] font-bold text-[18rem] leading-none antialiased transform-gpu translate-z-0 backface-hidden"
 		>
-			<AlertCircle class="w-10 h-10 text-destructive" />
-			<div class="text-center space-y-1">
-				<p class="text-foreground font-semibold">Failed to load profiles</p>
-				<p class="text-muted-foreground text-sm max-w-md">{loadError}</p>
-			</div>
-			<button
-				onclick={loadProfiles}
-				class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+			LILYA
+		</h1>
+		<div
+			class="h-3 w-[20rem] rounded-full bg-linear-to-r from-[#54CD4C] via-[#3F9A39] to-[#2A6726] mb-8"
+		></div>
+
+		<p class="font-medium text-3xl text-[#999999] tracking-[20%]">
+			BY <span
+				class="text-[#54CD4C] relative pr-6
+      after:content-['']
+      after:absolute
+      after:w-4
+      after:h-8
+      after:bg-[url('/tealinux.svg')]
+      after:bg-contain
+      after:bg-no-repeat
+      after:-top-1"
 			>
-				<RefreshCw class="w-4 h-4" />
-				Try Again
-			</button>
+				TealinuxOS
+			</span>
+		</p>
+		<p class="font-medium tracking-[20%] text-[#999999] leading-[181%]">RELEASED ON MAY 2026</p>
+	</div>
+{/snippet}
+
+{#snippet StepsTwo()}
+	<div
+		in:fly={{ x: 20, duration: 500, delay: 200 }}
+		out:fade={{ duration: 200 }}
+		class="col-start-1 row-start-1 flex items-center justify-center flex-col gap-y-4 text-center w-full"
+	>
+		<div
+			class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-2 lg:-ml-8 transition-all duration-300"
+		>
+			<img src="tealinux.svg" alt="Tealinux Logo" class="size-20 md:size-24 lg:size-32" />
+
+			<h1
+				class="text-[#54CD4C] font-semibold text-5xl md:text-7xl lg:text-8xl xl:text-9xl tracking-tighter leading-none"
+			>
+				TeaLinuxOS
+			</h1>
 		</div>
-	{:else if profiles.length === 0}
-		<!-- Empty State -->
-		<div class="flex flex-col items-center justify-center py-20 gap-3">
-			<div class="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center">
-				<AlertCircle class="w-8 h-8 text-muted-foreground" />
-			</div>
-			<p class="text-foreground font-semibold">No profiles found</p>
-			<p class="text-muted-foreground text-sm">Add .toml profiles to the profiles/ directory.</p>
+
+		<p
+			class="mt-2 md:mt-4 text-sm md:text-base lg:text-lg max-w-xl lg:max-w-3xl px-4 text-[#E0E0E0]"
+		>
+			TeaLinuxOS adalah distro Linux turunan Arch Linux yang dikembangkan oleh Dinus Open Source
+			Community (DOSCOM) dan kawan-kawan yang berorientasi pemrograman.
+		</p>
+
+		<p class="text-[#6A7282] text-xs md:text-sm">Released on December 24, 2024</p>
+		{@render ChangelogModal()}
+	</div>
+{/snippet}
+
+{#snippet StepsThree()}
+	<div
+		in:fly={{ x: 20, duration: 500, delay: 200 }}
+		out:fade={{ duration: 200 }}
+		class="col-start-1 row-start-1 flex items-center justify-center flex-col text-center w-full max-w-5xl mx-auto px-4"
+	>
+		<div class="flex flex-col gap-y-2 mb-6 md:mb-10">
+			<h1
+				class="bg-linear-to-r from-[#FFFFFF] to-[#99A1AF] bg-clip-text text-transparent font-bold text-3xl md:text-5xl lg:text-6xl py-1"
+			>
+				Quick Start Guide
+			</h1>
+			<p class="text-sm md:text-base lg:text-lg max-w-xl lg:max-w-3xl mx-auto text-[#6A7282]">
+				Essential tools for your TeaLinuxOS experience
+			</p>
 		</div>
-	{:else}
-		<!-- Profiles Grid -->
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-			{#each profiles as profile (profile.id)}
-				<ProfileCard
-					id={profile.id}
-					title={profile.name}
-					description={profile.description}
-					category={profile.category}
-					packageCount={profile.package_count}
-					packages={[...profile.packages_install, ...profile.packages_aur]}
-					servicesCount={profile.services_enable.length}
-					installState={installStates[profile.id] || 'idle'}
-					onInstall={() => handleCardInstall(profile)}
-				/>
+
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+			{#each MENU_LISTS as menu, i (i)}
+				<Item.Root
+					variant="outline"
+					class="
+                        group w-full relative overflow-hidden
+                        px-4 py-4 md:px-6 md:py-6
+                        rounded-2xl
+                        border border-[#00C95033]
+                        bg-[#0D0D0D]
+                        bg-linear-to-r from-transparent to-[#00C9501A]
+                        hover:border-[#00C95066]
+                        hover:to-[#00C95026]
+                        transition-all duration-300
+                        cursor-pointer
+                        flex items-center gap-4 text-left
+                    "
+				>
+					<Item.Media
+						class="
+                            shrink-0 flex items-center justify-center
+                            bg-[#094220] border-[#00C9504D] border-2
+                            size-10 md:size-12 rounded-xl
+                            shadow-[0_0_15px_rgba(0,201,80,0.2)]
+                        "
+						variant="icon"
+					>
+						<menu.icon class="size-5 md:size-6 text-[#00C950]" />
+					</Item.Media>
+
+					<Item.Content class="flex flex-col items-start justify-center flex-1 min-w-0">
+						<Item.Title class="text-white font-semibold text-base md:text-lg w-full truncate"
+							>{menu.title}</Item.Title
+						>
+						<Item.Description class="text-[#99A1AF] text-xs md:text-sm line-clamp-1 md:line-clamp-2"
+							>{menu.description}</Item.Description
+						>
+					</Item.Content>
+
+					<Item.Actions class="shrink-0">
+						<ChevronRight
+							class="text-[#6A7282] group-hover:text-white group-hover:translate-x-1 transition-transform duration-300"
+						/>
+					</Item.Actions>
+				</Item.Root>
 			{/each}
 		</div>
-	{/if}
-</div>
+	</div>
+{/snippet}
+
+{#snippet ChangelogModal()}
+	<Dialog.Root>
+		<Dialog.Trigger class="mt-2">
+			<Button
+				class="backdrop-blur-md border border-[#00C95033] bg-gradient-to-b from-[#0000001A] to-[#54CD4C1A] shadow-lg
+                  text-sm md:text-base px-6 py-2 rounded-full text-white
+                  hover:border-[#00C950]
+                  hover:from-[#0000004D]
+                  hover:to-[#54CD4C4D]
+                  hover:scale-105
+                  transition-all duration-300 ease-in-out"
+			>
+				What's new in TeaLinuxOS
+			</Button>
+		</Dialog.Trigger>
+		<Dialog.Content
+			class="min-w-2xl bg-[#0D0D0D] border-[#00C950]/20 border drop-shadow-2xl text-white rounded-lg"
+		>
+			<Dialog.Header>
+				<Dialog.Title>What's new in TeaLinuxOS</Dialog.Title>
+			</Dialog.Header>
+			<section class="flex flex-col gap-y-4 mt-2">
+				{#each CHANGELOG_LISTS as item (item)}
+					<div class="flex flex-row gap-x-4">
+						<div class="size-6 rounded-full bg-[#54CD4C]/10 flex items-center justify-center">
+							<Check class="text-[#54CD4C] size-4" />
+						</div>
+						<p>
+							{item}
+						</p>
+					</div>
+				{/each}
+			</section>
+		</Dialog.Content>
+	</Dialog.Root>
+{/snippet}
