@@ -39,8 +39,6 @@
 	// ─── Install handler ──────────────────────────────────────────────────────────
 	async function handleInstall(profile: ProfileInfo) {
 		installStates[profile.id] = 'installing';
-		modalInstallState = 'installing';
-		modalInstallMessage = '';
 
 		try {
 			// Only install official packages via backend (pacman)
@@ -66,18 +64,12 @@
 
 			if (result.success) {
 				installStates[profile.id] = 'success';
-				modalInstallState = 'success';
-				modalInstallMessage = result.stdout || `Profile "${profile.name}" installed successfully.`;
 			} else {
 				installStates[profile.id] = 'error';
-				modalInstallState = 'error';
-				modalInstallMessage = result.stderr || 'Unknown error occurred.';
 			}
 		} catch (e) {
 			console.error('[install] Error:', e);
 			installStates[profile.id] = 'error';
-			modalInstallState = 'error';
-			modalInstallMessage = String(e);
 		}
 
 		// Auto-reset error state after 5s so user can retry
@@ -92,8 +84,6 @@
 		handleInstall(profile);
 	}
 </script>
-
-
 
 <div class="flex flex-col gap-6 p-6 h-full overflow-y-auto">
 	<!-- Hero Section -->

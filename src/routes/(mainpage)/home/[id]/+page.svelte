@@ -11,7 +11,7 @@
 	import HeroDetail from '$lib/components/home/HeroDetail.svelte';
 	// ─── Props & State ────────────────────────────────────────────────────────────
 	let profileId = $derived(page.params.id);
-	let profile: ProfileInfo | null = $state(null);
+	let profile = $state<ProfileInfo | null>(null);
 	let loading = $state(true);
 	let error = $state('');
 
@@ -217,7 +217,8 @@
 	let selectedCount = $derived(selectedPackages.size);
 	let uninstallCount = $derived(selectedUninstallPackages.size);
 	let allInstalled = $derived(
-		profile ? installedPackages.size === profile.packages_install.length : false
+		installedPackages.size > 0 &&
+			installedPackages.size === (profile?.packages_install?.length ?? 0)
 	);
 	let totalSize = $derived('~1.2 GB');
 	let estTime = $derived('~' + Math.max(1, Math.ceil(selectedCount / 5)) + ' mins');
@@ -243,7 +244,7 @@
 				<AlertTriangle class="w-10 h-10 text-destructive" />
 				<p class="text-destructive font-medium">{error || 'Profile not found'}</p>
 				<button
-					onclick={() => goto('/')}
+					onclick={() => goto('/home')}
 					class="px-4 py-2 bg-primary text-primary-foreground rounded-lg"
 				>
 					Go Back
@@ -290,7 +291,7 @@
 			onInstall={handleInstall}
 			onUninstall={() => handleUninstall()}
 			onForceUninstall={handleForceUninstall}
-			onCancel={() => goto('/')}
+			onCancel={() => goto('/home')}
 		/>
 	{/if}
 </div>

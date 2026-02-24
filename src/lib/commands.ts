@@ -65,7 +65,7 @@ async disableService(serviceName: string, stopNow: boolean) : Promise<BackendRes
     return await TAURI_INVOKE("disable_service", { serviceName, stopNow });
 },
 /**
- * Load all profiles from the profiles directory
+ * Load all profiles from the profiles directory using TomlLoader from libs
  */
 async listProfiles() : Promise<ProfileInfo[]> {
     return await TAURI_INVOKE("list_profiles");
@@ -112,9 +112,11 @@ export type BackendResult = { success: boolean; stdout: string; stderr: string; 
 export type Computer = { processor: string; memory: bigint; operating_system: string; kernel_version: string; username: string[] }
 export type Display = { monitor_name: string[]; graphic_cards: string[]; display_protocol: string; display_windows_manager: string }
 /**
- * Profile metadata from TOML files
+ * Profile metadata exposed to the frontend via Tauri commands.
+ * This is a DTO (Data Transfer Object) that wraps the libs' domain model
+ * with `specta::Type` for TypeScript binding generation.
  */
-export type ProfileInfo = { id: string; name: string; description: string; version: string; author: string; category: string; packages_install: string[]; packages_aur: string[]; services_enable: string[]; package_count: number }
+export type ProfileInfo = { id: string; name: string; description: string; version: string; author: string; category: string; packages_install: string[]; packages_aur: string[]; packages_remove: string[]; services_enable: string[]; services_disable: string[]; package_count: number }
 
 /** tauri-specta globals **/
 
