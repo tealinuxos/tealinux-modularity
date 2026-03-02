@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ProfileInfo } from '$lib/commands';
+	import { type ProfileInfo } from '$lib/commands';
 	import { getCategoryIcon } from '$lib/utils/category';
 	import { Download, Trash2 } from 'lucide-svelte';
 

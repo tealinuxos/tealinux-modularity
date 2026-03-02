@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { commands } from '$lib/commands';
 	import './layout.css';
+	import 'devicon/devicon.min.css';
 	import { onMount, type Snippet } from 'svelte';
 
 	interface Props {

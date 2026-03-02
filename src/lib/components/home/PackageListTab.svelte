@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Package, Check, Trash2 } from 'lucide-svelte';
+	import { getDeviconClass } from '$lib/utils/devicon';
 
 	interface Props {
 		packages: string[];
@@ -35,6 +36,7 @@
 			{@const installed = installedPackages.has(pkg)}
 			{@const selected = selectedPackages.has(pkg)}
 			{@const markedForRemoval = selectedUninstallPackages.has(pkg)}
+			{@const devIcon = getDeviconClass(pkg)}
 
 			<button
 				onclick={() => {
@@ -60,6 +62,8 @@
 							<Trash2 class="w-5 h-5" />
 						{:else if installed}
 							<Check class="w-5 h-5" />
+						{:else if devIcon}
+							<i class="{devIcon} text-xl"></i>
 						{:else}
 							<Package class="w-5 h-5" />
 						{/if}
