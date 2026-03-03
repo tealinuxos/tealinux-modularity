@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Package, Check, Trash2 } from 'lucide-svelte';
+	import { Package, Check, Trash2 } from '@lucide/svelte';
 
 	interface Props {
 		packages: string[];
