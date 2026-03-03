@@ -4,7 +4,7 @@
 
 	import { commands, type ProfileInfo, type BackendResult } from '$lib/commands';
 	import { onMount } from 'svelte';
-	import { Loader2, RefreshCw, AlertCircle } from 'lucide-svelte';
+	import { LoaderCircle, RefreshCw, CircleAlert } from '@lucide/svelte';
 
 	// ─── State ────────────────────────────────────────────────────────────────────
 	let profiles: ProfileInfo[] = $state([]);
@@ -92,7 +92,7 @@
 	<!-- Loading State -->
 	{#if loading}
 		<div class="flex flex-col items-center justify-center py-20 gap-4">
-			<Loader2 class="w-8 h-8 text-primary animate-spin" />
+			<LoaderCircle class="w-8 h-8 text-primary animate-spin" />
 			<p class="text-muted-foreground text-sm">Loading profiles...</p>
 		</div>
 	{:else if loadError}
@@ -100,7 +100,7 @@
 		<div
 			class="flex flex-col items-center justify-center py-16 gap-4 bg-destructive/5 rounded-2xl border border-destructive/20"
 		>
-			<AlertCircle class="w-10 h-10 text-destructive" />
+			<CircleAlert class="w-10 h-10 text-destructive" />
 			<div class="text-center space-y-1">
 				<p class="text-foreground font-semibold">Failed to load profiles</p>
 				<p class="text-muted-foreground text-sm max-w-md">{loadError}</p>
@@ -117,7 +117,7 @@
 		<!-- Empty State -->
 		<div class="flex flex-col items-center justify-center py-20 gap-3">
 			<div class="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center">
-				<AlertCircle class="w-8 h-8 text-muted-foreground" />
+				<CircleAlert class="w-8 h-8 text-muted-foreground" />
 			</div>
 			<p class="text-foreground font-semibold">No profiles found</p>
 			<p class="text-muted-foreground text-sm">Add .toml profiles to the profiles/ directory.</p>
