@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Rocket, Sparkles, Package } from 'lucide-svelte';
+	import { Rocket, Sparkles, Package } from '@lucide/svelte';
 
 	interface Props {
 		profileCount: number;

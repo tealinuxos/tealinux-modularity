@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ProfileInfo } from '$lib/commands';
 	import { getCategoryIcon } from '$lib/utils/category';
-	import { Package, Download, Terminal } from 'lucide-svelte';
+	import { Package, Download, Terminal } from '@lucide/svelte';
 
 	interface Props {
 		profile: ProfileInfo;

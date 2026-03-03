@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { commands, type ProfileInfo, type BackendResult } from '$lib/commands';
 	import { onMount } from 'svelte';
-	import { LoaderCircle, TriangleAlert } from 'lucide-svelte';
+	import { LoaderCircle, TriangleAlert } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 
 	import PreviewTab from '$lib/components/home/PreviewTab.svelte';

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Loader2, Check, Download, Trash2, AlertTriangle } from 'lucide-svelte';
+	import { LoaderCircle, Check, Download, Trash2, TriangleAlert } from '@lucide/svelte';
 
 	interface Props {
 		selectedCount: number;
@@ -101,7 +101,7 @@
 					class="px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition-all
 						bg-amber-500 hover:bg-amber-600 text-black shadow-lg shadow-amber-500/20 active:scale-95"
 				>
-					<AlertTriangle class="w-4 h-4" />
+					<TriangleAlert class="w-4 h-4" />
 					Force Remove
 				</button>
 			{/if}
@@ -121,7 +121,7 @@
 						}`}
 				>
 					{#if uninstallState === 'uninstalling'}
-						<Loader2 class="w-4 h-4 animate-spin" />
+						<LoaderCircle class="w-4 h-4 animate-spin" />
 						Removing...
 					{:else if uninstallState === 'success'}
 						<Check class="w-4 h-4" />
@@ -147,7 +147,7 @@
 					}`}
 			>
 				{#if installState === 'installing'}
-					<Loader2 class="w-4 h-4 animate-spin" />
+					<LoaderCircle class="w-4 h-4 animate-spin" />
 					Installing...
 				{:else if installState === 'success'}
 					<Check class="w-4 h-4" />
@@ -169,7 +169,7 @@
 				<div
 					class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0"
 				>
-					<AlertTriangle class="w-5 h-5 text-amber-500" />
+					<TriangleAlert class="w-5 h-5 text-amber-500" />
 				</div>
 				<div>
 					<h3 class="text-lg font-bold text-foreground">Force Remove?</h3>
