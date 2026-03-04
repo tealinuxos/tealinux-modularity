@@ -74,7 +74,7 @@
 			{/if}
 		</div>
 
-		<!-- Package Preview Pills -->
+		<!-- Package w Pills -->
 		<div class="flex flex-wrap gap-1.5 mb-5">
 			{#each packages.slice(0, 4) as pkg}
 				<span

@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { commands, type ProfileInfo, type BackendResult } from '$lib/commands';
+	import {
+		commands,
+		type ProfileInfo,
+		type BackendResult,
+		type PackageSizeInfo
+	} from '$lib/commands';
 	import { onMount } from 'svelte';
 	import { Loader2, AlertTriangle } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
@@ -220,8 +225,55 @@
 		installedPackages.size > 0 &&
 			installedPackages.size === (profile?.packages_install?.length ?? 0)
 	);
-	let totalSize = $derived('~1.2 GB');
-	let estTime = $derived('~' + Math.max(1, Math.ceil(selectedCount / 5)) + ' mins');
+
+	// Real package size state
+	let sizeInfo = $state<PackageSizeInfo | null>(null);
+	let sizeLoading = $state(false);
+
+	// Fetch real sizes whenever the selection changes
+	$effect(() => {
+		const pkgsToFetch = Array.from(selectedPackages);
+		if (pkgsToFetch.length === 0) {
+			sizeInfo = null;
+			return;
+		}
+		sizeLoading = true;
+		commands
+			.getPackageSizes(pkgsToFetch)
+			.then((info) => {
+				sizeInfo = info;
+			})
+			.catch((e) => {
+				console.error('[get_package_sizes] error:', e);
+				sizeInfo = null;
+			})
+			.finally(() => {
+				sizeLoading = false;
+			});
+	});
+
+	// Derived display strings
+	let totalDownloadSize = $derived(
+		sizeLoading
+			? 'Fetching...'
+			: sizeInfo
+				? sizeInfo.total_download_human
+				: selectedCount > 0
+					? 'Unknown'
+					: '—'
+	);
+	let totalInstallSize = $derived(sizeLoading ? '' : sizeInfo ? sizeInfo.total_install_human : '');
+	// Estimate time: assume 25 Mbps connection
+	let estTime = $derived(
+		!sizeInfo || sizeLoading
+			? '—'
+			: (() => {
+					const seconds = sizeInfo.total_download_bytes / ((25 * 1024 * 1024) / 8);
+					if (seconds < 60) return '<1 min';
+					const mins = Math.ceil(seconds / 60);
+					return `~${mins} min${mins > 1 ? 's' : ''}`;
+				})()
+	);
 </script>
 
 <div class="flex flex-col h-full bg-background relative overflow-hidden">
@@ -281,7 +333,9 @@
 		<InstallActionBar
 			{selectedCount}
 			{uninstallCount}
-			{totalSize}
+			totalSize={totalDownloadSize}
+			{totalInstallSize}
+			{sizeLoading}
 			{estTime}
 			{installState}
 			{installMessage}

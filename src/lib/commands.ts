@@ -38,6 +38,13 @@ async checkPackageInstalled(packageName: string) : Promise<boolean> {
     return await TAURI_INVOKE("check_package_installed", { packageName });
 },
 /**
+ * Get download and install sizes for a list of packages using `pacman -Si`
+ * Only queries packages that are NOT already installed (to reduce noise).
+ */
+async getPackageSizes(packages: string[]) : Promise<PackageSizeInfo> {
+    return await TAURI_INVOKE("get_package_sizes", { packages });
+},
+/**
  * Install a full profile.
  * 
  * This reads the profile data from the frontend (which already parsed the TOML),
@@ -111,6 +118,14 @@ export type Audio = { devices: string[] }
 export type BackendResult = { success: boolean; stdout: string; stderr: string; exit_code: number }
 export type Computer = { processor: string; memory: bigint; operating_system: string; kernel_version: string; username: string[] }
 export type Display = { monitor_name: string[]; graphic_cards: string[]; display_protocol: string; display_windows_manager: string }
+/**
+ * Per-package size information from `pacman -Si`
+ */
+export type PackageDownloadInfo = { name: string; download_size_bytes: number; install_size_bytes: number; download_size_human: string; install_size_human: string; available: boolean }
+/**
+ * Summary of total download/install size for a list of packages
+ */
+export type PackageSizeInfo = { packages: PackageDownloadInfo[]; total_download_bytes: number; total_install_bytes: number; total_download_human: string; total_install_human: string }
 /**
  * Profile metadata exposed to the frontend via Tauri commands.
  * This is a DTO (Data Transfer Object) that wraps the libs' domain model

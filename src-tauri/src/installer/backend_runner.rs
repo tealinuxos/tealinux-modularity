@@ -352,3 +352,133 @@ pub async fn disable_service(service_name: String, stop_now: bool) -> BackendRes
 pub async fn check_package_installed(package_name: String) -> bool {
     Pacman::is_installed(&package_name).unwrap_or(false)
 }
+
+/// Per-package size information from `pacman -Si`
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct PackageDownloadInfo {
+    pub name: String,
+    pub download_size_bytes: f64,
+    pub install_size_bytes: f64,
+    pub download_size_human: String,
+    pub install_size_human: String,
+    pub available: bool,
+}
+
+/// Summary of total download/install size for a list of packages
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct PackageSizeInfo {
+    pub packages: Vec<PackageDownloadInfo>,
+    pub total_download_bytes: f64,
+    pub total_install_bytes: f64,
+    pub total_download_human: String,
+    pub total_install_human: String,
+}
+
+/// Parse a pacman size string like "42.50 MiB" or "1.23 GiB" into bytes
+fn parse_pacman_size(s: &str) -> f64 {
+    let s = s.trim();
+    let parts: Vec<&str> = s.splitn(2, ' ').collect();
+    if parts.len() < 2 {
+        return 0.0;
+    }
+    let value: f64 = parts[0].parse().unwrap_or(0.0);
+    match parts[1] {
+        "B" => value,
+        "KiB" => value * 1024.0,
+        "MiB" => value * 1024.0 * 1024.0,
+        "GiB" => value * 1024.0 * 1024.0 * 1024.0,
+        "kB" | "KB" => value * 1000.0,
+        "MB" => value * 1000.0 * 1000.0,
+        "GB" => value * 1000.0 * 1000.0 * 1000.0,
+        _ => 0.0,
+    }
+}
+
+/// Format bytes into a human-readable string with appropriate unit
+fn format_bytes(bytes: f64) -> String {
+    if bytes <= 0.0 {
+        return "0 B".to_string();
+    }
+    const UNITS: &[&str] = &["B", "KiB", "MiB", "GiB", "TiB"];
+    let mut value = bytes;
+    let mut unit = UNITS[0];
+    for u in UNITS {
+        if value < 1024.0 {
+            unit = u;
+            break;
+        }
+        value /= 1024.0;
+        unit = u;
+    }
+    format!("{:.1} {}", value, unit)
+}
+
+/// Get download and install sizes for a list of packages using `pacman -Si`
+/// Only queries packages that are NOT already installed (to reduce noise).
+#[tauri::command]
+#[specta::specta]
+pub async fn get_package_sizes(packages: Vec<String>) -> PackageSizeInfo {
+    let mut pkg_infos: Vec<PackageDownloadInfo> = Vec::new();
+    let mut total_download: f64 = 0.0;
+    let mut total_install: f64 = 0.0;
+
+    for pkg in &packages {
+        // Run `pacman -Si <pkg>` to get sync db info (always available even if installed)
+        let output = Command::new("pacman")
+            .args(["--noconfirm", "-Si", pkg.as_str()])
+            .output();
+
+        match output {
+            Ok(out) => {
+                let stdout = String::from_utf8_lossy(&out.stdout);
+                let mut dl_bytes: f64 = 0.0;
+                let mut inst_bytes: f64 = 0.0;
+                let mut found = false;
+
+                for line in stdout.lines() {
+                    if line.starts_with("Download Size") {
+                        if let Some(val) = line.splitn(2, ':').nth(1) {
+                            dl_bytes = parse_pacman_size(val.trim());
+                            found = true;
+                        }
+                    } else if line.starts_with("Installed Size") {
+                        if let Some(val) = line.splitn(2, ':').nth(1) {
+                            inst_bytes = parse_pacman_size(val.trim());
+                        }
+                    }
+                }
+
+                total_download += dl_bytes;
+                total_install += inst_bytes;
+
+                pkg_infos.push(PackageDownloadInfo {
+                    name: pkg.clone(),
+                    download_size_bytes: dl_bytes,
+                    install_size_bytes: inst_bytes,
+                    download_size_human: format_bytes(dl_bytes),
+                    install_size_human: format_bytes(inst_bytes),
+                    available: found,
+                });
+            }
+            Err(e) => {
+                eprintln!("[get_package_sizes] Error querying '{}': {}", pkg, e);
+                pkg_infos.push(PackageDownloadInfo {
+                    name: pkg.clone(),
+                    download_size_bytes: 0.0,
+                    install_size_bytes: 0.0,
+                    download_size_human: "Unknown".to_string(),
+                    install_size_human: "Unknown".to_string(),
+                    available: false,
+                });
+            }
+        }
+    }
+
+    PackageSizeInfo {
+        packages: pkg_infos,
+        total_download_bytes: total_download,
+        total_install_bytes: total_install,
+        total_download_human: format_bytes(total_download),
+        total_install_human: format_bytes(total_install),
+    }
+}

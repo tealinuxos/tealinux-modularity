@@ -19,6 +19,7 @@ pub fn run() {
         installer::backend_runner::remove_packages,
         installer::backend_runner::update_db,
         installer::backend_runner::check_package_installed,
+        installer::backend_runner::get_package_sizes,
         // Profile commands (install/uninstall via pacman + systemctl directly)
         installer::backend_runner::install_profile,
         installer::backend_runner::uninstall_profile,
