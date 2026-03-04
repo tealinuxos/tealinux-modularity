@@ -276,7 +276,7 @@
 	);
 </script>
 
-<div class="flex flex-col h-full bg-background relative overflow-hidden">
+<div class="flex flex-col h-full bg-background relative">
 	{#if profile && !loading && !error}
 		<HeroDetail
 			{profile}
