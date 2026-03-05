@@ -12,6 +12,20 @@
 		"core:window:default",
 		"core:window:allow-start-dragging",
 		"core:window:allow-toggle-maximize",
-		"http:default"
+		"http:default",
+		{
+			"identifier": "http:default",
+			"allow": [
+				{
+					"url": "https://www.phoronix.com/rss.php"
+				},
+				{
+					"url": "https://fosslinux.com/feed"
+				},
+				{
+					"url": "https://itsfoss.com/rss/"
+				}
+			]
+		}
 	]
 }

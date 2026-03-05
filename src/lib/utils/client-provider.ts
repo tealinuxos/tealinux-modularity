@@ -7,7 +7,8 @@ export const queryClientProvider = new QueryClient({
 		queries: {
 			staleTime: ONE_HOUR,
 			gcTime: ONE_HOUR,
-			refetchInterval: ONE_HOUR
+      refetchInterval: ONE_HOUR,
+			experimental_prefetchInRender: true
 		}
 	}
 });
