@@ -1,21 +1,25 @@
-import type { FOSSLinuxTypes } from '$lib/types/news/fosslinux';
-import type { ItsFOSSTypes } from '$lib/types/news/itsfoss';
-import type { PhoronixTypes } from '$lib/types/news/phoronix';
 import { fetch as reqwest } from '@tauri-apps/plugin-http';
 import { XMLParser } from 'fast-xml-parser';
+import { decode } from 'html-entities';
+import DOMPurify from 'dompurify';
 
-interface RssTypeMap {
-	'https://www.phoronix.com/rss.php': PhoronixTypes[];
-	'https://fosslinux.com/feed': FOSSLinuxTypes[];
-	'https://itsfoss.com/rss/': ItsFOSSTypes[];
+export interface UnifiedNewsItem {
+	id: string;
+	title: string;
+	description: string;
+	link: string;
+	thumbnail: string;
+	pubDate: string;
+	creator: string;
 }
 
-type RSS_URL = keyof RssTypeMap;
+export type RSS_URL =
+	| 'https://www.phoronix.com/rss.php'
+	| 'https://fosslinux.com/feed'
+	| 'https://itsfoss.com/rss/';
 
-export const fetchRssFeed = async <T extends RSS_URL>(url: T): Promise<RssTypeMap[T]> => {
-	const response = await reqwest(url, {
-		method: 'GET'
-	});
+export const fetchRssFeed = async (url: RSS_URL): Promise<UnifiedNewsItem[]> => {
+	const response = await reqwest(url, { method: 'GET' });
 
 	if (!response.ok) throw new Error('Failed to Fetch RSS feed');
 
@@ -28,5 +32,25 @@ export const fetchRssFeed = async <T extends RSS_URL>(url: T): Promise<RssTypeMa
 
 	const jsonData = parser.parse(xmlData);
 
-	return jsonData.rss.channel.item as RssTypeMap[T];
+	const rawItems: any = jsonData.rss?.channel?.item;
+
+	const items = Array.isArray(rawItems) ? rawItems : [rawItems];
+
+	return items.map((item): UnifiedNewsItem => {
+		const id = typeof item.guid === 'string' ? item.guid : item.guid?.['#text'] || item.link;
+		const fallbackImage = 'https://placehold.co/600x400/1e293b/ffffff?text=TealinuxOS&font=montserrat';
+		const thumbnail = item['media:content']?.['@_url'] || fallbackImage;
+		return {
+			id,
+			title: decode(item.title || 'No Title'),
+			description: DOMPurify.sanitize(item.description || '', {
+				ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br'],
+				ALLOWED_ATTR: ['href', 'target', 'rel']
+			}),
+			link: item.link || '#',
+			thumbnail,
+			pubDate: item.pubDate || '',
+			creator: item['dc:creator'] || 'Unknown Author'
+		};
+	});
 };
