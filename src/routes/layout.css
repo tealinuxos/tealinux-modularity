@@ -7,6 +7,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*Hide Scrollbar, Remove This If The UX Become Bad*/
+::-webkit-scrollbar {
+	width: 0px;
+}
+
 :root {
 	--background: oklch(0.97 0.0029 264.542);
 	--foreground: oklch(0.2393 0 0);
