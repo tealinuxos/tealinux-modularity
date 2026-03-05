@@ -19,6 +19,7 @@
 		"@tauri-apps/api": "^2.10.1",
 		"@tauri-apps/plugin-http": "~2",
 		"@tauri-apps/plugin-opener": "^2.5.3",
+		"fast-xml-parser": "^5.4.2",
 		"mode-watcher": "^1.1.0",
 		"pretty-bytes": "^7.1.0",
 		"tw-shimmer": "^0.4.6"
