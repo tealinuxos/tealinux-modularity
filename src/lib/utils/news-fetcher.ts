@@ -1,14 +1,19 @@
+import type { FOSSLinuxTypes } from '$lib/types/news/fosslinux';
+import type { ItsFOSSTypes } from '$lib/types/news/itsfoss';
+import type { PhoronixTypes } from '$lib/types/news/phoronix';
 import { fetch as reqwest } from '@tauri-apps/plugin-http';
 import { XMLParser } from 'fast-xml-parser';
 
-type PHORONIX_RSS_URL = 'https://www.phoronix.com/rss.php';
-type FOSSLINUX_RSS_URL = 'https://fosslinux.com/feed';
-type ITSFOSS_RSS_URL = 'https://itsfoss.com/rss/';
+interface RssTypeMap {
+	'https://www.phoronix.com/rss.php': PhoronixTypes[];
+	'https://fosslinux.com/feed': FOSSLinuxTypes[];
+	'https://itsfoss.com/rss/': ItsFOSSTypes[];
+}
 
-type RSS_URL = PHORONIX_RSS_URL | FOSSLINUX_RSS_URL | ITSFOSS_RSS_URL;
+type RSS_URL = keyof RssTypeMap;
 
-export const fetchRssFeed = async (RSS_URL: RSS_URL) => {
-	const response = await reqwest(RSS_URL, {
+export const fetchRssFeed = async <T extends RSS_URL>(url: T): Promise<RssTypeMap[T]> => {
+	const response = await reqwest(url, {
 		method: 'GET'
 	});
 
@@ -23,5 +28,5 @@ export const fetchRssFeed = async (RSS_URL: RSS_URL) => {
 
 	const jsonData = parser.parse(xmlData);
 
-	return jsonData.rss.channel.item;
+	return jsonData.rss.channel.item as RssTypeMap[T];
 };
