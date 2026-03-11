@@ -3,12 +3,18 @@ use specta_typescript::Typescript;
 use tauri::Manager;
 use tauri_specta::{collect_commands, Builder};
 
+use crate::grub::initialization::GrubManager;
+
+mod grub;
 mod installer;
 mod splash;
 mod sysinfo;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // GRUB Manager Struct Setup
+    let grub_manager = GrubManager::new();
+    
     let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
         // System info commands
         sysinfo::computer::computer_info,
@@ -32,6 +38,8 @@ pub fn run() {
         splash::display_splash::init_configuration_file,
         splash::display_splash::check_configuration_file,
         splash::display_splash::show_main_window,
+        // GRUB Commands
+        grub::command::get_grub_themes,
     ]);
 
     #[cfg(debug_assertions)]
@@ -46,6 +54,8 @@ pub fn run() {
         .expect("Failed to export typescript bindings");
 
     tauri::Builder::default()
+        // GRUB Manager State Setup
+        .manage(grub_manager)
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(builder.invoke_handler())

@@ -94,6 +94,9 @@ async checkConfigurationFile() : Promise<Result<boolean, string>> {
 },
 async showMainWindow() : Promise<void> {
     await TAURI_INVOKE("show_main_window");
+},
+async getGrubThemes() : Promise<LocalThemeManifest[]> {
+    return await TAURI_INVOKE("get_grub_themes");
 }
 }
 
@@ -111,6 +114,8 @@ export type Audio = { devices: string[] }
 export type BackendResult = { success: boolean; stdout: string; stderr: string; exit_code: number }
 export type Computer = { processor: string; memory: bigint; operating_system: string; kernel_version: string; username: string[] }
 export type Display = { monitor_name: string[]; graphic_cards: string[]; display_protocol: string; display_windows_manager: string }
+export type LocalStep = { type: "copy_dir"; from: string; to: string } | { type: "copy_file"; from: string; to: string } | { type: "set_grub_var"; key: string; value: string } | { type: "replace_in_file"; file: string; search: string; replace: string }
+export type LocalThemeManifest = { name: string; version: string; github_url: string | null; preview_image: string | null; description: string | null; author: string | null; name_concat: string | null; steps: LocalStep[] }
 /**
  * Profile metadata exposed to the frontend via Tauri commands.
  * This is a DTO (Data Transfer Object) that wraps the libs' domain model
