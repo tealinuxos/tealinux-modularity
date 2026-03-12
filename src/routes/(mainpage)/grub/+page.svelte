@@ -77,7 +77,7 @@
 		installState.success = false;
 
 		try {
-			const result = await commands.setGrubTheme(selectedTheme.theme.name);
+			const result = await commands.setGrubTheme(selectedThemeName!);
 
 			if (result.status === 'ok') {
 				installState.success = true;
