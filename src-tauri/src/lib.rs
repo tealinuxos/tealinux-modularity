@@ -9,12 +9,13 @@ mod grub;
 mod installer;
 mod splash;
 mod sysinfo;
+mod utils;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // GRUB Manager Struct Setup
     let grub_manager = GrubManager::new();
-    
+
     let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
         // System info commands
         sysinfo::computer::computer_info,
@@ -40,6 +41,7 @@ pub fn run() {
         splash::display_splash::show_main_window,
         // GRUB Commands
         grub::command::get_grub_themes,
+        grub::command::set_grub_theme,
     ]);
 
     #[cfg(debug_assertions)]
