@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SlidersHorizontal } from '@lucide/svelte';
+	import { SlidersHorizontal, LoaderCircle } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card/index';
 	import * as Carousel from '$lib/components/ui/carousel/index';
@@ -27,6 +27,8 @@
 		success: false
 	});
 
+	let dialogOpen = $state(false);
+
 	const selectedPreview = $derived.by(() => {
 		return (
 			selectedTheme.theme?.preview_image ??
@@ -36,36 +38,59 @@
 
 	const selectedThemeName = $derived(selectedTheme.theme?.name);
 
+	type DialogPhase = 'confirm' | 'loading' | 'error' | 'success';
+
+	const dialogPhase = $derived.by<DialogPhase>(() => {
+		if (installState.isLoading) return 'loading';
+		if (installState.success) return 'success';
+		if (installState.error !== null) return 'error';
+		return 'confirm';
+	});
+
+	const resetInstallState = () => {
+		installState.isLoading = false;
+		installState.error = null;
+		installState.success = false;
+	};
+
+	const openDialog = () => {
+		resetInstallState();
+		dialogOpen = true;
+	};
+
+	const closeDialog = () => {
+		if (installState.isLoading) return;
+		resetInstallState();
+		dialogOpen = false;
+	};
+
 	const themeClickHandler = (theme: LocalThemeManifest, index: number) => {
 		selectedTheme.index = index;
 		selectedTheme.theme = theme;
 	};
 
-	const installThemeHandler = async (themeName: string) => {
+	const installThemeHandler = async () => {
+		if (!selectedTheme.theme) return;
+
 		installState.isLoading = true;
 		installState.error = null;
 		installState.success = false;
 
 		try {
-			const result = await commands.setGrubTheme(themeName);
+			const result = await commands.setGrubTheme(selectedTheme.theme.name);
 
 			if (result.status === 'ok') {
 				installState.success = true;
-				installState.error = null;
-				console.log('Theme installed successfully:', result.data);
 
 				setTimeout(() => {
-					installState.success = false;
+					dialogOpen = false;
+					resetInstallState();
 				}, 2000);
 			} else if (result.status === 'error') {
-				const errorMessage = errorMessageMapper(result.error);
-				installState.error = errorMessage;
-				console.error('Failed to install theme:', result.error);
+				installState.error = errorMessageMapper(result.error);
 			}
 		} catch (e) {
-			const errorMsg = e instanceof Error ? e.message : 'Failed to install theme';
-			installState.error = errorMsg;
-			console.error('Exception during theme installation:', e);
+			installState.error = e instanceof Error ? e.message : 'Failed to install theme';
 		} finally {
 			installState.isLoading = false;
 		}
@@ -156,43 +181,68 @@
 {/snippet}
 
 {#snippet ApplyButton()}
-	<AlertDialog.Root open={!installState.success}>
-		<AlertDialog.Trigger class="w-full">
-			<Button class="w-full" disabled={listThemes.isLoading || !selectedTheme.theme}>
-				{installState.isLoading ? 'Installing...' : 'Apply Now'}
-			</Button>
-		</AlertDialog.Trigger>
+	<Button
+		class="w-full"
+		disabled={listThemes.isLoading || !selectedTheme.theme}
+		onclick={openDialog}
+	>
+		Apply Now
+	</Button>
+
+	<AlertDialog.Root
+		open={dialogOpen}
+		onOpenChange={(open) => {
+			if (!open) closeDialog();
+		}}
+	>
 		<AlertDialog.Content>
 			<AlertDialog.Header>
 				<AlertDialog.Title>
-					{installState.success ? '✓ Theme Applied Successfully!' : 'Are you absolutely sure?'}
+					{#if dialogPhase === 'loading'}
+						Installing Theme...
+					{:else if dialogPhase === 'success'}
+						✓ Theme Applied!
+					{:else if dialogPhase === 'error'}
+						Failed to Apply Theme
+					{:else}
+						Are you absolutely sure?
+					{/if}
 				</AlertDialog.Title>
+
 				<AlertDialog.Description>
-					{#if installState.success}
-						<span class="text-green-600"> The GRUB theme has been successfully applied! </span>
-					{:else if installState.error}
-						<span class="text-red-600">
+					{#if dialogPhase === 'loading'}
+						Applying <strong>{selectedThemeName}</strong>, please wait and do not close this window.
+					{:else if dialogPhase === 'success'}
+						<span class="text-green-600">
+							The GRUB theme <strong>{selectedThemeName}</strong> has been successfully applied! This
+							dialog will close automatically.
+						</span>
+					{:else if dialogPhase === 'error'}
+						<span class="text-destructive">
 							{installState.error}
 						</span>
 					{:else}
 						This action will apply the selected theme to your GRUB configuration. Current selected
-						theme: <span class="underline underline-offset-2">
-							{selectedThemeName}
-						</span>
+						theme: <span class="underline underline-offset-2">{selectedThemeName}</span>
 					{/if}
 				</AlertDialog.Description>
 			</AlertDialog.Header>
+
 			<AlertDialog.Footer>
-				{#if !installState.success}
-					<AlertDialog.Cancel disabled={installState.isLoading}>Cancel</AlertDialog.Cancel>
-					<AlertDialog.Action
-						disabled={installState.isLoading}
-						onclick={() => selectedTheme.theme && installThemeHandler(selectedTheme.theme.name)}
-					>
-						{installState.isLoading ? 'Installing...' : 'Continue'}
+				{#if dialogPhase === 'confirm'}
+					<AlertDialog.Cancel onclick={closeDialog}>Cancel</AlertDialog.Cancel>
+					<AlertDialog.Action onclick={installThemeHandler}>Continue</AlertDialog.Action>
+				{:else if dialogPhase === 'loading'}
+					<AlertDialog.Cancel disabled={true}>Cancel</AlertDialog.Cancel>
+					<AlertDialog.Action disabled={true}>
+						<LoaderCircle class="mr-2 size-4 animate-spin" />
+						Installing...
 					</AlertDialog.Action>
-				{:else}
-					<AlertDialog.Cancel>Close</AlertDialog.Cancel>
+				{:else if dialogPhase === 'error'}
+					<AlertDialog.Cancel onclick={closeDialog}>Cancel</AlertDialog.Cancel>
+					<Button onclick={installThemeHandler}>Try Again</Button>
+				{:else if dialogPhase === 'success'}
+					<AlertDialog.Cancel onclick={closeDialog}>Close</AlertDialog.Cancel>
 				{/if}
 			</AlertDialog.Footer>
 		</AlertDialog.Content>
