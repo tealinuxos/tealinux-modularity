@@ -3,6 +3,7 @@ use specta_typescript::Typescript;
 use tauri::Manager;
 use tauri_specta::{collect_commands, Builder};
 
+mod aur;
 mod installer;
 mod splash;
 mod sysinfo;
@@ -33,6 +34,12 @@ pub fn run() {
         splash::display_splash::init_configuration_file,
         splash::display_splash::check_configuration_file,
         splash::display_splash::show_main_window,
+        // AUR package management
+        aur::commands::search_aur_packages,
+        aur::commands::get_aur_package_info,
+        aur::commands::install_aur_package,
+        aur::commands::remove_aur_package,
+        aur::commands::list_installed_aur,
     ]);
 
     #[cfg(debug_assertions)]

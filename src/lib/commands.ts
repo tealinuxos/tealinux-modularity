@@ -101,6 +101,36 @@ async checkConfigurationFile() : Promise<Result<boolean, string>> {
 },
 async showMainWindow() : Promise<void> {
     await TAURI_INVOKE("show_main_window");
+},
+/**
+ * Search AUR packages by query string
+ */
+async searchAurPackages(query: string) : Promise<AurPackageInfo[]> {
+    return await TAURI_INVOKE("search_aur_packages", { query });
+},
+/**
+ * Get detailed info for a single AUR package
+ */
+async getAurPackageInfo(name: string) : Promise<AurPackageInfo | null> {
+    return await TAURI_INVOKE("get_aur_package_info", { name });
+},
+/**
+ * Install an AUR package via paru
+ */
+async installAurPackage(name: string) : Promise<BackendResult> {
+    return await TAURI_INVOKE("install_aur_package", { name });
+},
+/**
+ * Remove an AUR package via paru
+ */
+async removeAurPackage(name: string) : Promise<BackendResult> {
+    return await TAURI_INVOKE("remove_aur_package", { name });
+},
+/**
+ * List all installed AUR (foreign) packages
+ */
+async listInstalledAur() : Promise<InstalledAurInfo[]> {
+    return await TAURI_INVOKE("list_installed_aur");
 }
 }
 
@@ -115,9 +145,11 @@ async showMainWindow() : Promise<void> {
 /** user-defined types **/
 
 export type Audio = { devices: string[] }
+export type AurPackageInfo = { name: string; version: string; description: string; maintainer: string; num_votes: number; popularity: number; out_of_date: boolean; installed: boolean; url: string; aur_url: string; first_submitted: bigint | null; last_modified: bigint | null; license: string[]; depends: string[]; make_depends: string[]; opt_depends: string[] }
 export type BackendResult = { success: boolean; stdout: string; stderr: string; exit_code: number }
 export type Computer = { processor: string; memory: bigint; operating_system: string; kernel_version: string; username: string[] }
 export type Display = { monitor_name: string[]; graphic_cards: string[]; display_protocol: string; display_windows_manager: string }
+export type InstalledAurInfo = { name: string; version: string }
 /**
  * Per-package size information from `pacman -Si`
  */
