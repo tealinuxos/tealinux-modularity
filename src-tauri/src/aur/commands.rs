@@ -115,25 +115,33 @@ pub async fn get_aur_package_info(name: String) -> Option<AurPackageInfo> {
 #[tauri::command]
 #[specta::specta]
 pub async fn install_aur_package(name: String) -> BackendResult {
+    eprintln!("[aur] install_aur_package called for '{}'", name);
     if !is_valid_package_name(&name) {
         return BackendResult::error(&format!("Invalid package name: {}", name));
     }
     if !Paru::is_available() {
-        return BackendResult::error("paru is not installed.");
+        eprintln!("[aur] paru is not installed on this system");
+        return BackendResult::error("paru is not installed. Please install paru first.");
     }
     match Paru::install(&name) {
-        Ok(output) => BackendResult {
-            success: true,
-            stdout: format!("✓ '{}' installed\n{}", name, output.stdout),
-            stderr: output.stderr,
-            exit_code: output.exit_code,
-        },
-        Err(e) => BackendResult {
-            success: false,
-            stdout: String::new(),
-            stderr: format!("Failed to install '{}': {}", name, e.stderr),
-            exit_code: e.exit_code.unwrap_or(-1),
-        },
+        Ok(output) => {
+            eprintln!("[aur] Successfully installed '{}'", name);
+            BackendResult {
+                success: true,
+                stdout: format!("✓ '{}' installed\n{}", name, output.stdout),
+                stderr: output.stderr,
+                exit_code: output.exit_code,
+            }
+        }
+        Err(e) => {
+            eprintln!("[aur] Failed to install '{}': {}", name, e.stderr);
+            BackendResult {
+                success: false,
+                stdout: String::new(),
+                stderr: format!("Failed to install '{}': {}", name, e.stderr),
+                exit_code: e.exit_code.unwrap_or(-1),
+            }
+        }
     }
 }
 
@@ -141,25 +149,33 @@ pub async fn install_aur_package(name: String) -> BackendResult {
 #[tauri::command]
 #[specta::specta]
 pub async fn remove_aur_package(name: String) -> BackendResult {
+    eprintln!("[aur] remove_aur_package called for '{}'", name);
     if !is_valid_package_name(&name) {
         return BackendResult::error(&format!("Invalid package name: {}", name));
     }
     if !Paru::is_available() {
-        return BackendResult::error("paru is not installed.");
+        eprintln!("[aur] paru is not installed on this system");
+        return BackendResult::error("paru is not installed. Please install paru first.");
     }
     match Paru::remove(&name) {
-        Ok(output) => BackendResult {
-            success: true,
-            stdout: format!("✓ '{}' removed\n{}", name, output.stdout),
-            stderr: output.stderr,
-            exit_code: output.exit_code,
-        },
-        Err(e) => BackendResult {
-            success: false,
-            stdout: String::new(),
-            stderr: format!("Failed to remove '{}': {}", name, e.stderr),
-            exit_code: e.exit_code.unwrap_or(-1),
-        },
+        Ok(output) => {
+            eprintln!("[aur] Successfully removed '{}'", name);
+            BackendResult {
+                success: true,
+                stdout: format!("✓ '{}' removed\n{}", name, output.stdout),
+                stderr: output.stderr,
+                exit_code: output.exit_code,
+            }
+        }
+        Err(e) => {
+            eprintln!("[aur] Failed to remove '{}': {}", name, e.stderr);
+            BackendResult {
+                success: false,
+                stdout: String::new(),
+                stderr: format!("Failed to remove '{}': {}", name, e.stderr),
+                exit_code: e.exit_code.unwrap_or(-1),
+            }
+        }
     }
 }
 
