@@ -7,7 +7,7 @@
 		type PackageSizeInfo
 	} from '$lib/commands';
 	import { onMount } from 'svelte';
-	import { Loader2, AlertTriangle } from 'lucide-svelte';
+	import { Loader2, AlertTriangle } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 
 	import PreviewTab from '$lib/components/home/PreviewTab.svelte';

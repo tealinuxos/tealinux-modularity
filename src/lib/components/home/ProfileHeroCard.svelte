@@ -1,7 +1,7 @@
 <!-- <script lang="ts">
 	import type { ProfileInfo } from '$lib/commands';
 	import { getCategoryIcon, getCategoryColor } from '$lib/utils/category';
-	import { CheckCircle2 } from 'lucide-svelte';
+	import { CheckCircle2 } from '@lucide/svelte';
 
 	interface Props {
 		profile: ProfileInfo;

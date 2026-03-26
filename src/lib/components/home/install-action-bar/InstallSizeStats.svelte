@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Loader2, Wifi, HardDrive } from 'lucide-svelte';
+	import { Loader2, Wifi, HardDrive } from '@lucide/svelte';
 	import SizeStat from './SizeStat.svelte';
 
 	interface Props {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Loader2, Check, Download, Trash2, AlertTriangle } from 'lucide-svelte';
+	import { Loader2, Check, Download, Trash2, AlertTriangle } from '@lucide/svelte';
 
 	interface Props {
 		selectedCount: number;

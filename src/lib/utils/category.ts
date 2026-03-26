@@ -1,4 +1,4 @@
-import { Shield, Code2, Server, Wrench, Package } from 'lucide-svelte';
+import { Shield, Code2, Server, Wrench, Package } from '@lucide/svelte';
 
 export const categoryIcons: Record<string, any> = {
     security: Shield,

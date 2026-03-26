@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getDeviconClass } from '$lib/utils/devicon';
-	import { Package, Download } from 'lucide-svelte';
+	import { Package, Download } from '@lucide/svelte';
 
 	interface Props {
 		name: string;

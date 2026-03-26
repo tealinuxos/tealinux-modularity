@@ -2,7 +2,7 @@
 	import type { ProfileInfo } from '$lib/commands';
 	import PackageBadge from './PackageBadge.svelte';
 	import ServiceGuideCard from './ServiceGuideCard.svelte';
-	import { Info } from 'lucide-svelte';
+	import { Info } from '@lucide/svelte';
 
 	interface Props {
 		profile: ProfileInfo;

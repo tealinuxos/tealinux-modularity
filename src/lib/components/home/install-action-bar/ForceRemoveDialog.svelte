@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AlertTriangle, Trash2 } from 'lucide-svelte';
+	import { AlertTriangle, Trash2 } from '@lucide/svelte';
 
 	interface Props {
 		open: boolean;

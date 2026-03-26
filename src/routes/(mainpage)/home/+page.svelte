@@ -4,7 +4,7 @@
 
 	import { commands, type ProfileInfo, type BackendResult } from '$lib/commands';
 	import { onMount } from 'svelte';
-	import { Loader2, RefreshCw, AlertCircle } from 'lucide-svelte';
+	import { Loader2, RefreshCw, AlertCircle } from '@lucide/svelte';
 
 	// ─── State ────────────────────────────────────────────────────────────────────
 	let profiles: ProfileInfo[] = $state([]);

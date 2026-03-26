@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Terminal } from 'lucide-svelte';
+	import { Terminal } from '@lucide/svelte';
 	import CopyCodeBlock from './CopyCodeBlock.svelte';
 
 	type ServiceCommand = {

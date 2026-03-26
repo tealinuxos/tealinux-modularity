@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Download, Package, ChevronRight, Server, Loader2, Check, X } from 'lucide-svelte';
+	import { Download, Package, ChevronRight, Server, Loader2, Check, X } from '@lucide/svelte';
 	import { getCategoryIcon, getCategoryColor, getCategoryBadgeColor } from '$lib/utils/category';
 
 	interface Props {
@@ -35,7 +35,7 @@
 
 <div
 	class="group relative bg-card border border-border rounded-2xl overflow-hidden transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5"
->	
+>
 	<!-- Gradient Header -->
 	<div class="h-2 bg-gradient-to-r {gradientClass}"></div>
 
