@@ -84,9 +84,5 @@
 		</div>
 	</div>
 
-	<!-- Est. Time (only when real data available) -->
-	{#if hasSizeData && estTime && estTime !== '—'}
-		<div class="w-px h-9 bg-border flex-shrink-0"></div>
-		<SizeStat label="Est. Time" value={estTime} subValue="(25 Mbps)" />
-	{/if}
+
 </div>

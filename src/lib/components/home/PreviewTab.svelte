@@ -2,16 +2,20 @@
 	import type { ProfileInfo } from '$lib/commands';
 	import PackageBadge from './PackageBadge.svelte';
 	import ServiceGuideCard from './ServiceGuideCard.svelte';
-	import { Info } from '@lucide/svelte';
-
+	import { getCategoryIcon } from '$lib/utils/category';
+	import { Download, Trash2, Info } from '@lucide/svelte';
 	interface Props {
 		profile: ProfileInfo;
 		allInstalled: boolean;
 		activeTab: 'preview' | 'package';
 		onTabChange: (tab: 'preview' | 'package') => void;
+		onInstall?: () => void;
+		onUninstall?: () => void;
 	}
 
-	let { profile, allInstalled, activeTab, onTabChange }: Props = $props();
+	let { profile, allInstalled, activeTab, onTabChange, onInstall, onUninstall }: Props = $props();
+
+	let IconComponent = $derived(profile ? getCategoryIcon(profile.category) : null);
 
 	// ── Selected package state ────────────────────────────────────────────
 	let selectedPackage = $state<string | null>(null);
@@ -144,7 +148,6 @@
 			]
 		},
 
-		// ── Runtimes & Languages ──────────────────────────────────────
 		nodejs: {
 			description: 'JavaScript runtime built on V8 engine for server-side development.',
 			commands: [
@@ -272,7 +275,6 @@
 			]
 		},
 
-		// ── Security & Hacking Tools ──────────────────────────────────
 		nmap: {
 			description: 'Network exploration and security auditing tool for port scanning.',
 			commands: [
@@ -371,7 +373,6 @@
 			]
 		},
 
-		// ── AUR Packages ──────────────────────────────────────────────
 		'visual-studio-code-bin': {
 			description: 'Visual Studio Code — popular extensible code editor (AUR binary release).',
 			commands: [
@@ -401,13 +402,11 @@
 		}
 	};
 
-	// ── Derived: guide for selected package ──────────────────────────────
 	let selectedGuide = $derived(selectedPackage ? (packageGuides[selectedPackage] ?? null) : null);
 	let isService = $derived(
 		selectedPackage ? profile.services_enable.includes(selectedPackage) : false
 	);
 
-	// ── Copy-to-clipboard state ──────────────────────────────────────────
 	let copiedCmd = $state<string | null>(null);
 	let copyTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -434,31 +433,76 @@
 </script>
 
 <div class="flex flex-col">
-	<!-- ── Shared Header ──────────────────────────── -->
 	<div
 		class="flex items-start justify-between gap-6 px-8 pt-7 pb-5 max-sm:flex-col max-sm:px-5 max-sm:pt-5 max-sm:pb-4"
 	>
-		<div class="flex flex-col gap-1">
-			<h1 class="m-0 text-2xl font-extrabold leading-tight tracking-tight text-foreground">
-				{profile.name}
-			</h1>
-			<p class="m-0 max-w-[22rem] text-[0.8rem] leading-relaxed text-muted-foreground">
-				{profile.description}
-			</p>
+		<!-- Left: icon + identity -->
+		<div class="flex items-center gap-4">
+			<div
+				class="w-[3.25rem] h-[3.25rem] rounded-[0.875rem] shrink-0 flex items-center justify-center transition-all duration-300 bg-gradient-to-br {allInstalled
+					? 'from-red-500 to-red-600 shadow-[0_4px_14px_rgba(239,68,68,0.35)]'
+					: 'from-green-500 to-green-600 shadow-[0_4px_14px_rgba(34,197,94,0.35)]'}"
+			>
+				{#if IconComponent}
+					<IconComponent class="w-7 h-7 text-white" />
+				{/if}
+			</div>
+			<div class="flex flex-col gap-[0.2rem]">
+				<div class="flex items-center gap-[0.6rem]">
+					<h1
+						class="text-[1.35rem] font-extrabold text-foreground m-0 tracking-[-0.015em] leading-[1.2]"
+					>
+						{profile.name}
+					</h1>
+					<span
+						class="py-[0.1rem] px-[0.5rem] rounded-full text-[0.58rem] font-extrabold uppercase tracking-[0.07em] leading-[1.6] transition-all duration-300 {allInstalled
+							? 'bg-red-500 text-white'
+							: 'bg-green-500 text-[#052e16]'}"
+					>
+						{allInstalled ? 'INSTALLED' : 'STABLE'}
+					</span>
+				</div>
+				<p class="m-0 max-w-[22rem] text-[0.8rem] leading-relaxed text-muted-foreground mt-1">
+					{profile.description}
+				</p>
+			</div>
 		</div>
-		<div class="flex shrink-0 items-center rounded-lg border border-border bg-muted/40 p-0.5">
-			<button
-				onclick={() => onTabChange('preview')}
-				class={`cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-all ${activeTab === 'preview' ? 'bg-background text-[#54CD4C] shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-			>
-				Preview
-			</button>
-			<button
-				onclick={() => onTabChange('package')}
-				class={`cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-all ${activeTab === 'package' ? 'bg-background text-[#54CD4C] shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-			>
-				Package
-			</button>
+
+		<!-- Right: Actions + Tabs -->
+		<div class="flex flex-col sm:flex-row items-end sm:items-center gap-4">
+			<div class="flex shrink-0 items-center rounded-lg border border-border bg-muted/40 p-0.5">
+				<button
+					onclick={() => onTabChange('preview')}
+					class={`cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-all ${activeTab === 'preview' ? 'bg-background text-[#54CD4C] shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+				>
+					Preview
+				</button>
+				<button
+					onclick={() => onTabChange('package')}
+					class={`cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-all ${activeTab === 'package' ? 'bg-background text-[#54CD4C] shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+				>
+					Package
+				</button>
+			</div>
+
+			<!-- Install / Uninstall buttons from HeroDetail -->
+			{#if allInstalled}
+				<button
+					class="flex items-center gap-2 py-[0.6rem] px-[1.35rem] rounded-[0.65rem] border-none bg-red-500 text-white text-[0.82rem] font-bold cursor-pointer transition-all duration-200 whitespace-nowrap shadow-[0_3px_12px_rgba(239,68,68,0.3)] hover:bg-red-600 hover:-translate-y-[1px] hover:shadow-[0_6px_20px_rgba(239,68,68,0.4)] active:translate-y-0 w-full sm:w-auto justify-center shrink-0"
+					onclick={onUninstall}
+				>
+					<Trash2 class="w-4 h-4" />
+					Uninstall Pack
+				</button>
+			{:else}
+				<button
+					class="flex items-center gap-2 py-[0.6rem] px-[1.35rem] rounded-[0.65rem] border-none bg-green-500 text-[#052e16] text-[0.82rem] font-bold cursor-pointer transition-all duration-200 whitespace-nowrap shadow-[0_3px_12px_rgba(34,197,94,0.3)] hover:bg-green-600 hover:-translate-y-[1px] hover:shadow-[0_6px_20px_rgba(34,197,94,0.4)] active:translate-y-0 w-full sm:w-auto justify-center shrink-0"
+					onclick={onInstall}
+				>
+					<Download class="w-4 h-4" />
+					Install Pack
+				</button>
+			{/if}
 		</div>
 	</div>
 

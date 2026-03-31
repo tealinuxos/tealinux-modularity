@@ -13,7 +13,6 @@
 	import PreviewTab from '$lib/components/home/PreviewTab.svelte';
 	import PackageListTab from '$lib/components/home/PackageListTab.svelte';
 	import InstallActionBar from '$lib/components/home/InstallActionBar.svelte';
-	import HeroDetail from '$lib/components/home/HeroDetail.svelte';
 	// ─── Props & State ────────────────────────────────────────────────────────────
 	let profileId = $derived(page.params.id);
 	let profile = $state<ProfileInfo | null>(null);
@@ -277,14 +276,6 @@
 </script>
 
 <div class="flex flex-col h-full bg-background relative">
-	{#if profile && !loading && !error}
-		<HeroDetail
-			{profile}
-			{allInstalled}
-			onInstall={handleInstall}
-			onUninstall={handleUninstallAll}
-		/>
-	{/if}
 	<div class="flex-1 overflow-y-auto">
 		{#if loading}
 			<div class="flex flex-col items-center justify-center h-full gap-4">
@@ -310,6 +301,8 @@
 						{allInstalled}
 						{activeTab}
 						onTabChange={(tab) => (activeTab = tab)}
+						onInstall={handleInstall}
+						onUninstall={() => handleUninstall()}
 					/>
 
 					{#if activeTab === 'package'}
