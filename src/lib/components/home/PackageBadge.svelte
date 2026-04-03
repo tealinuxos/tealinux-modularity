@@ -19,18 +19,18 @@
 		type="button"
 		class="flex items-center gap-2 rounded-lg border px-3 py-2 transition-all duration-200 cursor-pointer
 			{isSelected
-			? 'border-[#54CD4C] bg-[#54CD4C]/10 ring-1 ring-[#54CD4C]/40 shadow-[0_0_12px_rgba(84,205,76,0.15)]'
+			? 'border-[#26A768] bg-[#26A768]/10 ring-1 ring-[#26A768]/40 shadow-[0_0_12px_rgba(84,205,76,0.15)]'
 			: 'border-border bg-muted/50 hover:bg-muted hover:border-border/80'}"
 		{onclick}
 	>
 		{#if devIcon}
 			<i
-				class="{devIcon} shrink-0 text-lg {isSelected ? 'text-[#54CD4C]' : 'text-muted-foreground'}"
+				class="{devIcon} shrink-0 text-lg {isSelected ? 'text-[#26A768]' : 'text-muted-foreground'}"
 			></i>
 		{:else}
-			<Package class="h-4 w-4 shrink-0 {isSelected ? 'text-[#54CD4C]' : 'text-muted-foreground'}" />
+			<Package class="h-4 w-4 shrink-0 {isSelected ? 'text-[#26A768]' : 'text-muted-foreground'}" />
 		{/if}
-		<span class="font-mono text-sm {isSelected ? 'text-[#54CD4C] font-semibold' : ''}">{name}</span>
+		<span class="font-mono text-sm {isSelected ? 'text-[#26A768] font-semibold' : ''}">{name}</span>
 	</button>
 {:else}
 	<button

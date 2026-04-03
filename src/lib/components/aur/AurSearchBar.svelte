@@ -43,9 +43,9 @@
 
 <div class="relative w-full">
 	<div
-		class="flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-card
-               focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50
-               transition-all duration-200"
+		class="flex items-center gap-3 px-4 py-3 rounded-xl border border-border/60 bg-muted/40
+               focus-within:ring-4 focus-within:ring-[#26A768]/15 focus-within:border-[#26A768]/50
+               transition-all duration-300 shadow-sm"
 	>
 		{#if loading}
 			<Loader2 class="w-5 h-5 text-muted-foreground animate-spin shrink-0" />
