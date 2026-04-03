@@ -1,0 +1,273 @@
+{
+	"docker": {
+		"description": "Container runtime. Verify the daemon is running and list active containers.",
+		"commands": [
+			{ "label": "Check Docker version", "cmd": "docker version", "type": "maintenance" },
+			{ "label": "List running containers", "cmd": "docker ps", "type": "maintenance" },
+			{ "label": "List all containers", "cmd": "docker ps -a", "type": "maintenance" },
+			{ "label": "Add user to docker group", "cmd": "sudo usermod -aG docker $USER && newgrp docker", "type": "setup" }
+		]
+	},
+	"postgresql": {
+		"description": "Relational database. Requires initdb on first boot before the service can start.",
+		"commands": [
+			{ "label": "Check PostgreSQL version", "cmd": "psql --version", "type": "maintenance" },
+			{ "label": "Check service status", "cmd": "systemctl status postgresql", "type": "maintenance" },
+			{ "label": "Initialize database (first time only)", "cmd": "sudo -u postgres initdb -D /var/lib/postgres/data", "type": "setup" },
+			{ "label": "Connect to PostgreSQL", "cmd": "sudo -u postgres psql", "type": "maintenance" }
+		]
+	},
+	"redis": {
+		"description": "In-memory key-value store for caching and sessions.",
+		"commands": [
+			{ "label": "Check Redis version", "cmd": "redis-cli --version", "type": "maintenance" },
+			{ "label": "Check service status", "cmd": "systemctl status redis", "type": "maintenance" },
+			{ "label": "Ping Redis daemon", "cmd": "redis-cli ping", "type": "maintenance" },
+			{ "label": "Monitor live traffic", "cmd": "redis-cli monitor", "type": "maintenance" }
+		]
+	},
+	"nginx": {
+		"description": "High-performance web server and reverse proxy.",
+		"commands": [
+			{ "label": "Check nginx version", "cmd": "nginx -v", "type": "maintenance" },
+			{ "label": "Validate configuration", "cmd": "sudo nginx -t", "type": "setup" },
+			{ "label": "Check service status", "cmd": "systemctl status nginx", "type": "maintenance" },
+			{ "label": "Test HTTP response", "cmd": "curl -I http://localhost", "type": "maintenance" }
+		]
+	},
+	"git": {
+		"description": "Distributed version control system. Essential for source code management.",
+		"commands": [
+			{ "label": "Check Git version", "cmd": "git --version", "type": "maintenance" },
+			{ "label": "Set your name", "cmd": "git config --global user.name \"Your Name\"", "type": "setup" },
+			{ "label": "Set your email", "cmd": "git config --global user.email \"you@example.com\"", "type": "setup" },
+			{ "label": "View config", "cmd": "git config --list", "type": "maintenance" }
+		]
+	},
+	"vim": {
+		"description": "Classic modal text editor with powerful keybindings.",
+		"commands": [
+			{ "label": "Check Vim version", "cmd": "vim --version | head -1", "type": "maintenance" },
+			{ "label": "Open Vim tutor", "cmd": "vimtutor", "type": "setup" },
+			{ "label": "Edit config", "cmd": "vim ~/.vimrc", "type": "setup" }
+		]
+	},
+	"neovim": {
+		"description": "Modern fork of Vim with Lua scripting and LSP support built-in.",
+		"commands": [
+			{ "label": "Check Neovim version", "cmd": "nvim --version", "type": "maintenance" },
+			{ "label": "Open health check", "cmd": "nvim +checkhealth", "type": "maintenance" },
+			{ "label": "Edit config", "cmd": "nvim ~/.config/nvim/init.lua", "type": "setup" }
+		]
+	},
+	"cmake": {
+		"description": "Cross-platform build system generator for C/C++ projects.",
+		"commands": [
+			{ "label": "Check CMake version", "cmd": "cmake --version", "type": "maintenance" },
+			{ "label": "Generate build files", "cmd": "cmake -B build -S .", "type": "setup" },
+			{ "label": "Build project", "cmd": "cmake --build build", "type": "maintenance" }
+		]
+	},
+	"base-devel": {
+		"description": "Meta-package providing essential build tools (gcc, make, binutils, etc.) needed to compile software from source.",
+		"commands": [
+			{ "label": "Check GCC version", "cmd": "gcc --version", "type": "maintenance" },
+			{ "label": "Check Make version", "cmd": "make --version", "type": "maintenance" },
+			{ "label": "List installed group packages", "cmd": "pacman -Qg base-devel", "type": "maintenance" }
+		]
+	},
+	"nodejs": {
+		"description": "JavaScript runtime built on V8 engine for server-side development.",
+		"commands": [
+			{ "label": "Check Node.js version", "cmd": "node --version", "type": "maintenance" },
+			{ "label": "Check npm version", "cmd": "npm --version", "type": "maintenance" },
+			{ "label": "Init new project", "cmd": "npm init -y", "type": "setup" },
+			{ "label": "List global packages", "cmd": "npm list -g --depth=0", "type": "maintenance" }
+		]
+	},
+	"npm": {
+		"description": "Node.js package manager for installing and managing JavaScript packages.",
+		"commands": [
+			{ "label": "Check npm version", "cmd": "npm --version", "type": "maintenance" },
+			{ "label": "Init new project", "cmd": "npm init -y", "type": "setup" },
+			{ "label": "List global packages", "cmd": "npm list -g --depth=0", "type": "maintenance" },
+			{ "label": "Update npm", "cmd": "npm install -g npm@latest", "type": "setup" }
+		]
+	},
+	"python": {
+		"description": "Versatile programming language for scripting, web dev, data science, and AI.",
+		"commands": [
+			{ "label": "Check Python version", "cmd": "python --version", "type": "maintenance" },
+			{ "label": "Check pip version", "cmd": "pip --version", "type": "maintenance" },
+			{ "label": "Create virtual environment", "cmd": "python -m venv .venv && source .venv/bin/activate", "type": "setup" },
+			{ "label": "List installed packages", "cmd": "pip list", "type": "maintenance" }
+		]
+	},
+	"go": {
+		"description": "Statically typed language by Google, ideal for backend services and CLI tools.",
+		"commands": [
+			{ "label": "Check Go version", "cmd": "go version", "type": "maintenance" },
+			{ "label": "Init new module", "cmd": "go mod init myproject", "type": "setup" },
+			{ "label": "Check environment", "cmd": "go env", "type": "maintenance" },
+			{ "label": "Run tests", "cmd": "go test ./...", "type": "maintenance" }
+		]
+	},
+	"docker-compose": {
+		"description": "Define and run multi-container Docker applications with YAML configuration.",
+		"commands": [
+			{ "label": "Check version", "cmd": "docker compose version", "type": "maintenance" },
+			{ "label": "Start services", "cmd": "docker compose up -d", "type": "maintenance" },
+			{ "label": "Stop services", "cmd": "docker compose down", "type": "maintenance" },
+			{ "label": "View running services", "cmd": "docker compose ps", "type": "maintenance" }
+		]
+	},
+	"ansible": {
+		"description": "Agentless automation tool for configuration management and app deployment.",
+		"commands": [
+			{ "label": "Check Ansible version", "cmd": "ansible --version", "type": "maintenance" },
+			{ "label": "Ping localhost", "cmd": "ansible localhost -m ping", "type": "maintenance" },
+			{ "label": "Run a playbook", "cmd": "ansible-playbook playbook.yml", "type": "setup" }
+		]
+	},
+	"terraform": {
+		"description": "Infrastructure as Code tool for provisioning cloud resources declaratively.",
+		"commands": [
+			{ "label": "Check Terraform version", "cmd": "terraform version", "type": "maintenance" },
+			{ "label": "Initialize project", "cmd": "terraform init", "type": "setup" },
+			{ "label": "Plan changes", "cmd": "terraform plan", "type": "maintenance" },
+			{ "label": "Apply changes", "cmd": "terraform apply", "type": "setup" }
+		]
+	},
+	"kubectl": {
+		"description": "CLI for Kubernetes cluster management and resource deployment.",
+		"commands": [
+			{ "label": "Check kubectl version", "cmd": "kubectl version --client", "type": "maintenance" },
+			{ "label": "Get cluster info", "cmd": "kubectl cluster-info", "type": "maintenance" },
+			{ "label": "List pods", "cmd": "kubectl get pods -A", "type": "maintenance" },
+			{ "label": "List services", "cmd": "kubectl get svc -A", "type": "maintenance" }
+		]
+	},
+	"minikube": {
+		"description": "Run a single-node Kubernetes cluster locally for development and testing.",
+		"commands": [
+			{ "label": "Check Minikube version", "cmd": "minikube version", "type": "maintenance" },
+			{ "label": "Start cluster", "cmd": "minikube start", "type": "setup" },
+			{ "label": "Check status", "cmd": "minikube status", "type": "maintenance" },
+			{ "label": "Open dashboard", "cmd": "minikube dashboard", "type": "maintenance" }
+		]
+	},
+	"helm": {
+		"description": "Package manager for Kubernetes — deploy apps with reusable charts.",
+		"commands": [
+			{ "label": "Check Helm version", "cmd": "helm version", "type": "maintenance" },
+			{ "label": "Add stable repo", "cmd": "helm repo add stable https://charts.helm.sh/stable", "type": "setup" },
+			{ "label": "Update repos", "cmd": "helm repo update", "type": "maintenance" },
+			{ "label": "List releases", "cmd": "helm list -A", "type": "maintenance" }
+		]
+	},
+	"code": {
+		"description": "Visual Studio Code — popular extensible code editor by Microsoft.",
+		"commands": [
+			{ "label": "Check VS Code version", "cmd": "code --version", "type": "maintenance" },
+			{ "label": "List extensions", "cmd": "code --list-extensions", "type": "maintenance" },
+			{ "label": "Install an extension", "cmd": "code --install-extension ms-python.python", "type": "setup" }
+		]
+	},
+	"htop": {
+		"description": "Interactive process viewer — a modern alternative to top.",
+		"commands": [
+			{ "label": "Check htop version", "cmd": "htop --version", "type": "maintenance" },
+			{ "label": "Launch htop", "cmd": "htop", "type": "maintenance" }
+		]
+	},
+	"nmap": {
+		"description": "Network exploration and security auditing tool for port scanning.",
+		"commands": [
+			{ "label": "Check Nmap version", "cmd": "nmap --version", "type": "maintenance" },
+			{ "label": "Scan localhost", "cmd": "nmap -sV localhost", "type": "maintenance" },
+			{ "label": "Quick network scan", "cmd": "nmap -sn 192.168.1.0/24", "type": "maintenance" }
+		]
+	},
+	"wireshark-qt": {
+		"description": "Network protocol analyzer with GUI for deep packet inspection.",
+		"commands": [
+			{ "label": "Check version", "cmd": "wireshark --version | head -1", "type": "maintenance" },
+			{ "label": "Add user to wireshark group", "cmd": "sudo usermod -aG wireshark $USER", "type": "setup" },
+			{ "label": "CLI capture", "cmd": "tshark -i eth0 -c 10", "type": "maintenance" }
+		]
+	},
+	"john": {
+		"description": "Password cracker supporting many cipher and hash types.",
+		"commands": [
+			{ "label": "Check John version", "cmd": "john --help | head -5", "type": "maintenance" },
+			{ "label": "Benchmark performance", "cmd": "john --test", "type": "maintenance" }
+		]
+	},
+	"aircrack-ng": {
+		"description": "WiFi security auditing toolkit for monitoring, attacking, and testing networks.",
+		"commands": [
+			{ "label": "Check version", "cmd": "aircrack-ng --help | head -3", "type": "maintenance" },
+			{ "label": "List wireless interfaces", "cmd": "airmon-ng", "type": "maintenance" }
+		]
+	},
+	"hashcat": {
+		"description": "Advanced GPU-accelerated password recovery utility.",
+		"commands": [
+			{ "label": "Check Hashcat version", "cmd": "hashcat --version", "type": "maintenance" },
+			{ "label": "Benchmark all hashes", "cmd": "hashcat -b", "type": "maintenance" },
+			{ "label": "List hash types", "cmd": "hashcat --help | grep -i \"hash-type\"", "type": "maintenance" }
+		]
+	},
+	"whois": {
+		"description": "Query tool for domain registration and IP ownership information.",
+		"commands": [
+			{ "label": "Lookup a domain", "cmd": "whois example.com", "type": "maintenance" },
+			{ "label": "Lookup an IP", "cmd": "whois 8.8.8.8", "type": "maintenance" }
+		]
+	},
+	"tcpdump": {
+		"description": "Command-line packet capture and analysis tool.",
+		"commands": [
+			{ "label": "Check tcpdump version", "cmd": "tcpdump --version", "type": "maintenance" },
+			{ "label": "Capture 10 packets", "cmd": "sudo tcpdump -c 10 -i any", "type": "maintenance" },
+			{ "label": "Capture to file", "cmd": "sudo tcpdump -c 100 -w capture.pcap", "type": "maintenance" }
+		]
+	},
+	"netcat": {
+		"description": "Versatile networking tool for reading/writing across TCP/UDP connections.",
+		"commands": [
+			{ "label": "Check netcat help", "cmd": "nc -h 2>&1 | head -3", "type": "maintenance" },
+			{ "label": "Port scan", "cmd": "nc -zv localhost 1-1024", "type": "maintenance" },
+			{ "label": "Listen on port", "cmd": "nc -l -p 4444", "type": "setup" }
+		]
+	},
+	"sqlmap": {
+		"description": "Automatic SQL injection detection and exploitation tool.",
+		"commands": [
+			{ "label": "Check sqlmap version", "cmd": "sqlmap --version", "type": "maintenance" },
+			{ "label": "Basic scan example", "cmd": "sqlmap -u \"http://target.com/page?id=1\" --batch", "type": "maintenance" }
+		]
+	},
+	"visual-studio-code-bin": {
+		"description": "Visual Studio Code — popular extensible code editor (AUR binary release).",
+		"commands": [
+			{ "label": "Check VS Code version", "cmd": "code --version", "type": "maintenance" },
+			{ "label": "List extensions", "cmd": "code --list-extensions", "type": "maintenance" },
+			{ "label": "Install Python extension", "cmd": "code --install-extension ms-python.python", "type": "setup" }
+		]
+	},
+	"postman-bin": {
+		"description": "API development environment for building, testing, and documenting APIs.",
+		"commands": [
+			{ "label": "Launch Postman", "cmd": "postman", "type": "maintenance" },
+			{ "label": "Check installation", "cmd": "which postman", "type": "maintenance" }
+		]
+	},
+	"burpsuite": {
+		"description": "Integrated platform for web application security testing and vulnerability scanning.",
+		"commands": [
+			{ "label": "Launch BurpSuite", "cmd": "burpsuite", "type": "maintenance" },
+			{ "label": "Check installation", "cmd": "which burpsuite", "type": "maintenance" }
+		]
+	}
+}
