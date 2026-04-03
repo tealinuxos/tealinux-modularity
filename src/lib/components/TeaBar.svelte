@@ -5,6 +5,11 @@
 	import { Button } from './ui/button';
 	import { page } from '$app/state';
 	import { Cog } from '@lucide/svelte';
+
+	const isActive = (targetPath: string) => {
+		const current = page.url.pathname;
+		return current.startsWith(targetPath);
+	};
 </script>
 
 <Sidebar.Root>
@@ -19,7 +24,7 @@
 				variant="ghost"
 				class={cn(
 					'flex flex-row justify-start w-full py-5 items-center',
-					page.url.pathname === item.href && 'bg-accent text-accent-foreground dark:bg-accent/50'
+					isActive(item.href) && 'bg-accent text-accent-foreground dark:bg-accent/50'
 				)}
 			>
 				<item.icon />
@@ -33,8 +38,7 @@
 			variant="ghost"
 			class={cn(
 				'flex flex-row justify-start w-full py-5 items-center',
-				(page.url.pathname as string) === '/settings' &&
-					'bg-accent text-accent-foreground dark:bg-accent/50'
+				isActive('/settings') && 'bg-accent text-accent-foreground dark:bg-accent/50'
 			)}
 		>
 			<Cog />

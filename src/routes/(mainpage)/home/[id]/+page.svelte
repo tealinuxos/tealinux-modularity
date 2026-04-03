@@ -7,7 +7,7 @@
 		type PackageSizeInfo
 	} from '$lib/commands';
 	import { onMount } from 'svelte';
-	import { Loader2, AlertTriangle } from '@lucide/svelte';
+	import { LoaderCircle, TriangleAlert } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 
 	import PreviewTab from '$lib/components/home/PreviewTab.svelte';
@@ -279,12 +279,12 @@
 	<div class="flex-1 overflow-y-auto">
 		{#if loading}
 			<div class="flex flex-col items-center justify-center h-full gap-4">
-				<Loader2 class="w-8 h-8 text-primary animate-spin" />
+				<LoaderCircle class="w-8 h-8 text-primary animate-spin" />
 				<p class="text-muted-foreground">Loading profile...</p>
 			</div>
 		{:else if error || !profile}
 			<div class="flex flex-col items-center justify-center h-full gap-4">
-				<AlertTriangle class="w-10 h-10 text-destructive" />
+				<TriangleAlert class="w-10 h-10 text-destructive" />
 				<p class="text-destructive font-medium">{error || 'Profile not found'}</p>
 				<button
 					onclick={() => goto('/home')}

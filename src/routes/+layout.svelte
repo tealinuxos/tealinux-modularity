@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import { commands } from '$lib/commands';
 	import './layout.css';
 	import 'devicon/devicon.min.css';
 	import { onMount, type Snippet } from 'svelte';
+	import { queryClientProvider } from '$lib/utils/client-provider';
 
 	interface Props {
 		children: Snippet;
@@ -15,4 +17,6 @@
 	});
 </script>
 
-{@render children?.()}
+<QueryClientProvider client={queryClientProvider}>
+	{@render children?.()}
+</QueryClientProvider>

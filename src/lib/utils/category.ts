@@ -1,8 +1,8 @@
-import { Shield, Code2, Server, Wrench, Package } from '@lucide/svelte';
+import { Shield, CodeXml, Server, Wrench, Package, type Icon as IconType } from '@lucide/svelte';
 
-export const categoryIcons: Record<string, any> = {
+export const categoryIcons: Record<string, typeof IconType> = {
     security: Shield,
-    development: Code2,
+    development: CodeXml,
     server: Server,
     tools: Wrench,
     default: Package

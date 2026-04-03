@@ -3,8 +3,7 @@
 	import PackageBadge from './PackageBadge.svelte';
 	import ServiceGuideCard from './ServiceGuideCard.svelte';
 	import { getCategoryIcon } from '$lib/utils/category';
-	import packageGuidesRaw from '$lib/data/packageGuides.json';
-	import { Download, Trash2, Info, CheckCircle2 } from '@lucide/svelte';
+	import { Package, Download, Terminal } from '@lucide/svelte';
 
 	interface Props {
 		profile: ProfileInfo;

@@ -102,35 +102,16 @@ async checkConfigurationFile() : Promise<Result<boolean, string>> {
 async showMainWindow() : Promise<void> {
     await TAURI_INVOKE("show_main_window");
 },
-/**
- * Search AUR packages by query string
- */
-async searchAurPackages(query: string) : Promise<AurPackageInfo[]> {
-    return await TAURI_INVOKE("search_aur_packages", { query });
+async getGrubThemes() : Promise<LocalThemeManifest[]> {
+    return await TAURI_INVOKE("get_grub_themes");
 },
-/**
- * Get detailed info for a single AUR package
- */
-async getAurPackageInfo(name: string) : Promise<AurPackageInfo | null> {
-    return await TAURI_INVOKE("get_aur_package_info", { name });
-},
-/**
- * Install an AUR package via paru
- */
-async installAurPackage(name: string) : Promise<BackendResult> {
-    return await TAURI_INVOKE("install_aur_package", { name });
-},
-/**
- * Remove an AUR package via paru
- */
-async removeAurPackage(name: string) : Promise<BackendResult> {
-    return await TAURI_INVOKE("remove_aur_package", { name });
-},
-/**
- * List all installed AUR (foreign) packages
- */
-async listInstalledAur() : Promise<InstalledAurInfo[]> {
-    return await TAURI_INVOKE("list_installed_aur");
+async setGrubTheme(themeName: string) : Promise<Result<LocalCommandOutput, LocalModulariteaError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_grub_theme", { themeName }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -149,15 +130,11 @@ export type AurPackageInfo = { name: string; version: string; description: strin
 export type BackendResult = { success: boolean; stdout: string; stderr: string; exit_code: number }
 export type Computer = { processor: string; memory: bigint; operating_system: string; kernel_version: string; username: string[] }
 export type Display = { monitor_name: string[]; graphic_cards: string[]; display_protocol: string; display_windows_manager: string }
-export type InstalledAurInfo = { name: string; version: string }
-/**
- * Per-package size information from `pacman -Si`
- */
-export type PackageDownloadInfo = { name: string; download_size_bytes: number; install_size_bytes: number; download_size_human: string; install_size_human: string; available: boolean }
-/**
- * Summary of total download/install size for a list of packages
- */
-export type PackageSizeInfo = { packages: PackageDownloadInfo[]; total_download_bytes: number; total_install_bytes: number; total_download_human: string; total_install_human: string }
+export type LocalCommandError = { operation: string; exit_code: number | null; stderr: string }
+export type LocalCommandOutput = { exit_code: number; stdout: string; stderr: string; success: boolean }
+export type LocalModulariteaError = { type: "ProfileReadError"; data: { path: string; source: string } } | { type: "ProfileParseError"; data: { path: string; source: string } } | { type: "ProfileValidationError"; data: { message: string } } | { type: "PlanningError"; data: { message: string } } | { type: "DependencyError"; data: { message: string } } | { type: "CircularDependencyError"; data: { cycle: string } } | { type: "ExecutionError"; data: { task_name: string; source: string } } | { type: "RollbackError"; data: { task_name: string; reason: string } } | { type: "PacmanError"; data: LocalCommandError } | { type: "GrubError"; data: { operation: string; reason: string } } | { type: "SystemctlError"; data: { operation: string; exit_code: number | null; stderr: string } } | { type: "FilesystemError"; data: { operation: string; source: string } } | { type: "PrivilegeError"; data: { reason: string } } | { type: "PkexecNotFound" } | { type: "PolkitCancelled" } | { type: "RootBinaryNotFound"; data: { binary: string } } | { type: "CommandError"; data: { command: string; exit_code: number | null; stderr: string } } | { type: "IoError"; data: string } | { type: "InternalError"; data: string }
+export type LocalStep = { type: "copy_dir"; from: string; to: string } | { type: "copy_file"; from: string; to: string } | { type: "set_grub_var"; key: string; value: string } | { type: "replace_in_file"; file: string; search: string; replace: string }
+export type LocalThemeManifest = { name: string; version: string; github_url: string | null; preview_image: string | null; description: string | null; author: string | null; name_concat: string | null; steps: LocalStep[] }
 /**
  * Profile metadata exposed to the frontend via Tauri commands.
  * This is a DTO (Data Transfer Object) that wraps the libs' domain model

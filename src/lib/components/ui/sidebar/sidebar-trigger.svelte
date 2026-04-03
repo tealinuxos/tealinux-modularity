@@ -22,13 +22,14 @@
 </script>
 
 <nav
+	data-tauri-drag-region
 	class="border-b h-[57px] bg-sidebar text-sidebar-foreground flex flex-row justify-end sticky top-0 z-999 w-full"
 >
 	<ButtonGroup.Root class="h-full" aria-label="Button group">
 		<Button onclick={async () => await appWindow.minimize()} class="h-full" variant="ghost">
 			<Minus />
 		</Button>
-		<Button onclick={async () => await appWindow.maximize()} class="h-full" variant="ghost">
+		<Button onclick={async () => await appWindow.toggleMaximize()} class="h-full" variant="ghost">
 			<Square />
 		</Button>
 		<Button

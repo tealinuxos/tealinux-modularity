@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Download, Package, ChevronRight, Server, Loader2, Check, X } from '@lucide/svelte';
+	import { Download, Package, ChevronRight, Server, LoaderCircle, Check, X } from '@lucide/svelte';
 	import { getCategoryIcon, getCategoryColor, getCategoryBadgeColor } from '$lib/utils/category';
 
 	interface Props {
@@ -107,7 +107,7 @@
 							: 'bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98]'}"
 			>
 				{#if installState === 'installing'}
-					<Loader2 class="w-4 h-4 animate-spin" />
+					<LoaderCircle class="w-4 h-4 animate-spin" />
 					Installing...
 				{:else if installState === 'success'}
 					<Check class="w-4 h-4" />
