@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Package, Check, Trash2 } from '@lucide/svelte';
+	import { getDeviconClass } from '$lib/utils/devicon';
 
 	interface Props {
 		packages: string[];

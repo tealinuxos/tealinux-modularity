@@ -1,4 +1,4 @@
-import { House, Info, SlidersHorizontal, TrendingUp, Wrench } from '@lucide/svelte';
+import { House, Info, Package, SlidersHorizontal, TrendingUp, Wrench } from '@lucide/svelte';
 
 export const teabarItems = [
 	{

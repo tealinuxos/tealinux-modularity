@@ -5,6 +5,7 @@ use tauri_specta::{collect_commands, Builder};
 
 use crate::grub::initialization::GrubManager;
 
+mod aur;
 mod grub;
 mod installer;
 mod splash;
@@ -43,6 +44,12 @@ pub fn run() {
         // GRUB Commands
         grub::command::get_grub_themes,
         grub::command::set_grub_theme,
+        // AUR Commands
+        aur::commands::search_aur_packages,
+        aur::commands::get_aur_package_info,
+        aur::commands::install_aur_package,
+        aur::commands::remove_aur_package,
+        aur::commands::list_installed_aur,
     ]);
 
     #[cfg(debug_assertions)]

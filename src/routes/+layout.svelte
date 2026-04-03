@@ -4,7 +4,7 @@
 	import './layout.css';
 	import 'devicon/devicon.min.css';
 	import { onMount, type Snippet } from 'svelte';
-	import { queryClientProvider } from '$lib/utils/client-provider';
+	import { queryClient } from '$lib/utils/client-provider';
 
 	interface Props {
 		children: Snippet;
@@ -17,6 +17,6 @@
 	});
 </script>
 
-<QueryClientProvider client={queryClientProvider}>
+<QueryClientProvider client={queryClient}>
 	{@render children?.()}
 </QueryClientProvider>
