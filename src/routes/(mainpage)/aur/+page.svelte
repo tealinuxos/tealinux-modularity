@@ -1,6 +1,7 @@
 <script lang="ts">
 	import AurSearchBar from '$lib/components/aur/AurSearchBar.svelte';
 	import AurPackageCard from '$lib/components/aur/AurPackageCard.svelte';
+	import AurRecommendations from '$lib/components/aur/AurRecommendations.svelte';
 	import { commands } from '$lib/commands';
 	import { onMount } from 'svelte';
 	import {
@@ -194,7 +195,11 @@
 				<div class="flex flex-col gap-6 px-8 pt-6 pb-8 max-sm:p-5">
 					<!-- Search Tab -->
 					{#if activeTab === 'search'}
-						<AurSearchBar onsearch={handleSearch} loading={searchLoading} />
+						<AurSearchBar
+							onsearch={handleSearch}
+							loading={searchLoading}
+							bind:value={searchQuery}
+						/>
 
 						{#if searchLoading}
 							<div class="flex flex-col items-center justify-center py-16 gap-4">
@@ -248,20 +253,11 @@
 								{/each}
 							</div>
 						{:else}
-							<div class="flex flex-col items-center justify-center py-20 gap-4">
-								<div
-									class="w-16 h-16 rounded-2xl bg-[#26A768]/5 border border-[#26A768]/20 flex items-center justify-center shadow-[0_4px_24px_-8px_rgba(84,205,76,0.2)]"
-								>
-									<Search class="w-8 h-8 text-[#26A768]/50" />
-								</div>
-								<div class="text-center space-y-1">
-									<p class="text-foreground font-bold">Search the AUR</p>
-									<p class="text-muted-foreground text-[0.8rem] max-w-sm">
-										Type a package name above to search the Arch User Repository for community
-										packages.
-									</p>
-								</div>
-							</div>
+							<AurRecommendations
+								{actionStates}
+								oninstall={handleInstall}
+								onremove={handleRemove}
+							/>
 						{/if}
 					{/if}
 
