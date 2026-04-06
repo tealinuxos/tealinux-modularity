@@ -4,11 +4,11 @@
 	interface Props {
 		onsearch: (query: string) => void;
 		loading?: boolean;
+		value?: string;
 	}
 
-	let { onsearch, loading = false }: Props = $props();
+	let { onsearch, loading = false, value = $bindable('') }: Props = $props();
 
-	let query = $state('');
 	let timer: number | null = $state(null);
 
 	function handleInput() {
@@ -16,7 +16,7 @@
 			clearTimeout(timer);
 			timer = null;
 		}
-		const q = query;
+		const q = value;
 		timer = window.setTimeout(() => {
 			timer = null;
 			if (q.trim().length >= 2) {
@@ -26,17 +26,17 @@
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Enter' && query.trim().length >= 2) {
+		if (e.key === 'Enter' && value.trim().length >= 2) {
 			if (timer !== null) {
 				clearTimeout(timer);
 				timer = null;
 			}
-			onsearch(query.trim());
+			onsearch(value.trim());
 		}
 	}
 
 	function clearQuery() {
-		query = '';
+		value = '';
 		onsearch('');
 	}
 </script>
@@ -56,7 +56,7 @@
 		<input
 			id="aur-search-input"
 			type="text"
-			bind:value={query}
+			bind:value
 			oninput={handleInput}
 			onkeydown={handleKeydown}
 			placeholder="Search AUR packages... (min 2 characters)"
@@ -64,7 +64,7 @@
                    text-sm outline-none"
 		/>
 
-		{#if query.length > 0}
+		{#if value.length > 0}
 			<button
 				onclick={clearQuery}
 				class="p-1 rounded-md hover:bg-accent transition-colors"
