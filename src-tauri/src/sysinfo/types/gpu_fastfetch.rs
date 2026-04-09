@@ -23,11 +23,11 @@ pub struct Result {
     pub name: String,
     pub temperature: Option<serde_json::Value>,
     #[serde(rename = "type")]
-    pub result_type: String,
-    pub vendor: String,
-    pub platform_api: String,
+    pub result_type: Option<String>,
+    pub vendor: Option<String>,
+    pub platform_api: Option<String>,
     pub frequency: Option<serde_json::Value>,
-    pub device_id: i64,
+    pub device_id: Option<i64>,
 }
 
 #[derive(Serialize, Deserialize)]
