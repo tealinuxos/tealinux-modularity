@@ -11,13 +11,34 @@ pub struct Display {
     graphic_cards: Vec<String>,
     display_protocol: String,
     display_windows_manager: String,
+    errors: Vec<String>,
 }
 
 impl Display {
     pub fn new() -> Self {
-        let gpu_vec: GPUFastfetch = fetch_module("GPU");
-        let wm_vec: WMFastfetch = fetch_module("WM");
-        let display_vec: DisplayFastfetch = fetch_module("Display");
+        let mut errors: Vec<String> = Vec::new();
+
+        let gpu_vec: GPUFastfetch = match fetch_module("GPU") {
+            Ok(data) => data,
+            Err(err) => {
+                errors.push(err);
+                Vec::new()
+            }
+        };
+        let wm_vec: WMFastfetch = match fetch_module("WM") {
+            Ok(data) => data,
+            Err(err) => {
+                errors.push(err);
+                Vec::new()
+            }
+        };
+        let display_vec: DisplayFastfetch = match fetch_module("Display") {
+            Ok(data) => data,
+            Err(err) => {
+                errors.push(err);
+                Vec::new()
+            }
+        };
 
         let gpu_item = gpu_vec
             .into_iter()
@@ -41,16 +62,18 @@ impl Display {
             })
             .unwrap_or_default();
 
-        let wm_item = wm_vec
+        let (display_protocol, display_windows_manager) = wm_vec
             .into_iter()
             .next()
-            .expect("Windows Manager Data is not found!");
+            .map(|wm_item| (wm_item.result.protocol_name, wm_item.result.pretty_name))
+            .unwrap_or_else(|| ("Unknown Protocol".to_string(), "Unknown WM".to_string()));
 
         Display {
             monitor_name: display_item,
             graphic_cards: gpu_item,
-            display_protocol: wm_item.result.protocol_name,
-            display_windows_manager: wm_item.result.pretty_name,
+            display_protocol,
+            display_windows_manager,
+            errors,
         }
     }
 }

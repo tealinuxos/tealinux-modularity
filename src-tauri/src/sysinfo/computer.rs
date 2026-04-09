@@ -14,32 +14,70 @@ pub struct Computer {
     pub operating_system: String,
     pub kernel_version: String,
     pub username: Vec<String>,
+    pub errors: Vec<String>,
 }
 
 impl Computer {
     pub fn new() -> Self {
-        let cpu_vec: CpuFastfetch = fetch_module("CPU");
-        let mem_vec: MemoryFastfetch = fetch_module("Memory");
-        let user_vec: UsersFastfetch = fetch_module("Users");
-        let os_vec: OSFastfetch = fetch_module("OS");
-        let kernel_vec: KernelFastfetch = fetch_module("Kernel");
+        let mut errors: Vec<String> = Vec::new();
 
-        let cpu_item = cpu_vec.into_iter().next().expect("CPU Data is not found!");
+        let cpu_vec: CpuFastfetch = match fetch_module("CPU") {
+            Ok(data) => data,
+            Err(err) => {
+                errors.push(err);
+                Vec::new()
+            }
+        };
+        let mem_vec: MemoryFastfetch = match fetch_module("Memory") {
+            Ok(data) => data,
+            Err(err) => {
+                errors.push(err);
+                Vec::new()
+            }
+        };
+        let user_vec: UsersFastfetch = match fetch_module("Users") {
+            Ok(data) => data,
+            Err(err) => {
+                errors.push(err);
+                Vec::new()
+            }
+        };
+        let os_vec: OSFastfetch = match fetch_module("OS") {
+            Ok(data) => data,
+            Err(err) => {
+                errors.push(err);
+                Vec::new()
+            }
+        };
+        let kernel_vec: KernelFastfetch = match fetch_module("Kernel") {
+            Ok(data) => data,
+            Err(err) => {
+                errors.push(err);
+                Vec::new()
+            }
+        };
 
-        let processor = format!(
-            "{} {}x{} Core",
-            cpu_item.result.cpu, cpu_item.result.cores.physical, cpu_item.result.cores.logical
-        );
-
-        let kernel_item = kernel_vec
+        let processor = cpu_vec
             .into_iter()
             .next()
-            .expect("Kernel Data is not found!");
+            .map(|cpu_item| {
+                format!(
+                    "{} {}x{} Core",
+                    cpu_item.result.cpu, cpu_item.result.cores.physical, cpu_item.result.cores.logical
+                )
+            })
+            .unwrap_or_else(|| "Unknown CPU".to_string());
 
-        let kernel_version = format!(
-            "{} {}",
-            kernel_item.result.release, kernel_item.result.architecture
-        );
+        let kernel_version = kernel_vec
+            .into_iter()
+            .next()
+            .map(|kernel_item| {
+                format!(
+                    "{} {}",
+                    kernel_item.result.release, kernel_item.result.architecture
+                )
+            })
+            .unwrap_or_else(|| "Unknown Kernel".to_string());
 
         let username = user_vec
             .into_iter()
@@ -47,15 +85,20 @@ impl Computer {
             .map(|item| item.result.into_iter().map(|u| u.name).collect())
             .unwrap_or_default();
 
-        let mem_item = mem_vec.into_iter().next().expect("Data Memory Error");
-        let os_item = os_vec.into_iter().next().expect("Data OS Error");
+        let memory = mem_vec.into_iter().next().map(|item| item.result.total).unwrap_or(0);
+        let operating_system = os_vec
+            .into_iter()
+            .next()
+            .map(|item| item.result.pretty_name)
+            .unwrap_or_else(|| "Unknown OS".to_string());
 
         Computer {
             processor,
-            memory: mem_item.result.total,
-            operating_system: os_item.result.pretty_name,
+            memory,
+            operating_system,
             kernel_version,
             username,
+            errors,
         }
     }
 }
