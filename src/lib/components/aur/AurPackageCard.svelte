@@ -146,6 +146,13 @@
 		</div>
 	</div>
 
+	<!-- Progress Bar (indeterminate shimmer) -->
+	{#if installState === 'installing' || installState === 'uninstalling'}
+		<div class="progress-track" class:progress-uninstalling={installState === 'uninstalling'}>
+			<div class="progress-bar"></div>
+		</div>
+	{/if}
+
 	<!-- Footer -->
 	<div
 		data-slot="card-footer"
@@ -196,3 +203,38 @@
 		onremove={onremove ? (name) => onremove(name) : undefined}
 	/>
 {/if}
+
+<style>
+	.progress-track {
+		width: 100%;
+		height: 3px;
+		background: rgba(38, 167, 104, 0.12);
+		overflow: hidden;
+		border-radius: 999px;
+	}
+
+	.progress-track.progress-uninstalling {
+		background: rgba(239, 68, 68, 0.12);
+	}
+
+	.progress-bar {
+		width: 40%;
+		height: 100%;
+		background: linear-gradient(90deg, transparent, #26a768 40%, #4bc043 60%, transparent);
+		border-radius: 999px;
+		animation: progress-shimmer 1.4s ease-in-out infinite;
+	}
+
+	.progress-uninstalling .progress-bar {
+		background: linear-gradient(90deg, transparent, #ef4444 40%, #f87171 60%, transparent);
+	}
+
+	@keyframes progress-shimmer {
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(350%);
+		}
+	}
+</style>
