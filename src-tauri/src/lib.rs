@@ -50,6 +50,7 @@ pub fn run() {
         aur::commands::install_aur_package,
         aur::commands::remove_aur_package,
         aur::commands::list_installed_aur,
+        aur::commands::get_top_aur_packages,
     ]);
 
     #[cfg(debug_assertions)]

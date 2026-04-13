@@ -3,7 +3,6 @@
 	import { TrendingUp, Loader2, RefreshCw } from '@lucide/svelte';
 	import AurPackageCard from './AurPackageCard.svelte';
 	import Pagination from '$lib/components/ui/Pagination.svelte';
-	import { fetch } from '@tauri-apps/plugin-http';
 	import { commands } from '$lib/commands';
 	import type { AurPackageInfo } from '$lib/commands';
 
@@ -35,32 +34,10 @@
 		error = '';
 		currentPage = 1;
 		try {
-			// Fetch the most popular packages from the AUR website
-			const res = await fetch('https://aur.archlinux.org/packages?O=0&SB=p&SO=d&PP=250', {
-				method: 'GET'
-			});
-			if (!res.ok) throw new Error('Failed to fetch from AUR website');
-
-			const html = await res.text();
-			const regex = /<a href="\/packages\/([^/"]+)">/g;
-			let match;
-
-			const scrapedNames: string[] = [];
-			while ((match = regex.exec(html)) !== null) {
-				const pkgName = match[1];
-				if (!scrapedNames.includes(pkgName) && !pkgName.includes('?')) {
-					scrapedNames.push(pkgName);
-				}
+			popularPackages = await commands.getTopAurPackages();
+			if (popularPackages.length === 0) {
+				error = 'No popular packages found';
 			}
-
-			if (scrapedNames.length === 0) {
-				throw new Error('No popular packages found in the response');
-			}
-
-			const results = await Promise.all(scrapedNames.map((pkg) => commands.getAurPackageInfo(pkg)));
-			popularPackages = results.filter((p) => p !== null) as AurPackageInfo[];
-			// Ensure it's sorted by popularity desc
-			popularPackages.sort((a, b) => b.popularity - a.popularity);
 		} catch (e) {
 			console.error('[aur] Failed to load popular AUR pkgs', e);
 			error = String(e);
