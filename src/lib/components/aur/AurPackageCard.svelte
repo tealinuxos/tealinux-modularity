@@ -13,6 +13,7 @@
 	import PackageBadge from '../home/PackageBadge.svelte';
 	import AurPackageDetail from './AurPackageDetail.svelte';
 	import { commands } from '$lib/commands';
+	import { onDestroy } from 'svelte';
 
 	interface AurPackage {
 		name: string;
@@ -51,6 +52,74 @@
 			detailOpen = true;
 		}
 	}
+
+	// Simulated progress state
+	let progress = $state(0);
+	let progressInterval: ReturnType<typeof setInterval> | null = null;
+	let showProgress = $state(false);
+
+	function startSimulatedProgress() {
+		progress = 0;
+		showProgress = true;
+		if (progressInterval) clearInterval(progressInterval);
+
+		progressInterval = setInterval(() => {
+			if (progress < 30) {
+				// Fast start: 2-5% increments
+				progress += Math.random() * 3 + 2;
+			} else if (progress < 60) {
+				// Medium: 1-3% increments
+				progress += Math.random() * 2 + 1;
+			} else if (progress < 85) {
+				// Slow: 0.5-1.5% increments
+				progress += Math.random() * 1 + 0.5;
+			} else if (progress < 95) {
+				// Very slow: 0.1-0.5% increments
+				progress += Math.random() * 0.4 + 0.1;
+			}
+			// Cap at 95% until real completion
+			progress = Math.min(progress, 95);
+		}, 300);
+	}
+
+	function stopProgress(final: 'success' | 'error') {
+		if (progressInterval) {
+			clearInterval(progressInterval);
+			progressInterval = null;
+		}
+		if (final === 'success') {
+			progress = 100;
+			setTimeout(() => {
+				showProgress = false;
+				progress = 0;
+			}, 600);
+		} else {
+			showProgress = false;
+			progress = 0;
+		}
+	}
+
+	$effect(() => {
+		if (installState === 'installing' || installState === 'uninstalling') {
+			startSimulatedProgress();
+		} else if (installState === 'success') {
+			stopProgress('success');
+		} else if (installState === 'error') {
+			stopProgress('error');
+		} else {
+			// idle
+			if (progressInterval) {
+				clearInterval(progressInterval);
+				progressInterval = null;
+			}
+			showProgress = false;
+			progress = 0;
+		}
+	});
+
+	onDestroy(() => {
+		if (progressInterval) clearInterval(progressInterval);
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -146,10 +215,13 @@
 		</div>
 	</div>
 
-	<!-- Progress Bar (indeterminate shimmer) -->
-	{#if installState === 'installing' || installState === 'uninstalling'}
-		<div class="progress-track" class:progress-uninstalling={installState === 'uninstalling'}>
-			<div class="progress-bar"></div>
+	<!-- Progress Bar with Percentage -->
+	{#if showProgress}
+		<div class="progress-section" class:progress-uninstalling={installState === 'uninstalling'}>
+			<div class="progress-track">
+				<div class="progress-fill" style="width: {progress}%"></div>
+			</div>
+			<span class="progress-pct">{Math.round(progress)}%</span>
 		</div>
 	{/if}
 
@@ -205,36 +277,47 @@
 {/if}
 
 <style>
+	.progress-section {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0 1.5rem;
+		padding-bottom: 0.25rem;
+	}
+
 	.progress-track {
-		width: 100%;
+		flex: 1;
 		height: 3px;
 		background: rgba(38, 167, 104, 0.12);
 		overflow: hidden;
 		border-radius: 999px;
 	}
 
-	.progress-track.progress-uninstalling {
+	.progress-uninstalling .progress-track {
 		background: rgba(239, 68, 68, 0.12);
 	}
 
-	.progress-bar {
-		width: 40%;
+	.progress-fill {
 		height: 100%;
-		background: linear-gradient(90deg, transparent, #26a768 40%, #4bc043 60%, transparent);
+		background: linear-gradient(90deg, #26a768, #4bc043);
 		border-radius: 999px;
-		animation: progress-shimmer 1.4s ease-in-out infinite;
+		transition: width 0.3s ease-in-out;
 	}
 
-	.progress-uninstalling .progress-bar {
-		background: linear-gradient(90deg, transparent, #ef4444 40%, #f87171 60%, transparent);
+	.progress-uninstalling .progress-fill {
+		background: linear-gradient(90deg, #ef4444, #f87171);
 	}
 
-	@keyframes progress-shimmer {
-		0% {
-			transform: translateX(-100%);
-		}
-		100% {
-			transform: translateX(350%);
-		}
+	.progress-pct {
+		font-size: 0.68rem;
+		font-weight: 800;
+		color: #26a768;
+		min-width: 2.2rem;
+		text-align: right;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.progress-uninstalling .progress-pct {
+		color: #ef4444;
 	}
 </style>
