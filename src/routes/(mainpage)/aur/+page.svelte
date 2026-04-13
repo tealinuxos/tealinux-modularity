@@ -13,10 +13,12 @@
 		Download,
 		Trash2,
 		CheckCircle2,
-		Info
+		Info,
+		X
 	} from '@lucide/svelte';
 
 	type TabId = 'search' | 'installed';
+	type AurActionState = 'idle' | 'installing' | 'uninstalling' | 'success' | 'error';
 
 	let activeTab: TabId = $state('search');
 	let searchResults: any[] = $state([]);
@@ -26,7 +28,15 @@
 	let hasSearched = $state(false);
 	let installedPackages: any[] = $state([]);
 	let installedLoading = $state(false);
-	let actionStates: Record<string, 'idle' | 'installing' | 'success' | 'error'> = $state({});
+	let actionStates: Record<string, AurActionState> = $state({});
+	let installedFilterQuery = $state('');
+	let filteredInstalledPackages = $derived(
+		installedFilterQuery.trim()
+			? installedPackages.filter((pkg: any) =>
+					pkg.name.toLowerCase().includes(installedFilterQuery.trim().toLowerCase())
+				)
+			: installedPackages
+	);
 
 	onMount(async () => {
 		await loadInstalledPackages();
@@ -85,7 +95,7 @@
 	}
 
 	async function handleRemove(name: string) {
-		actionStates[name] = 'installing';
+		actionStates[name] = 'uninstalling';
 		try {
 			const result = await commands.removeAurPackage(name);
 			if (result.success) {
@@ -296,50 +306,89 @@
 									<RefreshCw class="w-[0.9rem] h-[0.9rem]" /> Refresh
 								</button>
 							</div>
-							<div class="flex flex-col gap-3">
-								{#each installedPackages as pkg (pkg.name)}
-									<div
-										class="flex items-center justify-between p-4 rounded-xl border border-border/50 bg-card/60 hover:bg-card/80 hover:border-[#26A768]/30 hover:shadow-sm transition-all"
+
+							<!-- Search filter for installed packages -->
+							<div class="relative mb-1">
+								<Search
+									class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60 pointer-events-none"
+								/>
+								<input
+									id="installed-search"
+									type="text"
+									placeholder="Filter installed packages..."
+									bind:value={installedFilterQuery}
+									class="w-full pl-9 pr-9 py-2.5 rounded-xl border border-border/50 bg-muted/30 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-[#26A768]/40 focus:ring-2 focus:ring-[#26A768]/10 transition-all"
+								/>
+								{#if installedFilterQuery}
+									<button
+										onclick={() => (installedFilterQuery = '')}
+										class="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-md border-none bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
 									>
-										<div class="flex items-center gap-4 min-w-0">
-											<div
-												class="w-9 h-9 rounded-xl bg-[#26A768]/10 flex items-center justify-center shrink-0 border border-[#26A768]/20 shadow-[0_2px_10px_rgba(84,205,76,0.1)]"
-											>
-												<CheckCircle2 class="w-5 h-5 text-[#26A768]" />
-											</div>
-											<div class="min-w-0 flex flex-col gap-0.5">
-												<p class="text-[0.95rem] font-bold text-foreground truncate">{pkg.name}</p>
-												<div class="flex items-center gap-2">
-													<p
-														class="text-[0.7rem] text-muted-foreground font-mono bg-accent px-1.5 py-0.5 rounded-sm m-0"
-													>
-														{pkg.version}
-													</p>
-													<span
-														class="text-[0.6rem] font-extrabold uppercase tracking-widest text-[#26A768]/90"
-														>Installed</span
-													>
-												</div>
-											</div>
-										</div>
-										<div class="shrink-0 flex items-center">
-											{#if actionStates[pkg.name] === 'installing'}
-												<div
-													class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#26A768]/10 text-[#26A768] text-xs font-semibold uppercase tracking-widest"
-												>
-													<Loader2 class="w-[0.9rem] h-[0.9rem] animate-spin" /> Removing
-												</div>
-											{:else}
-												<button
-													onclick={() => handleRemove(pkg.name)}
-													class="flex items-center gap-1.5 px-3 py-2 rounded-[0.55rem] border-none bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white hover:shadow-[0_4px_16px_rgba(239,68,68,0.3)] hover:-translate-y-px text-[0.75rem] font-extrabold transition-all cursor-pointer"
-													><Trash2 class="w-[0.9rem] h-[0.9rem]" /> Remove</button
-												>
-											{/if}
-										</div>
-									</div>
-								{/each}
+										<X class="w-3.5 h-3.5" />
+									</button>
+								{/if}
 							</div>
+
+							{#if filteredInstalledPackages.length === 0}
+								<div class="flex flex-col items-center justify-center py-12 gap-3">
+									<div
+										class="w-12 h-12 rounded-2xl bg-muted/50 border border-border/50 flex items-center justify-center"
+									>
+										<Search class="w-6 h-6 text-muted-foreground/60" />
+									</div>
+									<p class="text-foreground font-bold text-sm">No packages found</p>
+									<p class="text-muted-foreground text-xs">
+										No installed packages match "{installedFilterQuery}"
+									</p>
+								</div>
+							{:else}
+								<div class="flex flex-col gap-3">
+									{#each filteredInstalledPackages as pkg (pkg.name)}
+										<div
+											class="flex items-center justify-between p-4 rounded-xl border border-border/50 bg-card/60 hover:bg-card/80 hover:border-[#26A768]/30 hover:shadow-sm transition-all"
+										>
+											<div class="flex items-center gap-4 min-w-0">
+												<div
+													class="w-9 h-9 rounded-xl bg-[#26A768]/10 flex items-center justify-center shrink-0 border border-[#26A768]/20 shadow-[0_2px_10px_rgba(84,205,76,0.1)]"
+												>
+													<CheckCircle2 class="w-5 h-5 text-[#26A768]" />
+												</div>
+												<div class="min-w-0 flex flex-col gap-0.5">
+													<p class="text-[0.95rem] font-bold text-foreground truncate">
+														{pkg.name}
+													</p>
+													<div class="flex items-center gap-2">
+														<p
+															class="text-[0.7rem] text-muted-foreground font-mono bg-accent px-1.5 py-0.5 rounded-sm m-0"
+														>
+															{pkg.version}
+														</p>
+														<span
+															class="text-[0.6rem] font-extrabold uppercase tracking-widest text-[#26A768]/90"
+															>Installed</span
+														>
+													</div>
+												</div>
+											</div>
+											<div class="shrink-0 flex items-center">
+												{#if actionStates[pkg.name] === 'uninstalling'}
+													<div
+														class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 text-red-500 text-xs font-semibold uppercase tracking-widest"
+													>
+														<Loader2 class="w-[0.9rem] h-[0.9rem] animate-spin" /> Uninstalling...
+													</div>
+												{:else}
+													<button
+														onclick={() => handleRemove(pkg.name)}
+														class="flex items-center gap-1.5 px-3 py-2 rounded-[0.55rem] border-none bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white hover:shadow-[0_4px_16px_rgba(239,68,68,0.3)] hover:-translate-y-px text-[0.75rem] font-extrabold transition-all cursor-pointer"
+														><Trash2 class="w-[0.9rem] h-[0.9rem]" /> Remove</button
+													>
+												{/if}
+											</div>
+										</div>
+									{/each}
+								</div>
+							{/if}
 						{/if}
 					{/if}
 				</div>

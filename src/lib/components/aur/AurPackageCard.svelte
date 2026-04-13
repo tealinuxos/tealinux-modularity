@@ -8,11 +8,11 @@
 		Loader2,
 		CheckCircle2,
 		XCircle,
-		ChevronDown
+		ExternalLink
 	} from '@lucide/svelte';
 	import PackageBadge from '../home/PackageBadge.svelte';
-	import ServiceGuideCard from '../home/ServiceGuideCard.svelte';
-	import packageGuidesRaw from '$lib/data/packageGuides.json';
+	import AurPackageDetail from './AurPackageDetail.svelte';
+	import { commands } from '$lib/commands';
 
 	interface AurPackage {
 		name: string;
@@ -27,18 +27,12 @@
 
 	interface Props {
 		pkg: AurPackage;
-		installState?: 'idle' | 'installing' | 'success' | 'error';
+		installState?: 'idle' | 'installing' | 'uninstalling' | 'success' | 'error';
 		oninstall?: (name: string) => void;
 		onremove?: (name: string) => void;
-		onclick?: () => void;
 	}
 
-	let { pkg, installState = 'idle', oninstall, onremove, onclick }: Props = $props();
-
-	let isExpanded = $state(false);
-
-	const packageGuides = packageGuidesRaw as Record<string, any>;
-	let guide = $derived(packageGuides[pkg.name] ?? null);
+	let { pkg, installState = 'idle', oninstall, onremove }: Props = $props();
 
 	function formatPopularity(pop: number): string {
 		if (pop >= 100) return pop.toFixed(0);
@@ -46,40 +40,25 @@
 		return pop.toFixed(2);
 	}
 
-	let copiedCmd = $state<string | null>(null);
-	let copyTimeout: ReturnType<typeof setTimeout> | null = null;
+	// Self-contained detail modal
+	let detailPkg: any = $state(null);
+	let detailOpen = $state(false);
 
-	async function copyToClipboard(cmd: string) {
-		try {
-			await navigator.clipboard.writeText(cmd);
-		} catch {
-			const ta = document.createElement('textarea');
-			ta.value = cmd;
-			ta.style.position = 'fixed';
-			ta.style.opacity = '0';
-			document.body.appendChild(ta);
-			ta.select();
-			document.execCommand('copy');
-			document.body.removeChild(ta);
+	async function handleCardClick() {
+		const info = await commands.getAurPackageInfo(pkg.name);
+		if (info) {
+			detailPkg = info;
+			detailOpen = true;
 		}
-		copiedCmd = cmd;
-		if (copyTimeout) clearTimeout(copyTimeout);
-		copyTimeout = setTimeout(() => {
-			copiedCmd = null;
-		}, 1500);
-	}
-
-	function toggleExpand(e: MouseEvent) {
-		isExpanded = !isExpanded;
-		if (onclick) onclick();
 	}
 </script>
 
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
 	data-slot="card"
-	class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border group w-full text-left cursor-pointer hover:border-[#26A768]/30 hover:shadow-[0_4px_24px_-8px_rgba(84,205,76,0.15)] transition-all duration-300"
-	onclick={toggleExpand}
-	onkeydown={(e) => e.key === 'Enter' && (isExpanded = !isExpanded)}
+	class="bg-card text-card-foreground flex flex-col rounded-xl border group w-full text-left cursor-pointer hover:border-[#26A768]/30 hover:shadow-[0_4px_24px_-8px_rgba(84,205,76,0.15)] transition-all duration-300"
+	onclick={handleCardClick}
+	onkeydown={(e) => e.key === 'Enter' && handleCardClick()}
 	role="button"
 	tabindex="0"
 >
@@ -131,6 +110,12 @@
 				>
 					<Loader2 class="w-3.5 h-3.5 animate-spin" /> Installing
 				</div>
+			{:else if installState === 'uninstalling'}
+				<div
+					class="flex items-center gap-1.5 px-3 py-[0.4rem] rounded-lg bg-red-500/10 text-red-500 text-[0.72rem] font-bold uppercase tracking-widest"
+				>
+					<Loader2 class="w-3.5 h-3.5 animate-spin" /> Uninstalling
+				</div>
 			{:else if installState === 'success'}
 				<div
 					class="flex items-center gap-1.5 px-3 py-[0.4rem] rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[0.72rem] font-bold uppercase tracking-widest"
@@ -160,46 +145,6 @@
 			{/if}
 		</div>
 	</div>
-
-	<!-- Content Area -->
-	{#if isExpanded}
-		<!-- svelte-ignore a11y_click_events_have_key_events -->
-		<div
-			data-slot="card-content"
-			class="px-6 [&:last-child]:pb-6 animate-in slide-in-from-top-1 fade-in duration-200"
-			onclick={(e) => e.stopPropagation()}
-			role="group"
-			tabindex="-1"
-		>
-			<div class="flex flex-col gap-3">
-				<h4
-					class="text-[0.65rem] font-extrabold uppercase tracking-[0.15em] text-muted-foreground ml-1"
-				>
-					Setup & Configuration
-				</h4>
-				{#if guide}
-					<ServiceGuideCard svc={pkg.name} {guide} {copiedCmd} onCopy={copyToClipboard} />
-				{:else}
-					<div class="flex items-start gap-3 p-4 rounded-xl border border-border/50 bg-muted/20">
-						<div
-							class="w-8 h-8 rounded-full bg-muted/60 flex items-center justify-center shrink-0 shadow-sm border border-border/40"
-						>
-							<AlertTriangle class="w-4 h-4 text-muted-foreground" />
-						</div>
-						<div class="flex flex-col gap-0.5">
-							<p class="text-[0.82rem] font-medium text-foreground m-0 leading-tight">
-								No specific setup guide available for <strong>{pkg.name}</strong>.
-							</p>
-							<p class="text-[0.75rem] text-muted-foreground m-0 leading-relaxed">
-								If this is a service package, it will be enabled automatically during installation.
-								Otherwise, the package is ready for use as soon as installation completes.
-							</p>
-						</div>
-					</div>
-				{/if}
-			</div>
-		</div>
-	{/if}
 
 	<!-- Footer -->
 	<div
@@ -232,12 +177,22 @@
 		<div
 			class="shrink-0 flex items-center gap-1.5 text-[0.68rem] text-muted-foreground font-semibold uppercase tracking-widest transition-colors group-hover:text-[#26A768]"
 		>
-			{isExpanded ? 'Hide Details' : 'Details & Setup'}
-			<ChevronDown
-				class="w-[0.8rem] h-[0.8rem] transition-transform duration-300 {isExpanded
-					? 'rotate-180'
-					: ''}"
-			/>
+			View Details
+			<ExternalLink class="w-[0.8rem] h-[0.8rem]" />
 		</div>
 	</div>
 </div>
+
+{#if detailOpen}
+	<AurPackageDetail
+		pkg={detailPkg}
+		open={detailOpen}
+		{installState}
+		onclose={() => {
+			detailOpen = false;
+			detailPkg = null;
+		}}
+		oninstall={oninstall ? (name) => oninstall(name) : undefined}
+		onremove={onremove ? (name) => onremove(name) : undefined}
+	/>
+{/if}

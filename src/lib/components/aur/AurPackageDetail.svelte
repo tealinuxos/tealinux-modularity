@@ -38,7 +38,7 @@
 	interface Props {
 		pkg: AurPackage | null;
 		open: boolean;
-		installState?: 'idle' | 'installing' | 'success' | 'error';
+		installState?: 'idle' | 'installing' | 'uninstalling' | 'success' | 'error';
 		onclose: () => void;
 		oninstall?: (name: string) => void;
 		onremove?: (name: string) => void;
@@ -191,6 +191,12 @@
 							class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium w-full justify-center"
 						>
 							<Loader2 class="w-4 h-4 animate-spin" /> Installing...
+						</div>
+					{:else if installState === 'uninstalling'}
+						<div
+							class="flex items-center gap-2 px-4 py-2 rounded-lg bg-destructive/10 text-destructive text-sm font-medium w-full justify-center"
+						>
+							<Loader2 class="w-4 h-4 animate-spin" /> Uninstalling...
 						</div>
 					{:else if installState === 'success'}
 						<div

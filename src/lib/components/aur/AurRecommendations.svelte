@@ -2,12 +2,13 @@
 	import { onMount } from 'svelte';
 	import { TrendingUp, Loader2, RefreshCw } from '@lucide/svelte';
 	import AurPackageCard from './AurPackageCard.svelte';
+	import Pagination from '$lib/components/ui/Pagination.svelte';
 	import { fetch } from '@tauri-apps/plugin-http';
 	import { commands } from '$lib/commands';
 	import type { AurPackageInfo } from '$lib/commands';
 
 	interface Props {
-		actionStates: Record<string, 'idle' | 'installing' | 'success' | 'error'>;
+		actionStates: Record<string, 'idle' | 'installing' | 'uninstalling' | 'success' | 'error'>;
 		oninstall: (name: string) => void;
 		onremove: (name: string) => void;
 	}
@@ -18,6 +19,13 @@
 	let loading = $state(true);
 	let error = $state('');
 
+	let currentPage = $state(1);
+	const itemsPerPage = 12;
+	let totalPages = $derived(Math.ceil(popularPackages.length / itemsPerPage));
+	let paginatedPackages = $derived(
+		popularPackages.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+	);
+
 	onMount(async () => {
 		await loadPopular();
 	});
@@ -25,9 +33,10 @@
 	async function loadPopular() {
 		loading = true;
 		error = '';
+		currentPage = 1;
 		try {
 			// Fetch the most popular packages from the AUR website
-			const res = await fetch('https://aur.archlinux.org/packages?O=0&SB=p&SO=d&PP=50', {
+			const res = await fetch('https://aur.archlinux.org/packages?O=0&SB=p&SO=d&PP=250', {
 				method: 'GET'
 			});
 			if (!res.ok) throw new Error('Failed to fetch from AUR website');
@@ -37,7 +46,7 @@
 			let match;
 
 			const scrapedNames: string[] = [];
-			while ((match = regex.exec(html)) !== null && scrapedNames.length < 12) {
+			while ((match = regex.exec(html)) !== null) {
 				const pkgName = match[1];
 				if (!scrapedNames.includes(pkgName) && !pkgName.includes('?')) {
 					scrapedNames.push(pkgName);
@@ -93,7 +102,7 @@
 		</div>
 	{:else if popularPackages.length > 0}
 		<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-			{#each popularPackages as pkg (pkg.name)}
+			{#each paginatedPackages as pkg (pkg.name)}
 				<AurPackageCard
 					{pkg}
 					installState={actionStates[pkg.name] || 'idle'}
@@ -102,5 +111,7 @@
 				/>
 			{/each}
 		</div>
+
+		<Pagination bind:currentPage {totalPages} />
 	{/if}
 </div>
