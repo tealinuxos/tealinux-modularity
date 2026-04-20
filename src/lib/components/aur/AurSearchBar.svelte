@@ -22,7 +22,7 @@
 			if (q.trim().length >= 2) {
 				onsearch(q.trim());
 			}
-		}, 400);
+		}, 700);
 	}
 
 	function handleKeydown(e: KeyboardEvent) {

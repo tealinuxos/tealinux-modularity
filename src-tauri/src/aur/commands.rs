@@ -5,6 +5,24 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::collections::HashSet;
 use std::process::Command;
+use std::sync::{Mutex, OnceLock};
+use std::time::{Duration, Instant};
+
+// --- Top-packages cache: valid for 10 minutes ---
+const TOP_CACHE_TTL: Duration = Duration::from_secs(10 * 60);
+
+static TOP_CACHE: OnceLock<Mutex<Option<(Vec<AurPackageInfo>, Instant)>>> = OnceLock::new();
+
+fn top_cache() -> &'static Mutex<Option<(Vec<AurPackageInfo>, Instant)>> {
+    TOP_CACHE.get_or_init(|| Mutex::new(None))
+}
+
+// --- Shared reqwest client for Tauri commands ---
+use std::sync::OnceLock as HttpOnceLock;
+static HTTP_CLIENT: HttpOnceLock<reqwest::Client> = HttpOnceLock::new();
+fn http_client() -> &'static reqwest::Client {
+    HTTP_CLIENT.get_or_init(reqwest::Client::new)
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct AurPackageInfo {
@@ -84,8 +102,13 @@ pub async fn search_aur_packages(query: String) -> Vec<AurPackageInfo> {
 
     match AurClient::search(query).await {
         Ok(packages) => {
-            let mut results: Vec<AurPackageInfo> =
-                packages.into_iter().map(convert_package).collect();
+            // Batch check installed status with a single `pacman -Qq` call
+            // instead of one `pacman -Qi` per package (old convert_package).
+            let installed_set = batch_check_installed();
+            let mut results: Vec<AurPackageInfo> = packages
+                .into_iter()
+                .map(|pkg| convert_package_batch(pkg, &installed_set))
+                .collect();
             results.sort_by(|a, b| {
                 b.popularity
                     .partial_cmp(&a.popularity)
@@ -258,15 +281,26 @@ fn convert_package_batch(
     }
 }
 
-/// Get top popular AUR packages (scraped + batch-fetched in one go)
+/// Get top popular AUR packages (scraped + batch-fetched, cached for 10 minutes)
 #[tauri::command]
 #[specta::specta]
 pub async fn get_top_aur_packages() -> Vec<AurPackageInfo> {
-    // 1. Scrape top package names from AUR website
-    let html = match reqwest::get(
-        "https://aur.archlinux.org/packages?O=0&SB=p&SO=d&PP=100",
-    )
-    .await
+    // --- Check cache first ---
+    {
+        let cache = top_cache().lock().unwrap();
+        if let Some((ref cached, ref cached_at)) = *cache {
+            if cached_at.elapsed() < TOP_CACHE_TTL {
+                eprintln!("[aur] Returning top packages from cache");
+                return cached.clone();
+            }
+        }
+    }
+
+    // --- Cache miss: scrape top package names from AUR website ---
+    let html = match http_client()
+        .get("https://aur.archlinux.org/packages?O=0&SB=p&SO=d&PP=100")
+        .send()
+        .await
     {
         Ok(resp) => match resp.text().await {
             Ok(text) => text,
@@ -298,7 +332,7 @@ pub async fn get_top_aur_packages() -> Vec<AurPackageInfo> {
 
     eprintln!("[aur] Scraped {} package names, fetching info in batch...", scraped_names.len());
 
-    // 2. Batch fetch info from AUR RPC API (chunks of 100 to stay within URL limits)
+    // Batch fetch info from AUR RPC API
     let mut all_packages = Vec::new();
     for chunk in scraped_names.chunks(100) {
         let refs: Vec<&str> = chunk.iter().map(|s| s.as_str()).collect();
@@ -310,10 +344,10 @@ pub async fn get_top_aur_packages() -> Vec<AurPackageInfo> {
         }
     }
 
-    // 3. Batch check installed status (single pacman -Qq call)
+    // Batch check installed status (single pacman -Qq call)
     let installed_set = batch_check_installed();
 
-    // 4. Convert and sort by popularity
+    // Convert and sort by popularity
     let mut results: Vec<AurPackageInfo> = all_packages
         .into_iter()
         .map(|pkg| convert_package_batch(pkg, &installed_set))
@@ -326,5 +360,12 @@ pub async fn get_top_aur_packages() -> Vec<AurPackageInfo> {
     });
 
     eprintln!("[aur] Returning {} top packages", results.len());
+
+    // --- Store in cache ---
+    {
+        let mut cache = top_cache().lock().unwrap();
+        *cache = Some((results.clone(), Instant::now()));
+    }
+
     results
 }

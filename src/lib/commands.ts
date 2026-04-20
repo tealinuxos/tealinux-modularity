@@ -144,7 +144,7 @@ async listInstalledAur() : Promise<InstalledAurInfo[]> {
     return await TAURI_INVOKE("list_installed_aur");
 },
 /**
- * Get top popular AUR packages (scraped + batch-fetched in one go)
+ * Get top popular AUR packages (scraped + batch-fetched, cached for 10 minutes)
  */
 async getTopAurPackages() : Promise<AurPackageInfo[]> {
     return await TAURI_INVOKE("get_top_aur_packages");
