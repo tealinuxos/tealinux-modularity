@@ -354,18 +354,19 @@
 													<CheckCircle2 class="w-5 h-5 text-[#26A768]" />
 												</div>
 												<div class="min-w-0 flex flex-col gap-0.5">
-													<p class="text-[0.95rem] font-bold text-foreground truncate">
-														{pkg.name}
-													</p>
 													<div class="flex items-center gap-2">
-														<p
-															class="text-[0.7rem] text-muted-foreground font-mono bg-accent px-1.5 py-0.5 rounded-sm m-0"
-														>
-															{pkg.version}
+														<p class="text-[1.05rem] font-bold text-foreground truncate">
+															{pkg.name}
 														</p>
+														<span class="text-[0.72rem] font-mono text-muted-foreground/40 mt-0.5"
+															>{pkg.version}</span
+														>
+													</div>
+													<div class="flex items-center gap-1.5">
+														<div class="w-1.5 h-1.5 rounded-full bg-[#26A768]"></div>
 														<span
-															class="text-[0.6rem] font-extrabold uppercase tracking-widest text-[#26A768]/90"
-															>Installed</span
+															class="text-[0.6rem] font-extrabold uppercase tracking-widest text-muted-foreground/60"
+															>System Synced</span
 														>
 													</div>
 												</div>

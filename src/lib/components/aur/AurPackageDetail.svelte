@@ -71,24 +71,23 @@
 		<Dialog.Root {open} onOpenChange={handleOpenChange}>
 			<Dialog.Content class="max-w-lg max-h-[85vh] overflow-y-auto">
 				<Dialog.Header>
-					<Dialog.Title class="text-lg">{pkg.name}</Dialog.Title>
-					<div class="flex items-center gap-2 mt-1">
-						<span
-							class="px-2 py-0.5 rounded text-xs font-mono font-medium bg-primary/10 text-primary"
-							>{pkg.version}</span
-						>
-						{#if pkg.out_of_date}
-							<span
-								class="flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-destructive/10 text-destructive"
-							>
-								<AlertTriangle class="w-3 h-3" /> Out of date
-							</span>
-						{/if}
+					<div class="flex items-baseline gap-3">
+						<Dialog.Title class="text-2xl font-bold">{pkg.name}</Dialog.Title>
+						<span class="text-sm font-mono text-muted-foreground/40">{pkg.version}</span>
+					</div>
+					<div class="flex items-center gap-3 mt-2">
 						{#if pkg.installed}
 							<span
-								class="flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary"
+								class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#26A768] bg-[#26A768]/10 px-2 py-0.5 rounded"
 							>
-								<CheckCircle2 class="w-3 h-3" /> Installed
+								<CheckCircle2 class="w-3.5 h-3.5" /> Installed
+							</span>
+						{/if}
+						{#if pkg.out_of_date}
+							<span
+								class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-red-500 bg-red-500/10 px-2 py-0.5 rounded"
+							>
+								<AlertTriangle class="w-3.5 h-3.5" /> Out of date
 							</span>
 						{/if}
 					</div>
@@ -219,7 +218,7 @@
 					{:else}
 						<button
 							onclick={() => oninstall?.(pkg?.name ?? '')}
-							class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium transition-colors w-full justify-center"
+							class="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#26A768] text-[#052e16] hover:bg-[#4bc043] shadow-[0_3px_12px_rgba(84,205,76,0.2)] text-sm font-bold transition-all w-full justify-center"
 							><Download class="w-4 h-4" /> Install Package</button
 						>
 					{/if}

@@ -137,21 +137,21 @@
 		class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 has-[[data-slot=card-action]]:grid-cols-[1fr_auto] has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
 	>
 		<!-- Title Area -->
-		<div class="flex items-center gap-2 flex-wrap">
-			<h4 data-slot="card-title" class="leading-none text-[0.95rem] font-bold text-foreground">
+		<div class="flex items-center gap-2 flex-wrap min-w-0">
+			<h4
+				data-slot="card-title"
+				class="leading-none text-[0.95rem] font-bold text-foreground truncate"
+			>
 				{pkg.name}
 			</h4>
-			<PackageBadge
-				name={pkg.version}
-				variant="aur"
-				isSelected={false}
-				onclick={(e: any) => e.stopPropagation()}
-			/>
+			<span class="text-[0.7rem] font-mono text-muted-foreground/50 shrink-0">
+				{pkg.version}
+			</span>
 			{#if pkg.out_of_date}
 				<span
-					class="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-destructive/10 text-destructive border border-destructive/20 shadow-sm"
+					class="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-red-500/10 text-red-500 border border-red-500/20 shadow-sm"
 				>
-					<AlertTriangle class="w-3 h-3" /> Outdated
+					<AlertTriangle class="w-2.5 h-2.5" /> Outdated
 				</span>
 			{/if}
 		</div>
@@ -246,11 +246,12 @@
 				></span
 			>
 			{#if pkg.installed}
-				<span
-					class="ml-1 flex items-center gap-1 text-[0.62rem] font-extrabold uppercase tracking-widest text-[#26A768]/90 bg-[#26A768]/10 px-1.5 py-0.5 rounded-sm shrink-0"
-				>
-					<CheckCircle2 class="w-[0.7rem] h-[0.7rem]" /> Installed
-				</span>
+				<div class="flex items-center gap-1.5 ml-1 shrink-0">
+					<div class="w-1.5 h-1.5 rounded-full bg-[#26A768]"></div>
+					<span class="text-[0.65rem] font-bold uppercase tracking-widest text-muted-foreground/60"
+						>Synced</span
+					>
+				</div>
 			{/if}
 		</div>
 		<div

@@ -112,8 +112,8 @@
 					: selectedCount === 0 || isProcessing
 						? 'bg-muted text-muted-foreground cursor-not-allowed'
 						: sizeLoading
-							? 'bg-[#26A768] text-black shadow-lg shadow-green-500/20 animate-pulse'
-							: 'bg-[#26A768] hover:bg-[#45b03e] text-black shadow-lg shadow-green-500/20 active:scale-95'
+							? 'bg-[#26A768] text-[#052e16] shadow-lg shadow-green-500/20 animate-pulse'
+							: 'bg-[#26A768] hover:bg-[#4bc043] text-[#052e16] shadow-lg shadow-green-500/20 active:scale-95'
 			}`}
 	>
 		{#if installState === 'installing'}

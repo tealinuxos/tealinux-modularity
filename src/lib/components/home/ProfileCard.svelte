@@ -34,7 +34,7 @@
 </script>
 
 <div
-	class="group relative bg-card border border-border rounded-2xl overflow-hidden transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5"
+	class="group relative bg-card border border-border rounded-2xl overflow-hidden transition-all duration-300 hover:border-[#26A768]/40 hover:shadow-lg hover:shadow-[#26A768]/10 hover:-translate-y-0.5"
 >
 	<!-- Gradient Header -->
 	<div class="h-2 bg-gradient-to-r {gradientClass}"></div>
@@ -53,7 +53,9 @@
 		</div>
 
 		<!-- Title & Description -->
-		<h3 class="font-bold text-lg mb-1.5 text-foreground group-hover:text-primary transition-colors">
+		<h3
+			class="font-bold text-lg mb-1.5 text-foreground group-hover:text-[#26A768] transition-colors"
+		>
 			{title}
 		</h3>
 		<p class="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">
@@ -103,8 +105,8 @@
 					: installState === 'error'
 						? 'bg-red-500/20 text-red-400 border border-red-500/30'
 						: installState === 'installing'
-							? 'bg-primary/20 text-primary border border-primary/30 cursor-wait'
-							: 'bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98]'}"
+							? 'bg-[#26A768]/20 text-[#26A768] border border-[#26A768]/30 cursor-wait'
+							: 'bg-[#26A768] text-[#052e16] hover:bg-[#4bc043] active:scale-[0.98]'}"
 			>
 				{#if installState === 'installing'}
 					<LoaderCircle class="w-4 h-4 animate-spin" />

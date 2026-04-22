@@ -6,12 +6,13 @@
 		name: string;
 		variant: 'official' | 'aur';
 		isSelected?: boolean;
+		hideIcon?: boolean;
 		onclick?: () => void;
 	}
 
-	let { name, variant, isSelected = false, onclick }: Props = $props();
+	let { name, variant, isSelected = false, hideIcon = false, onclick }: Props = $props();
 
-	let devIcon = $derived(getDeviconClass(name));
+	let devIcon = $derived(!hideIcon ? getDeviconClass(name) : null);
 </script>
 
 {#if variant === 'official'}
@@ -23,12 +24,18 @@
 			: 'border-border bg-muted/50 hover:bg-muted hover:border-border/80'}"
 		{onclick}
 	>
-		{#if devIcon}
-			<i
-				class="{devIcon} shrink-0 text-lg {isSelected ? 'text-[#26A768]' : 'text-muted-foreground'}"
-			></i>
-		{:else}
-			<Package class="h-4 w-4 shrink-0 {isSelected ? 'text-[#26A768]' : 'text-muted-foreground'}" />
+		{#if !hideIcon}
+			{#if devIcon}
+				<i
+					class="{devIcon} shrink-0 text-lg {isSelected
+						? 'text-[#26A768]'
+						: 'text-muted-foreground'}"
+				></i>
+			{:else}
+				<Package
+					class="h-4 w-4 shrink-0 {isSelected ? 'text-[#26A768]' : 'text-muted-foreground'}"
+				/>
+			{/if}
 		{/if}
 		<span class="font-mono text-sm {isSelected ? 'text-[#26A768] font-semibold' : ''}">{name}</span>
 	</button>
@@ -41,10 +48,12 @@
 			: 'border-border border-l-amber-500/50 bg-card hover:bg-muted/30 hover:border-border/80'}"
 		{onclick}
 	>
-		{#if devIcon}
-			<i class="{devIcon} shrink-0 text-lg text-amber-500"></i>
-		{:else}
-			<Download class="h-4 w-4 shrink-0 text-amber-500" />
+		{#if !hideIcon}
+			{#if devIcon}
+				<i class="{devIcon} shrink-0 text-lg text-amber-500"></i>
+			{:else}
+				<Download class="h-4 w-4 shrink-0 text-amber-500" />
+			{/if}
 		{/if}
 		<span class="font-mono text-sm {isSelected ? 'text-amber-400 font-semibold' : ''}">{name}</span>
 	</button>
