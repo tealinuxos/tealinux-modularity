@@ -28,7 +28,7 @@ export const teabarItems = [
 	},
 	{
 		href: '/grub',
-		label: 'GRUB Changer',
+		label: 'Boot Theme',
 		icon: SlidersHorizontal
 	}
 ];

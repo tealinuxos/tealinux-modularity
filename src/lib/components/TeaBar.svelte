@@ -14,8 +14,8 @@
 
 <Sidebar.Root>
 	<Sidebar.Header class="flex flex-row gap-x-1 items-center px-4 py-3 border-b">
-		<img class="size-8" src="tealinux.svg" alt="TeaLinuxOS Logo" />
-		<p class="text-[#26A768] font-bold text-xl">TeaLinuxOS</p>
+		<img class="size-8 rounded-md" src="modularitea.png" alt="Modularitea Logo" />
+		<p class="text-[#26A768] font-bold text-xl">Modularitea</p>
 	</Sidebar.Header>
 	<Sidebar.Content class="px-3.5 py-3">
 		{#each teabarItems as item (item.href)}
