@@ -3,11 +3,15 @@ use specta_typescript::Typescript;
 use tauri::Manager;
 use tauri_specta::{collect_commands, Builder};
 
+use std::sync::Mutex;
+
 use crate::grub::initialization::GrubManager;
 
 mod aur;
 mod grub;
 mod installer;
+mod pkexec_args;
+mod settings;
 mod splash;
 mod sysinfo;
 mod utils;
@@ -15,7 +19,7 @@ mod utils;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // GRUB Manager Struct Setup
-    let grub_manager = GrubManager::new();
+    let grub_manager = Mutex::new(GrubManager::new());
 
     let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
         // System info commands
@@ -44,6 +48,17 @@ pub fn run() {
         // GRUB Commands
         grub::command::get_grub_themes,
         grub::command::set_grub_theme,
+        // Modularitea integrations (RSS, mirrors, DNS, swap, cache, cpufreq)
+        settings::fetch_parsed_news,
+        settings::mirror_reflector_country_list,
+        settings::settings_refresh_mirror,
+        settings::settings_change_dns,
+        settings::settings_dns_status_line,
+        settings::settings_toggle_swap,
+        settings::settings_swap_enabled_state,
+        settings::settings_clean_package_cache,
+        settings::settings_set_cpu_profile,
+        settings::settings_cpu_governor_line,
         // AUR Commands
         aur::commands::search_aur_packages,
         aur::commands::get_aur_package_info,

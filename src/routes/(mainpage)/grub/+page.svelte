@@ -1,24 +1,24 @@
 <script lang="ts">
 	import { SlidersHorizontal, LoaderCircle } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card/index';
-	import * as Carousel from '$lib/components/ui/carousel/index';
-	import * as AlertDialog from '$lib/components/ui/alert-dialog/index';
+	import * as Card from '$lib/components/ui/card';
+	import * as Carousel from '$lib/components/ui/carousel';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { onMount } from 'svelte';
 	import { cn } from '$lib/utils';
-	import { commands, type LocalThemeManifest } from '$lib/commands';
-	import { errorMessageMapper } from '$lib/utils/error-message-mapper';
+	import { fetchThemes, applyTheme } from '$lib/services/grub.service';
+	import { briefErrorMessage } from '$lib/utils/frontend-error-msg';
+	import type { ThemeManifest } from '$lib/commands';
 
 	const listThemes = $state({
-		data: [] as LocalThemeManifest[],
+		data: [] as ThemeManifest[],
 		isLoading: true,
 		error: null as string | null
 	});
 
 	const selectedTheme = $state({
-		index: 0 as number,
-		theme: null as LocalThemeManifest | null
+		theme: null as ThemeManifest | null
 	});
 
 	const installState = $state({
@@ -64,47 +64,61 @@
 		dialogOpen = false;
 	};
 
-	const themeClickHandler = (theme: LocalThemeManifest, index: number) => {
-		selectedTheme.index = index;
+	const themeClickHandler = (theme: ThemeManifest) => {
 		selectedTheme.theme = theme;
 	};
 
 	const installThemeHandler = async () => {
-		if (!selectedTheme.theme) return;
+		if (!selectedTheme.theme?.name) return;
 
 		installState.isLoading = true;
 		installState.error = null;
 		installState.success = false;
 
-		try {
-			const result = await commands.setGrubTheme(selectedThemeName!);
+		const result = await applyTheme(selectedTheme.theme.name);
 
-			if (result.status === 'ok') {
-				installState.success = true;
+		installState.isLoading = false;
 
-				setTimeout(() => {
-					dialogOpen = false;
-					resetInstallState();
-				}, 2000);
-			} else if (result.status === 'error') {
-				installState.error = errorMessageMapper(result.error);
-			}
-		} catch (e) {
-			installState.error = e instanceof Error ? e.message : 'Failed to install theme';
-		} finally {
-			installState.isLoading = false;
+		if (result.success) {
+			installState.success = true;
+			setTimeout(() => {
+				dialogOpen = false;
+				resetInstallState();
+			}, 2000);
+		} else {
+			installState.error = briefErrorMessage(result.code, result.error);
 		}
 	};
 
+	let previewBroken = $state(false);
+	let themeFilter = $state('');
+
+	const visibleThemes = $derived.by(() => {
+		const q = themeFilter.trim().toLowerCase();
+		if (!q) return listThemes.data;
+		return listThemes.data.filter((t) => t.name.toLowerCase().includes(q));
+	});
+
+	let filterDebounce: ReturnType<typeof setTimeout> | undefined;
+	let themeFilterInput = $state('');
+	$effect(() => {
+		const v = themeFilterInput;
+		clearTimeout(filterDebounce);
+		filterDebounce = setTimeout(() => {
+			themeFilter = v;
+		}, 200);
+		return () => clearTimeout(filterDebounce);
+	});
+
 	onMount(async () => {
-		try {
-			listThemes.data = await commands.getGrubThemes();
-			selectedTheme.theme = listThemes.data[0];
-		} catch (e) {
-			listThemes.error = e instanceof Error ? e.message : 'Gagal memuat tema';
-		} finally {
-			listThemes.isLoading = false;
+		const result = await fetchThemes();
+		if (result.success) {
+			listThemes.data = result.data;
+			selectedTheme.theme = result.data[0];
+		} else {
+			listThemes.error = briefErrorMessage(result.code, result.error);
 		}
+		listThemes.isLoading = false;
 	});
 </script>
 
@@ -122,39 +136,85 @@
 					class="relative w-full h-full rounded-md border flex items-center justify-center overflow-hidden bg-muted/30"
 				>
 					<img
-						src={selectedPreview}
+						src={previewBroken ? 'https://placehold.co/1280x720/cccccc/333333?text=Preview+unavailable' : selectedPreview}
 						alt="Preview"
+						loading="lazy"
+						referrerpolicy="no-referrer"
 						class="absolute inset-0 h-full w-full object-contain"
+						onerror={() => {
+							previewBroken = true;
+						}}
+						onload={() => {
+							previewBroken = false;
+						}}
 					/>
 				</div>
 			</section>
 
-			<section class="flex flex-col shrink-0">
-				<p class="text-[#99A1AF] mb-2">Choose A Theme</p>
+			<section class="flex flex-col shrink-0 gap-2">
+				<p class="text-[#99A1AF]">Choose A Theme</p>
+				<input
+					class={cn(
+						'w-full max-w-md rounded-md border border-input bg-background px-3 py-2 text-sm',
+						'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+					)}
+					placeholder="Search themes…"
+					bind:value={themeFilterInput}
+				/>
+				{#if listThemes.error}
+					<div class="rounded-md border border-destructive/40 bg-destructive/10 p-4 flex flex-col gap-2 items-start">
+						<p class="text-sm text-destructive">{listThemes.error}</p>
+						<Button
+							size="sm"
+							variant="outline"
+							onclick={async () => {
+								listThemes.isLoading = true;
+								listThemes.error = null;
+								const result = await fetchThemes();
+								if (result.success) {
+									listThemes.data = result.data;
+									selectedTheme.theme = result.data[0];
+								} else {
+									listThemes.error = briefErrorMessage(result.code, result.error);
+								}
+								listThemes.isLoading = false;
+							}}
+						>
+							Try Again
+						</Button>
+					</div>
+				{/if}
 				<Carousel.Root opts={{ align: 'start', skipSnaps: true }} class="w-full">
 					<Carousel.Content>
 						{#if listThemes.isLoading}
-							{#each Array(5)}
+							{#each { length: 5 } as _, i (i)}
 								{@render SkeletonCard()}
 							{/each}
+						{:else if visibleThemes.length === 0}
+							<p class="text-sm text-muted-foreground py-6 px-2">No themes match your search.</p>
 						{:else}
-							{#each listThemes.data as theme, i (theme.name)}
+							{#each visibleThemes as theme (theme.name)}
 								<Carousel.Item
-									onclick={() => themeClickHandler(theme, i)}
+									onclick={() => themeClickHandler(theme)}
 									class="basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
 								>
 									<div class="p-1">
 										<Card.Root
 											class={cn(
 												'relative flex aspect-video items-center justify-center p-0 overflow-hidden rounded-xl border-4 border-transparent hover:border-primary cursor-pointer transition-all',
-												selectedTheme.index === i ? 'border-primary' : ''
+												selectedTheme.theme?.name === theme.name ? 'border-primary' : ''
 											)}
 										>
 											<img
-												src={theme.preview_image}
+												src={theme.preview_image ?? ''}
 												loading="lazy"
+												referrerpolicy="no-referrer"
 												alt={theme.name}
-												class="absolute inset-0 h-full w-full object-cover"
+												class="absolute inset-0 h-full w-full object-cover bg-muted"
+												onerror={(e) => {
+													(e.currentTarget as HTMLImageElement).src =
+														'https://placehold.co/640x360/e2e8f0/64748b?text=Preview';
+												}}
 											/>
 										</Card.Root>
 									</div>
@@ -213,17 +273,17 @@
 					{#if dialogPhase === 'loading'}
 						Applying <strong>{selectedThemeName}</strong>, please wait and do not close this window.
 					{:else if dialogPhase === 'success'}
-						<span class="text-green-600">
-							The GRUB theme <strong>{selectedThemeName}</strong> has been successfully applied! This
-							dialog will close automatically.
+						<span class="text-green-600 dark:text-green-400">
+							The GRUB theme <strong>{selectedThemeName}</strong> has been successfully applied. This dialog
+							will close automatically.
 						</span>
 					{:else if dialogPhase === 'error'}
 						<span class="text-destructive">
 							{installState.error}
 						</span>
 					{:else}
-						This action will apply the selected theme to your GRUB configuration. Current selected
-						theme: <span class="underline underline-offset-2">{selectedThemeName}</span>
+						This action will apply the selected theme to your GRUB configuration (polkit / pkexec). Current theme:
+						<span class="underline underline-offset-2">{selectedThemeName}</span>
 					{/if}
 				</AlertDialog.Description>
 			</AlertDialog.Header>

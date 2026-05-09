@@ -105,13 +105,38 @@ async showMainWindow() : Promise<void> {
 async getGrubThemes() : Promise<ThemeManifest[]> {
     return await TAURI_INVOKE("get_grub_themes");
 },
-async setGrubTheme(themeName: string) : Promise<Result<LocalCommandOutput, LocalModulariteaError>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("set_grub_theme", { themeName }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
+async setGrubTheme(themeName: string) : Promise<ApiResultVoid> {
+    return await TAURI_INVOKE("set_grub_theme", { themeName });
+},
+async fetchParsedNews(forceRefresh: boolean) : Promise<ApiResultParsedNews> {
+    return await TAURI_INVOKE("fetch_parsed_news", { forceRefresh });
+},
+async mirrorReflectorCountryList() : Promise<string[]> {
+    return await TAURI_INVOKE("mirror_reflector_country_list");
+},
+async settingsRefreshMirror(country: string) : Promise<ApiResultStr> {
+    return await TAURI_INVOKE("settings_refresh_mirror", { country });
+},
+async settingsChangeDns(provider: string) : Promise<ApiResultVoid> {
+    return await TAURI_INVOKE("settings_change_dns", { provider });
+},
+async settingsDnsStatusLine() : Promise<ApiResultStr> {
+    return await TAURI_INVOKE("settings_dns_status_line");
+},
+async settingsToggleSwap(enabled: boolean) : Promise<ApiResultVoid> {
+    return await TAURI_INVOKE("settings_toggle_swap", { enabled });
+},
+async settingsSwapEnabledState() : Promise<ApiResultBool> {
+    return await TAURI_INVOKE("settings_swap_enabled_state");
+},
+async settingsCleanPackageCache() : Promise<ApiResultBool> {
+    return await TAURI_INVOKE("settings_clean_package_cache");
+},
+async settingsSetCpuProfile(profile: string) : Promise<ApiResultVoid> {
+    return await TAURI_INVOKE("settings_set_cpu_profile", { profile });
+},
+async settingsCpuGovernorLine() : Promise<ApiResultStr> {
+    return await TAURI_INVOKE("settings_cpu_governor_line");
 },
 /**
  * Search AUR packages by query string
@@ -161,15 +186,16 @@ async getTopAurPackages() : Promise<AurPackageInfo[]> {
 
 /** user-defined types **/
 
+export type ApiResultBool = { success: boolean; data?: boolean | null; error?: string | null; code?: string | null }
+export type ApiResultParsedNews = { success: boolean; data?: ParsedNewsItemDto[] | null; error?: string | null; code?: string | null }
+export type ApiResultStr = { success: boolean; data?: string | null; error?: string | null; code?: string | null }
+export type ApiResultVoid = { success: boolean; error?: string | null; code?: string | null }
 export type Audio = { devices: string[] }
 export type AurPackageInfo = { name: string; version: string; description: string; maintainer: string; num_votes: number; popularity: number; out_of_date: boolean; installed: boolean; url: string; aur_url: string; first_submitted: bigint | null; last_modified: bigint | null; license: string[]; depends: string[]; make_depends: string[]; opt_depends: string[] }
 export type BackendResult = { success: boolean; stdout: string; stderr: string; exit_code: number }
 export type Computer = { processor: string; memory: bigint; operating_system: string; kernel_version: string; username: string[] }
 export type Display = { monitor_name: string[]; graphic_cards: string[]; display_protocol: string; display_windows_manager: string }
 export type InstalledAurInfo = { name: string; version: string }
-export type LocalCommandError = { operation: string; exit_code: number | null; stderr: string }
-export type LocalCommandOutput = { exit_code: number; stdout: string; stderr: string; success: boolean }
-export type LocalModulariteaError = { type: "ProfileReadError"; data: { path: string; source: string } } | { type: "ProfileParseError"; data: { path: string; source: string } } | { type: "ProfileValidationError"; data: { message: string } } | { type: "PlanningError"; data: { message: string } } | { type: "DependencyError"; data: { message: string } } | { type: "CircularDependencyError"; data: { cycle: string } } | { type: "ExecutionError"; data: { task_name: string; source: string } } | { type: "RollbackError"; data: { task_name: string; reason: string } } | { type: "PacmanError"; data: LocalCommandError } | { type: "GrubError"; data: { operation: string; reason: string } } | { type: "SystemctlError"; data: { operation: string; exit_code: number | null; stderr: string } } | { type: "FilesystemError"; data: { operation: string; source: string } } | { type: "PrivilegeError"; data: { reason: string } } | { type: "PkexecNotFound" } | { type: "PolkitCancelled" } | { type: "RootBinaryNotFound"; data: { binary: string } } | { type: "CommandError"; data: { command: string; exit_code: number | null; stderr: string } } | { type: "IoError"; data: string } | { type: "InternalError"; data: string }
 /**
  * Per-package size information from `pacman -Si`
  */
@@ -178,6 +204,7 @@ export type PackageDownloadInfo = { name: string; download_size_bytes: number; i
  * Summary of total download/install size for a list of packages
  */
 export type PackageSizeInfo = { packages: PackageDownloadInfo[]; total_download_bytes: number; total_install_bytes: number; total_download_human: string; total_install_human: string }
+export type ParsedNewsItemDto = { url: string; title: string; descriptive: string; thumbnail: string | null }
 /**
  * Profile metadata exposed to the frontend via Tauri commands.
  * This is a DTO (Data Transfer Object) that wraps the libs' domain model

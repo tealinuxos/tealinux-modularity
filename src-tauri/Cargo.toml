@@ -35,3 +35,4 @@ specta-typescript = "0.0.9"
 anyhow = "1.0.100"
 tauri-plugin-http = "2"
 resolution = "0.2.0"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

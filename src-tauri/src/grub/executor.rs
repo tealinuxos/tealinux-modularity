@@ -18,16 +18,24 @@ pub trait GrubInstructionExecutor {
 pub struct GrubInstruction {
     pub manifest: Vec<ThemeManifest>,
     pub screen_resolution: Option<(u32, u32)>,
+    pub themes_dir: String,
+}
+
+pub fn grub_themes_dir_path() -> String {
+    std::env::var("TEALINUX_GRUB_CHANGER_MANIFEST_DIR").unwrap_or_else(|_| {
+        option_env!("TEALINUX_GRUB_CHANGER_MANIFEST_DIR")
+            .unwrap_or("/usr/share/tealinux/grub-themes")
+            .to_string()
+    })
 }
 
 impl GrubInstruction {
-    fn load_manifests() -> Result<Vec<ThemeManifest>, LocalModulariteaError> {
-        let manifest_dir = option_env!("TEALINUX_GRUB_CHANGER_MANIFEST_DIR")
-            .unwrap_or("/usr/share/tealinux/grub-themes");
+    fn load_manifests() -> Result<(Vec<ThemeManifest>, String), LocalModulariteaError> {
+        let manifest_dir = grub_themes_dir_path();
 
         let mut manifests = Vec::new();
 
-        if let Ok(read_dir) = fs::read_dir(manifest_dir) {
+        if let Ok(read_dir) = fs::read_dir(&manifest_dir) {
             for entry in read_dir.flatten() {
                 if let Ok(file_type) = entry.file_type() {
                     if file_type.is_dir() {
@@ -43,7 +51,25 @@ impl GrubInstruction {
                 }
             }
         }
-        Ok(manifests)
+        Ok((manifests, manifest_dir))
+    }
+
+    pub fn reload_manifest(&mut self) {
+        match Self::load_manifests() {
+            Ok((m, dir)) => {
+                self.manifest = m;
+                self.themes_dir = dir;
+            }
+            Err(_) => {}
+        };
+    }
+
+    pub fn clone_with_resolution(&self, width: u32, height: u32) -> Self {
+        Self {
+            manifest: self.manifest.clone(),
+            themes_dir: self.themes_dir.clone(),
+            screen_resolution: Some((width, height)),
+        }
     }
 
     fn reset_grub_config() -> Result<(), LocalModulariteaError> {
@@ -69,9 +95,10 @@ impl GrubInstruction {
 
 impl GrubInstructionExecutor for GrubInstruction {
     fn new() -> Self {
-        let manifest = Self::load_manifests().unwrap_or_default();
+        let (manifest, themes_dir) = Self::load_manifests().unwrap_or_else(|_| (vec![], grub_themes_dir_path()));
         Self {
             manifest,
+            themes_dir,
             screen_resolution: None,
         }
     }
