@@ -1,0 +1,76 @@
+<script lang="ts">
+	import { Gauge, Zap, Cpu, Battery } from '@lucide/svelte';
+	import * as Card from '$lib/components/ui/card';
+
+	type Governor = 'powersave' | 'performance' | 'ondemand';
+
+	let active = $state<Governor>('performance');
+
+	const governors: {
+		value: Governor;
+		label: string;
+		sub: string;
+		Icon: typeof Cpu;
+		iconClass: string;
+	}[] = [
+		{
+			value: 'powersave',
+			label: 'Powersave',
+			sub: 'Saves battery',
+			Icon: Battery,
+			iconClass: 'text-yellow-500'
+		},
+		{
+			value: 'performance',
+			label: 'Performance',
+			sub: 'Max speed',
+			Icon: Zap,
+			iconClass: 'text-primary-foreground'
+		},
+		{
+			value: 'ondemand',
+			label: 'Ondemand',
+			sub: 'Balanced',
+			Icon: Cpu,
+			iconClass: 'text-blue-500'
+		}
+	];
+</script>
+
+<Card.Root>
+	<div class="flex flex-col gap-5 p-5 sm:flex-row sm:items-center">
+		<div class="flex flex-1 items-center gap-3">
+			<div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-orange-500/10">
+				<Gauge class="size-4 text-orange-500" />
+			</div>
+			<div>
+				<p class="text-sm font-semibold">CPU Performance</p>
+				<p class="mt-0.5 max-w-sm text-xs leading-relaxed text-muted-foreground">
+					Adjust the frequency scaling governor to balance energy efficiency and raw speed.
+				</p>
+			</div>
+		</div>
+
+		<div class="grid grid-cols-3 gap-2 sm:flex sm:shrink-0 sm:items-stretch">
+			{#each governors as { value, label, sub, Icon, iconClass } (value)}
+				{@const isActive = active === value}
+				<button
+					onclick={() => (active = value)}
+					class="flex min-w-25 flex-col items-center gap-1.5 rounded-xl border px-4 py-3 transition-all
+						{isActive
+						? 'border-primary bg-primary text-primary-foreground shadow-sm'
+						: 'border-border bg-muted/30 text-foreground hover:bg-muted/60'}"
+				>
+					<Icon class="size-4 {isActive ? 'text-primary-foreground' : iconClass}" />
+					<span class="text-xs font-semibold leading-none">{label}</span>
+					<span
+						class="text-[10px] font-medium uppercase tracking-wide
+							{isActive ? 'text-primary-foreground/70' : 'text-muted-foreground'}"
+					>
+						{isActive ? 'Active' : sub}
+					</span>
+				</button>
+			{/each}
+		</div>
+	</div>
+</Card.Root>
