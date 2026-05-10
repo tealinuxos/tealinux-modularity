@@ -32,7 +32,7 @@
 		</p>
 	</Card.Content>
 
-	<Card.Footer class="flex items-center justify-between border-t pt-4">
+	<Card.Footer class="flex items-center justify-between border-t h-[70px]">
 		<div class="flex items-center gap-1.5 text-xs text-muted-foreground">
 			<Clock class="size-3" />
 			<span>Last cleaned 3 days ago</span>
