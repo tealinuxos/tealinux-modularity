@@ -4,6 +4,7 @@
 	import './layout.css';
 	import { onMount, type Snippet } from 'svelte';
 	import { queryClientProvider } from '$lib/utils/client-provider';
+	import { ModeWatcher } from 'mode-watcher';
 
 	interface Props {
 		children: Snippet;
@@ -16,6 +17,7 @@
 	});
 </script>
 
+<ModeWatcher />
 <QueryClientProvider client={queryClientProvider}>
 	{@render children?.()}
 </QueryClientProvider>
