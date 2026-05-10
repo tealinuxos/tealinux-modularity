@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { SlidersHorizontal, LoaderCircle } from '@lucide/svelte';
+	import { Separator } from '$lib/components/ui/separator';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card/index';
 	import * as Carousel from '$lib/components/ui/carousel/index';
@@ -108,11 +109,18 @@
 	});
 </script>
 
-<main>
-	<div class="flex flex-row items-center gap-x-2 mb-4 shrink-0">
-		<SlidersHorizontal class="text-[#54CD4C] size-8" />
-		<h1 class="text-2xl font-semibold">GRUB Theme Changer</h1>
+<div class="flex flex-col gap-4 pb-6">
+	<div class="flex items-center gap-3">
+		<div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+			<SlidersHorizontal class="size-5 text-primary" />
+		</div>
+		<div>
+			<h1 class="text-xl font-semibold tracking-tight">GRUB Theme Changer</h1>
+			<p class="text-sm text-muted-foreground">Customize your bootloader appearance</p>
+		</div>
 	</div>
+
+	<Separator />
 
 	<Card.Root class="h-[calc(100vh-137px)] w-full bg-card flex flex-col py-0">
 		<Card.Content class="flex-1 min-h-0 flex flex-col p-4 gap-y-4">
@@ -170,7 +178,7 @@
 			{@render ApplyButton()}
 		</Card.Footer>
 	</Card.Root>
-</main>
+</div>
 
 {#snippet SkeletonCard()}
 	<Carousel.Item class="basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4">

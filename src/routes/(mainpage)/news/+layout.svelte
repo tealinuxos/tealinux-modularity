@@ -2,6 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import { RefreshCcw, TrendingUp } from '@lucide/svelte';
 	import * as Select from '$lib/components/ui/select/index';
+	import { Separator } from '$lib/components/ui/separator';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { newsState } from '$lib/state/news.svelte';
 	import type { RSS_URL } from '$lib/utils/news-fetcher';
@@ -30,23 +31,29 @@
 	let { children }: Props = $props();
 </script>
 
-<main class="min-h-screen">
-	<div class="flex flex-row items-center justify-between mb-4">
-		<div class="flex flex-row items-center gap-x-2">
-			<TrendingUp class="text-[#54CD4C] size-8" />
-			<h1 class="text-2xl">Latest News & Updates</h1>
+<div class="space-y-6 pb-6">
+	<div class="flex items-center justify-between gap-3">
+		<div class="flex items-center gap-3">
+			<div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+				<TrendingUp class="size-5 text-primary" />
+			</div>
+			<div>
+				<h1 class="text-xl font-semibold tracking-tight">Latest News</h1>
+				<p class="text-sm text-muted-foreground">Linux news and community updates</p>
+			</div>
 		</div>
-		<div class="flex flex-row gap-x-2">
-			<Button onclick={refreshHandler} variant="outline">
-				<RefreshCcw />
+
+		<div class="flex shrink-0 items-center gap-2">
+			<Button onclick={refreshHandler} variant="outline" size="icon">
+				<RefreshCcw class="size-4" />
 			</Button>
 			<Select.Root type="single" bind:value={newsState.provider}>
-				<Select.Trigger class="w-45">
+				<Select.Trigger class="w-36">
 					{triggerContent?.label}
 				</Select.Trigger>
 				<Select.Content>
 					<Select.Group>
-						<Select.Label>Select RSS News Provider</Select.Label>
+						<Select.Label>RSS News Provider</Select.Label>
 						{#each providers as item (item.url)}
 							<Select.Item
 								value={item.url}
@@ -61,7 +68,11 @@
 			</Select.Root>
 		</div>
 	</div>
-	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+	<Separator />
+
+	<!-- News Grid -->
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 		{@render children()}
 	</div>
-</main>
+</div>
