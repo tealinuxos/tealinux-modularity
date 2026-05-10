@@ -6,13 +6,19 @@
 	const providers = [
 		{ value: 'cloudflare', name: 'Cloudflare', address: '1.1.1.1', desc: 'Privacy-focused' },
 		{ value: 'google', name: 'Google DNS', address: '8.8.8.8', desc: 'High availability' },
-		{ value: 'quad9', name: 'Quad9', address: '9.9.9.9', desc: 'Security filtering' }
+		{ value: 'quad9', name: 'Quad9', address: '9.9.9.9', desc: 'Security filtering' },
+		{
+			value: 'bebasid',
+			name: 'BebasID',
+			address: 'dns.bebasid.com',
+			desc: 'Security and Adblocking'
+		}
 	];
 
 	let selected = $state('cloudflare');
 </script>
 
-<Card.Root class="h-full">
+<Card.Root class="h-[24.3rem]">
 	<Card.Header class="pb-3">
 		<div class="flex items-center gap-3">
 			<div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-green-500/10">

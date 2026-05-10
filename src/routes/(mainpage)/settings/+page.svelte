@@ -10,7 +10,7 @@
 	import CpuPerformance from './partials/cpu-performance.svelte';
 </script>
 
-<div class="space-y-6 pb-6">
+<div class="space-y-6 pb-6 h-fit">
 	<div class="flex items-center gap-3">
 		<div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
 			<Settings2 class="size-5 text-primary" />
@@ -23,17 +23,28 @@
 
 	<Separator />
 
-	<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-		<div class="md:col-span-2">
+	<div class="grid grid-cols-3 grid-rows-2 gap-4">
+		<div class="col-span-2">
 			<PackageCache />
 		</div>
 
-		<SwapMemory />
-		<SystemTheme />
-		<MirrorSettings />
-		<DnsConfiguration />
+		<div class="col-start-3">
+			<SwapMemory />
+		</div>
 
-		<div class="md:col-span-3">
+		<div class="row-start-2">
+			<SystemTheme />
+		</div>
+
+		<div class="row-start-2">
+			<MirrorSettings />
+		</div>
+
+		<div class="row-span-2 row-start-2">
+			<DnsConfiguration />
+		</div>
+
+		<div class="col-span-2">
 			<CpuPerformance />
 		</div>
 	</div>
