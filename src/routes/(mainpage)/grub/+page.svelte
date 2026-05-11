@@ -125,7 +125,7 @@
 <main>
 	<div class="flex flex-row items-center gap-x-2 mb-4 shrink-0">
 		<SlidersHorizontal class="text-[#54CD4C] size-8" />
-		<h1 class="text-2xl font-semibold">GRUB Theme Changer</h1>
+		<h1 class="text-2xl font-semibold">Boot Theme</h1>
 	</div>
 
 	<Card.Root class="h-[calc(100vh-137px)] w-full bg-card flex flex-col py-0">

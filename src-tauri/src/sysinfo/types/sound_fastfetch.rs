@@ -9,6 +9,8 @@ pub type SoundFastfetch = Vec<WelcomeElement>;
 pub struct WelcomeElement {
     #[serde(rename = "type")]
     pub welcome_type: String,
+    pub error: Option<String>,
+    #[serde(default)]
     pub result: Vec<Result>,
 }
 

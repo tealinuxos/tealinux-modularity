@@ -17,7 +17,7 @@ pub fn grub_screen_resolution_px() -> (u32, u32) {
 }
 
 pub fn primary_display_px() -> Option<(u32, u32)> {
-    let display_vec: DisplayFastfetch = fetch_module("Display");
+    let display_vec: DisplayFastfetch = fetch_module("Display").unwrap_or_default();
     display_vec
         .into_iter()
         .flat_map(|block| block.result.into_iter())

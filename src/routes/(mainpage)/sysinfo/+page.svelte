@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { commands, type Computer, type Audio, type Display } from '$lib/commands';
 	import { onMount } from 'svelte';
+	import { Cpu } from '@lucide/svelte';
 	import * as Accordion from '$lib/components/ui/accordion/';
+	import { Separator } from '$lib/components/ui/separator';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import prettyBytes from 'pretty-bytes';
 
@@ -81,12 +83,10 @@
 				{:else}
 					<span class="text-muted-foreground italic text-xs">- Empty -</span>
 				{/if}
+			{:else if key === 'memory'}
+				{prettyBytes(value as bigint, { binary: true, minimumFractionDigits: 2 })}
 			{:else}
-				{#if key === 'memory'}
-					{prettyBytes(value as bigint, { binary: true, minimumFractionDigits: 2 })}
-				{:else}
-					{value}
-				{/if}
+				{value}
 			{/if}
 		</div>
 	</div>
@@ -110,29 +110,43 @@
 	{/if}
 {/snippet}
 
-<Accordion.Root
-	type="multiple"
-	class="bg-sidebar rounded-lg w-full shadow-sm flex flex-col"
-	value={['computer', 'display']}
->
-	<Accordion.Item class="px-3 border-b" value="computer">
-		<Accordion.Trigger class="group">Computer</Accordion.Trigger>
-		<Accordion.Content>
-			{@render stateRenderer(computerState)}
-		</Accordion.Content>
-	</Accordion.Item>
+<div class="space-y-6 pb-6">
+	<div class="flex items-center gap-3">
+		<div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+			<Cpu class="size-5 text-primary" />
+		</div>
+		<div>
+			<h1 class="text-xl font-semibold tracking-tight">System Information</h1>
+			<p class="text-sm text-muted-foreground">Hardware and system specifications</p>
+		</div>
+	</div>
 
-	<Accordion.Item class="px-3 border-b" value="display">
-		<Accordion.Trigger class="group">Display</Accordion.Trigger>
-		<Accordion.Content>
-			{@render stateRenderer(displayState)}
-		</Accordion.Content>
-	</Accordion.Item>
+	<Separator />
 
-	<Accordion.Item class="px-3 border-b-0" value="audio">
-		<Accordion.Trigger class="group">Audio</Accordion.Trigger>
-		<Accordion.Content>
-			{@render stateRenderer(audioState)}
-		</Accordion.Content>
-	</Accordion.Item>
-</Accordion.Root>
+	<Accordion.Root
+		type="multiple"
+		class="bg-sidebar rounded-lg w-full shadow-sm flex flex-col"
+		value={['computer', 'display']}
+	>
+		<Accordion.Item class="px-3 border-b" value="computer">
+			<Accordion.Trigger class="group">Computer</Accordion.Trigger>
+			<Accordion.Content>
+				{@render stateRenderer(computerState)}
+			</Accordion.Content>
+		</Accordion.Item>
+
+		<Accordion.Item class="px-3 border-b" value="display">
+			<Accordion.Trigger class="group">Display</Accordion.Trigger>
+			<Accordion.Content>
+				{@render stateRenderer(displayState)}
+			</Accordion.Content>
+		</Accordion.Item>
+
+		<Accordion.Item class="px-3 border-b-0" value="audio">
+			<Accordion.Trigger class="group">Audio</Accordion.Trigger>
+			<Accordion.Content>
+				{@render stateRenderer(audioState)}
+			</Accordion.Content>
+		</Accordion.Item>
+	</Accordion.Root>
+</div>

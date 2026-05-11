@@ -3,11 +3,15 @@ use crate::sysinfo::{types::sound_fastfetch::SoundFastfetch, utils::fetch_module
 #[derive(serde::Serialize, specta::Type)]
 pub struct Audio {
     devices: Vec<String>,
+    errors: Vec<String>,
 }
 
 impl Audio {
     pub fn new() -> Self {
-        let audio_vec: SoundFastfetch = fetch_module("Sound");
+        let (audio_vec, errors): (SoundFastfetch, Vec<String>) = match fetch_module("Sound") {
+            Ok(data) => (data, Vec::new()),
+            Err(err) => (Vec::new(), vec![err]),
+        };
 
         let audio_item = audio_vec
             .into_iter()
@@ -22,6 +26,7 @@ impl Audio {
 
         Audio {
             devices: audio_item,
+            errors,
         }
     }
 }
