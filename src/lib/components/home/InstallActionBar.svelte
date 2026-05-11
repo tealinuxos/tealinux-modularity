@@ -48,7 +48,7 @@
 
 <!-- Bottom Action Bar -->
 <div
-	class="w-800px sticky bottom-0 z-50 -mx-4 -mb-4 bg-[#111111] border-t border-white/5 px-8 pt-4 pb-8 flex items-center justify-between mt-auto"
+	class="w-800px sticky bottom-0 z-50 -mx-4 -mb-4 bg-background/95 backdrop-blur-sm border-t border-border px-8 pt-4 pb-8 flex items-center justify-between mt-auto"
 >
 	<!-- Left: size statistics -->
 	<InstallSizeStats

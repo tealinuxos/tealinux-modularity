@@ -190,11 +190,11 @@ export type ApiResultBool = { success: boolean; data?: boolean | null; error?: s
 export type ApiResultParsedNews = { success: boolean; data?: ParsedNewsItemDto[] | null; error?: string | null; code?: string | null }
 export type ApiResultStr = { success: boolean; data?: string | null; error?: string | null; code?: string | null }
 export type ApiResultVoid = { success: boolean; error?: string | null; code?: string | null }
-export type Audio = { devices: string[] }
+export type Audio = { devices: string[]; errors: string[] }
 export type AurPackageInfo = { name: string; version: string; description: string; maintainer: string; num_votes: number; popularity: number; out_of_date: boolean; installed: boolean; url: string; aur_url: string; first_submitted: bigint | null; last_modified: bigint | null; license: string[]; depends: string[]; make_depends: string[]; opt_depends: string[] }
 export type BackendResult = { success: boolean; stdout: string; stderr: string; exit_code: number }
-export type Computer = { processor: string; memory: bigint; operating_system: string; kernel_version: string; username: string[] }
-export type Display = { monitor_name: string[]; graphic_cards: string[]; display_protocol: string; display_windows_manager: string }
+export type Computer = { processor: string; memory: bigint; operating_system: string; kernel_version: string; username: string[]; errors: string[] }
+export type Display = { monitor_name: string[]; graphic_cards: string[]; display_protocol: string; display_windows_manager: string; errors: string[] }
 export type InstalledAurInfo = { name: string; version: string }
 /**
  * Per-package size information from `pacman -Si`

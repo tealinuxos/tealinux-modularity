@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ModeWatcher } from 'mode-watcher';
 	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import { commands } from '$lib/commands';
 	import './layout.css';
@@ -17,6 +18,7 @@
 	});
 </script>
 
+<ModeWatcher defaultMode="system" disableTransitions={false} />
 <QueryClientProvider client={queryClient}>
 	{@render children?.()}
 </QueryClientProvider>

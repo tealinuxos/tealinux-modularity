@@ -22,7 +22,7 @@ export async function listMirrorCountries(): Promise<ApiResult<string[]>> {
 export async function refreshMirror(country: string): Promise<ApiResult<string>> {
 	try {
 		const raw = await promiseWithTimeout(LONG_MS, commands.settingsRefreshMirror(country));
-		if (raw.success && raw.data !== undefined) return apiOk(raw.data);
+		if (raw.success && raw.data != null) return apiOk(raw.data);
 		return apiErr(raw.error ?? 'Mirror refresh failed', coerceCode(raw.code));
 	} catch (e) {
 		if (e instanceof Error && e.message === 'TIMEOUT') return apiErr('Timed out', 'TIMEOUT');
@@ -47,7 +47,7 @@ export async function changeDns(provider: DnsProvider): Promise<ApiResult<void>>
 export async function readDnsSummary(): Promise<ApiResult<string>> {
 	try {
 		const raw = await promiseWithTimeout(SHORT_MS, commands.settingsDnsStatusLine());
-		if (raw.success && raw.data !== undefined) return apiOk(raw.data);
+		if (raw.success && raw.data != null) return apiOk(raw.data);
 		return apiErr(raw.error ?? 'Could not read resolv.conf', coerceCode(raw.code));
 	} catch (e) {
 		return asApiFailure(e);
@@ -68,7 +68,7 @@ export async function toggleSwap(enabled: boolean): Promise<ApiResult<void>> {
 export async function swapEnabledFromConfig(): Promise<ApiResult<boolean>> {
 	try {
 		const raw = await promiseWithTimeout(SHORT_MS, commands.settingsSwapEnabledState());
-		if (raw.success && raw.data !== undefined) return apiOk(raw.data);
+		if (raw.success && raw.data != null) return apiOk(raw.data);
 		return apiErr(raw.error ?? 'Swap state unreadable', coerceCode(raw.code));
 	} catch (e) {
 		return asApiFailure(e);
@@ -78,7 +78,7 @@ export async function swapEnabledFromConfig(): Promise<ApiResult<boolean>> {
 export async function cleanPackageCache(): Promise<ApiResult<boolean>> {
 	try {
 		const raw = await promiseWithTimeout(LONG_MS, commands.settingsCleanPackageCache());
-		if (raw.success && raw.data !== undefined) return apiOk(raw.data);
+		if (raw.success && raw.data != null) return apiOk(raw.data);
 		return apiErr(raw.error ?? 'Cache clean failed', coerceCode(raw.code));
 	} catch (e) {
 		if (e instanceof Error && e.message === 'TIMEOUT') return apiErr('Timed out', 'TIMEOUT');
@@ -103,7 +103,7 @@ export async function setCpuProfile(profile: CpuProfile): Promise<ApiResult<void
 export async function readCpuGovernor(): Promise<ApiResult<string>> {
 	try {
 		const raw = await promiseWithTimeout(SHORT_MS, commands.settingsCpuGovernorLine());
-		if (raw.success && raw.data !== undefined) return apiOk(raw.data);
+		if (raw.success && raw.data != null) return apiOk(raw.data);
 		return apiErr(raw.error ?? 'Could not read governor', coerceCode(raw.code));
 	} catch (e) {
 		return asApiFailure(e);

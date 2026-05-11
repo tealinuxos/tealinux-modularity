@@ -131,7 +131,7 @@
 	<Card.Root class="h-[calc(100vh-137px)] w-full bg-card flex flex-col py-0">
 		<Card.Content class="flex-1 min-h-0 flex flex-col p-4 gap-y-4">
 			<section class="flex flex-col flex-1 min-h-0">
-				<p class="text-[#99A1AF] mb-2 shrink-0">Preview Selected Theme</p>
+				<p class="text-muted-foreground mb-2 shrink-0">Preview Selected Theme</p>
 				<div
 					class="relative w-full h-full rounded-md border flex items-center justify-center overflow-hidden bg-muted/30"
 				>
@@ -152,7 +152,7 @@
 			</section>
 
 			<section class="flex flex-col shrink-0 gap-2">
-				<p class="text-[#99A1AF]">Choose A Theme</p>
+				<p class="text-muted-foreground">Choose A Theme</p>
 				<input
 					class={cn(
 						'w-full max-w-md rounded-md border border-input bg-background px-3 py-2 text-sm',

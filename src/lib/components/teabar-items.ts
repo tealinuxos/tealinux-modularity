@@ -16,7 +16,7 @@ export const teabarItems = [
 		label: 'System Information',
 		icon: Info
 	},
-	{
+	
 	{
 		href: '/aur',
 		label: 'AUR Packages',

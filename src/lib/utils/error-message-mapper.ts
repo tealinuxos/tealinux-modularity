@@ -1,6 +1,4 @@
-import type { LocalModulariteaError } from '$lib/commands';
-
-export const errorMessageMapper = (error: LocalModulariteaError): string => {
+export const errorMessageMapper = (error: any): string => {
 	if (typeof error === 'object' && error !== null) {
 		if ('type' in error) {
 			switch (error.type) {
