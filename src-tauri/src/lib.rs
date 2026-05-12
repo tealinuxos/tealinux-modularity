@@ -7,6 +7,7 @@ use crate::grub::initialization::GrubManager;
 
 mod grub;
 mod installer;
+mod settings;
 mod splash;
 mod sysinfo;
 mod utils;
@@ -42,6 +43,12 @@ pub fn run() {
         // GRUB Commands
         grub::command::get_grub_themes,
         grub::command::set_grub_theme,
+        // Settings Commands
+        settings::command::clean_cache,
+        settings::command::refresh_mirror,
+        settings::command::switch_dns,
+        settings::command::set_cpu_profile,
+        settings::command::set_swap_mode,
     ]);
 
     #[cfg(debug_assertions)]

@@ -105,6 +105,46 @@ async setGrubTheme(themeName: string) : Promise<Result<LocalCommandOutput, Local
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+async cleanCache() : Promise<Result<LocalCommandOutput, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("clean_cache") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async refreshMirror(country: string | null) : Promise<Result<LocalCommandOutput, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("refresh_mirror", { country }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async switchDns(provider: DnsProvider) : Promise<Result<LocalCommandOutput, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("switch_dns", { provider }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async setCpuProfile(profile: CpuProfile) : Promise<Result<LocalCommandOutput, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_cpu_profile", { profile }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async setSwapMode(mode: SwapMode) : Promise<Result<LocalCommandOutput, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_swap_mode", { mode }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -121,7 +161,9 @@ async setGrubTheme(themeName: string) : Promise<Result<LocalCommandOutput, Local
 export type Audio = { devices: string[]; errors: string[] }
 export type BackendResult = { success: boolean; stdout: string; stderr: string; exit_code: number }
 export type Computer = { processor: string; memory: bigint; operating_system: string; kernel_version: string; username: string[]; errors: string[] }
+export type CpuProfile = "powersave" | "performance" | "ondemand"
 export type Display = { monitor_name: string[]; graphic_cards: string[]; display_protocol: string; display_windows_manager: string; errors: string[] }
+export type DnsProvider = "cloudflare" | "google" | "quad9" | "opendns" | "adguard"
 export type LocalCommandError = { operation: string; exit_code: number | null; stderr: string }
 export type LocalCommandOutput = { exit_code: number; stdout: string; stderr: string; success: boolean }
 export type LocalModulariteaError = { type: "ProfileReadError"; data: { path: string; source: string } } | { type: "ProfileParseError"; data: { path: string; source: string } } | { type: "ProfileValidationError"; data: { message: string } } | { type: "PlanningError"; data: { message: string } } | { type: "DependencyError"; data: { message: string } } | { type: "CircularDependencyError"; data: { cycle: string } } | { type: "ExecutionError"; data: { task_name: string; source: string } } | { type: "RollbackError"; data: { task_name: string; reason: string } } | { type: "PacmanError"; data: LocalCommandError } | { type: "GrubError"; data: { operation: string; reason: string } } | { type: "SystemctlError"; data: { operation: string; exit_code: number | null; stderr: string } } | { type: "FilesystemError"; data: { operation: string; source: string } } | { type: "PrivilegeError"; data: { reason: string } } | { type: "PkexecNotFound" } | { type: "PolkitCancelled" } | { type: "RootBinaryNotFound"; data: { binary: string } } | { type: "CommandError"; data: { command: string; exit_code: number | null; stderr: string } } | { type: "IoError"; data: string } | { type: "InternalError"; data: string }
@@ -133,6 +175,7 @@ export type LocalThemeManifest = { name: string; version: string; github_url: st
  * with `specta::Type` for TypeScript binding generation.
  */
 export type ProfileInfo = { id: string; name: string; description: string; version: string; author: string; category: string; packages_install: string[]; packages_aur: string[]; packages_remove: string[]; services_enable: string[]; services_disable: string[]; package_count: number }
+export type SwapMode = "enable" | "disable"
 
 /** tauri-specta globals **/
 
