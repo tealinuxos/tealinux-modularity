@@ -5,6 +5,7 @@
 	import { onMount, type Snippet } from 'svelte';
 	import { queryClientProvider } from '$lib/utils/client-provider';
 	import { ModeWatcher } from 'mode-watcher';
+	import { Toaster } from 'svelte-sonner';
 
 	interface Props {
 		children: Snippet;
@@ -18,6 +19,7 @@
 </script>
 
 <ModeWatcher />
+<Toaster richColors />
 <QueryClientProvider client={queryClientProvider}>
 	{@render children?.()}
 </QueryClientProvider>

@@ -24,6 +24,7 @@
 		"html-entities": "^2.6.0",
 		"mode-watcher": "^1.1.0",
 		"pretty-bytes": "^7.1.0",
+		"svelte-sonner": "^1.1.1",
 		"tw-shimmer": "^0.4.6"
 	},
 	"devDependencies": {
