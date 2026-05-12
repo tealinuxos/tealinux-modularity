@@ -4,13 +4,45 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
+	import { commands } from '$lib/commands';
+	import { toast } from 'svelte-sonner';
 
+	type MIRROR_VALUE = {
+		label: string;
+		country: string;
+	};
+
+	const mirrors: Record<string, MIRROR_VALUE> = {
+		global: { label: 'Global (Direct)', country: 'US,DE,NL,SG' },
+		id: { label: 'Indonesia', country: 'ID' },
+		sg: { label: 'Singapore', country: 'SG' },
+		jp: { label: 'Japan', country: 'JP' },
+		de: { label: 'Germany', country: 'DE' },
+		us: { label: 'United States', country: 'US' }
+	};
+
+	let selected = $state('id');
 	let refreshing = $state(false);
+
+	const selectedCountry = $derived(mirrors[selected]?.country);
 
 	async function handleRefresh() {
 		refreshing = true;
-		await new Promise((r) => setTimeout(r, 1500));
-		refreshing = false;
+		try {
+			const [result] = await Promise.all([commands.refreshMirror(selectedCountry)]);
+
+			if (result.status === 'ok') {
+				toast.success('Mirror refreshed', {
+					description: `Now using ${mirrors[selected].label} mirrors`
+				});
+			} else {
+				toast.error('Failed to refresh mirror', { description: result.error });
+			}
+		} catch (err) {
+			toast.error('Unexpected error', { description: String(err) });
+		} finally {
+			refreshing = false;
+		}
 	}
 </script>
 
@@ -32,14 +64,14 @@
 			<Label class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
 				Repository Origin
 			</Label>
-			<Select.Root type="multiple">
-				<Select.Trigger class="w-full">Global (Direct)</Select.Trigger>
+			<Select.Root type="single" bind:value={selected}>
+				<Select.Trigger class="w-full">
+					{mirrors[selected]?.label ?? 'Select mirror'}
+				</Select.Trigger>
 				<Select.Content>
-					<Select.Item value="global">Global (Direct)</Select.Item>
-					<Select.Item value="id">Indonesia</Select.Item>
-					<Select.Item value="sg">Singapore</Select.Item>
-					<Select.Item value="jp">Japan</Select.Item>
-					<Select.Item value="local">Local Mirror</Select.Item>
+					{#each Object.entries(mirrors) as [key, mirror] (key)}
+						<Select.Item value={key}>{mirror.label}</Select.Item>
+					{/each}
 				</Select.Content>
 			</Select.Root>
 		</div>
