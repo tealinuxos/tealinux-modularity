@@ -1,3 +1,5 @@
+use std::process::Command;
+
 use modularitea_libs::infrastructure::{
     tools_utils::{CpuBooster, DnsSwitcher, MirrorUtils, Swap},
     PackageCacheCleaner,
@@ -6,6 +8,24 @@ use modularitea_libs::infrastructure::{
 use crate::utils::error_libs::LocalCommandOutput;
 
 use super::models::{CpuProfile, DnsProvider, SwapMode};
+
+const PACMAN_CACHE_DIR: &str = "/var/cache/pacman/pkg/";
+
+#[tauri::command]
+#[specta::specta]
+pub fn get_cache_size() -> Result<u64, String> {
+    let output = Command::new("du")
+        .args(["-sb", PACMAN_CACHE_DIR])
+        .output()
+        .map_err(|e| e.to_string())?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    stdout
+        .split_whitespace()
+        .next()
+        .and_then(|s| s.parse::<u64>().ok())
+        .ok_or_else(|| format!("Failed to parse du output: {}", stdout))
+}
 
 #[tauri::command]
 #[specta::specta]

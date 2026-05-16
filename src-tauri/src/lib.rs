@@ -44,6 +44,7 @@ pub fn run() {
         grub::command::get_grub_themes,
         grub::command::set_grub_theme,
         // Settings Commands
+        settings::command::get_cache_size,
         settings::command::clean_cache,
         settings::command::refresh_mirror,
         settings::command::switch_dns,
