@@ -1,10 +1,42 @@
+// TODO: Save swap status using store
+
 <script lang="ts">
-	import { Database } from '@lucide/svelte';
+	import { Database, LoaderCircle } from '@lucide/svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { Switch } from '$lib/components/ui/switch';
 	import { Label } from '$lib/components/ui/label';
+	import { commands } from '$lib/commands';
+	import { toast } from 'svelte-sonner';
 
 	let enabled = $state(false);
+	let updating = $state(false);
+
+	async function handleToggleSwap(checked: boolean) {
+		updating = true;
+		try {
+			const mode = checked ? 'enable' : 'disable';
+			const result = await commands.setSwapMode(mode);
+
+			if (result.status === 'ok') {
+				enabled = checked;
+				toast.success(`Swap ${checked ? 'Enabled' : 'Disabled'}`, {
+					description: `Virtual memory has been ${checked ? 'activated' : 'deactivated'} successfully.`
+				});
+			} else {
+				toast.error('Failed to change swap status', {
+					description: result.error
+				});
+				enabled = !checked;
+			}
+		} catch (err) {
+			toast.error('Unexpected error', {
+				description: String(err)
+			});
+			enabled = !checked;
+		} finally {
+			updating = false;
+		}
+	}
 </script>
 
 <Card.Root class="flex h-full flex-col">
@@ -30,12 +62,24 @@
 	<Card.Footer class="border-t pt-4">
 		<div class="flex w-full items-center justify-between">
 			<div class="space-y-0.5">
-				<Label for="swap-toggle" class="cursor-pointer text-sm font-medium">Enable Swap File</Label>
+				<div class="flex items-center gap-2">
+					<Label for="swap-toggle" class="cursor-pointer text-sm font-medium"
+						>Enable Swap File</Label
+					>
+					{#if updating}
+						<LoaderCircle class="size-3 animate-spin text-muted-foreground" />
+					{/if}
+				</div>
 				<p class="text-xs text-muted-foreground">
 					{enabled ? 'Active — 2 GB allocated' : 'Inactive'}
 				</p>
 			</div>
-			<Switch id="swap-toggle" bind:checked={enabled} />
+			<Switch
+				id="swap-toggle"
+				bind:checked={enabled}
+				disabled={updating}
+				onCheckedChange={handleToggleSwap}
+			/>
 		</div>
 	</Card.Footer>
 </Card.Root>

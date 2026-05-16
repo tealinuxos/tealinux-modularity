@@ -1,7 +1,58 @@
+// TODO: Save when the last package is cleaned using store
+
 <script lang="ts">
-	import { Trash2, Clock, HardDrive } from '@lucide/svelte';
+	import { Trash2, Clock, HardDrive, LoaderCircle } from '@lucide/svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
+	import { commands } from '$lib/commands';
+	import { toast } from 'svelte-sonner';
+	import { onMount } from 'svelte';
+
+	let clearing = $state(false);
+	let cacheSize = $state<string>('0 B');
+
+	async function fetchCacheSize() {
+		try {
+			const result = await commands.getCacheSize();
+			if (result.status === 'ok') {
+				cacheSize = formatBytes(Number(result.data));
+			}
+		} catch (err) {
+			console.error('Failed to fetch cache size:', err);
+		}
+	}
+
+	function formatBytes(bytes: number, decimals = 2) {
+		if (bytes === 0) return '0 B';
+		const k = 1024;
+		const dm = decimals < 0 ? 0 : decimals;
+		const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+		const i = Math.floor(Math.log(bytes) / Math.log(k));
+		return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+	}
+
+	onMount(() => {
+		fetchCacheSize();
+	});
+
+	async function handleClear() {
+		clearing = true;
+		try {
+			const result = await commands.cleanCache();
+			if (result.status === 'ok') {
+				toast.success('Package cache cleared', {
+					description: 'Disk space has been freed successfully'
+				});
+				await fetchCacheSize();
+			} else {
+				toast.error('Failed to clear cache', { description: result.error });
+			}
+		} catch (err) {
+			toast.error('Unexpected error', { description: String(err) });
+		} finally {
+			clearing = false;
+		}
+	}
 </script>
 
 <Card.Root class="flex h-full flex-col">
@@ -20,7 +71,7 @@
 				class="flex shrink-0 items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground"
 			>
 				<HardDrive class="size-3" />
-				<span>1.4 GB</span>
+				<span>{cacheSize}</span>
 			</div>
 		</div>
 	</Card.Header>
@@ -32,14 +83,25 @@
 		</p>
 	</Card.Content>
 
-	<Card.Footer class="flex items-center justify-between border-t h-[70px]">
+	<Card.Footer class="flex h-17.5 items-center justify-between border-t">
 		<div class="flex items-center gap-1.5 text-xs text-muted-foreground">
 			<Clock class="size-3" />
-			<span>Last cleaned 3 days ago</span>
+			<span>Last cleaned recently</span>
 		</div>
-		<Button variant="destructive" size="sm" class="gap-1.5 font-medium">
-			<Trash2 class="size-3.5" />
-			Clear Cache
+		<Button
+			variant="destructive"
+			size="sm"
+			class="gap-1.5 font-medium"
+			onclick={handleClear}
+			disabled={clearing}
+		>
+			{#if clearing}
+				<LoaderCircle class="size-3.5 animate-spin" />
+				Clearing…
+			{:else}
+				<Trash2 class="size-3.5" />
+				Clear Cache
+			{/if}
 		</Button>
 	</Card.Footer>
 </Card.Root>

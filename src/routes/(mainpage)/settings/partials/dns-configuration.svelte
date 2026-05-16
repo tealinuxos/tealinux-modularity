@@ -1,21 +1,26 @@
+// TODO: Save what the DNS is selected using store
+
 <script lang="ts">
 	import { ShieldCheck } from '@lucide/svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as RadioGroup from '$lib/components/ui/radio-group';
+	import type { DnsProvider } from '$lib/commands';
 
-	const providers = [
-		{ value: 'cloudflare', name: 'Cloudflare', address: '1.1.1.1', desc: 'Privacy-focused' },
-		{ value: 'google', name: 'Google DNS', address: '8.8.8.8', desc: 'High availability' },
-		{ value: 'quad9', name: 'Quad9', address: '9.9.9.9', desc: 'Security filtering' },
-		{
-			value: 'bebasid',
-			name: 'BebasID',
-			address: 'dns.bebasid.com',
-			desc: 'Security and Adblocking'
-		}
-	];
+	type DNS_VALUE = {
+		name: string;
+		desc: string;
+		address: string;
+	};
 
-	let selected = $state('cloudflare');
+	const providers: Record<DnsProvider, DNS_VALUE> = {
+		cloudflare: { name: 'Cloudflare', address: '1.1.1.1', desc: 'Privacy-focused' },
+		google: { name: 'Google DNS', address: '8.8.8.8', desc: 'High availability' },
+		quad9: { name: 'Quad9', address: '9.9.9.9', desc: 'Security filtering' },
+		opendns: { name: 'OpenDNS', address: '208.67.222.222', desc: 'Content filtering' },
+		adguard: { name: 'AdGuard DNS', address: '94.140.14.14', desc: 'Ad & tracker blocking' }
+	};
+
+	let selected = $state<DnsProvider>('cloudflare');
 </script>
 
 <Card.Root class="h-[24.3rem]">
@@ -31,18 +36,16 @@
 		</div>
 	</Card.Header>
 
-	<Card.Content>
+	<Card.Content class="overflow-scroll">
 		<RadioGroup.Root bind:value={selected} class="space-y-2">
-			{#each providers as provider (provider.value)}
+			{#each Object.entries(providers) as [key, provider] (key)}
 				<label
-					for="dns-{provider.value}"
+					for="dns-{key}"
 					class="flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-all
-						{selected === provider.value
-						? 'border-primary bg-primary/5'
-						: 'border-border bg-muted/20 hover:bg-muted/40'}"
+						{selected === key ? 'border-primary bg-primary/5' : 'border-border bg-muted/20 hover:bg-muted/40'}"
 				>
 					<div class="flex items-center gap-3">
-						<RadioGroup.Item value={provider.value} id="dns-{provider.value}" />
+						<RadioGroup.Item value={key} id="dns-{key}" />
 						<div>
 							<p class="text-sm font-medium leading-none">{provider.name}</p>
 							<p class="mt-0.5 text-xs text-muted-foreground">{provider.desc}</p>

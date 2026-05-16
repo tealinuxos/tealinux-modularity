@@ -106,6 +106,14 @@ async setGrubTheme(themeName: string) : Promise<Result<LocalCommandOutput, Local
     else return { status: "error", error: e  as any };
 }
 },
+async getCacheSize() : Promise<Result<bigint, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_cache_size") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async cleanCache() : Promise<Result<LocalCommandOutput, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("clean_cache") };

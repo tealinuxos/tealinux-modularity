@@ -1,10 +1,15 @@
+// TODO: Save what CPU Gov that user selected using store
+
 <script lang="ts">
-	import { Gauge, Zap, Cpu, Battery } from '@lucide/svelte';
+	import { Gauge, Zap, Cpu, Battery, LoaderCircle } from '@lucide/svelte';
 	import * as Card from '$lib/components/ui/card';
+	import { commands } from '$lib/commands';
+	import { toast } from 'svelte-sonner';
 
 	type Governor = 'powersave' | 'performance' | 'ondemand';
 
 	let active = $state<Governor>('performance');
+	let updating = $state(false);
 
 	const governors: {
 		value: Governor;
@@ -35,6 +40,31 @@
 			iconClass: 'text-blue-500'
 		}
 	];
+
+	async function handleSetProfile(profile: Governor) {
+		if (active === profile) return;
+
+		updating = true;
+		try {
+			const result = await commands.setCpuProfile(profile);
+			if (result.status === 'ok') {
+				active = profile;
+				toast.success('CPU Profile Updated', {
+					description: `System is now running in ${profile} mode.`
+				});
+			} else {
+				toast.error('Failed to set CPU profile', {
+					description: result.error
+				});
+			}
+		} catch (err) {
+			toast.error('Unexpected error', {
+				description: String(err)
+			});
+		} finally {
+			updating = false;
+		}
+	}
 </script>
 
 <Card.Root>
@@ -55,13 +85,19 @@
 			{#each governors as { value, label, sub, Icon, iconClass } (value)}
 				{@const isActive = active === value}
 				<button
-					onclick={() => (active = value)}
+					onclick={() => handleSetProfile(value)}
+					disabled={updating}
 					class="flex min-w-25 flex-col items-center gap-1.5 rounded-xl border px-4 py-3 transition-all
 						{isActive
 						? 'border-primary bg-primary text-primary-foreground shadow-sm'
-						: 'border-border bg-muted/30 text-foreground hover:bg-muted/60'}"
+						: 'border-border bg-muted/30 text-foreground hover:bg-muted/60'}
+						{updating ? 'opacity-50 cursor-not-allowed' : ''}"
 				>
-					<Icon class="size-4 {isActive ? 'text-primary-foreground' : iconClass}" />
+					{#if updating && isActive}
+						<LoaderCircle class="size-4 animate-spin text-primary-foreground" />
+					{:else}
+						<Icon class="size-4 {isActive ? 'text-primary-foreground' : iconClass}" />
+					{/if}
 					<span class="text-xs font-semibold leading-none">{label}</span>
 					<span
 						class="text-[10px] font-medium uppercase tracking-wide
