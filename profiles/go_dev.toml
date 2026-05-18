@@ -1,0 +1,18 @@
+[meta]
+name = "Go Developer Pack"
+description = "Paket pengembangan Go (Golang)."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "development"
+
+[packages]
+install = [
+    "go",
+    "gopls",
+    "delve"
+]
+
+aur = []
+
+[services]
+enable = []

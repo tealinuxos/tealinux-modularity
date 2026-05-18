@@ -1,0 +1,22 @@
+[meta]
+name = "Data Science Pack"
+description = "Paket untuk analisis data dan sains."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "development"
+
+[packages]
+install = [
+    "python-pandas",
+    "python-numpy",
+    "python-matplotlib",
+    "python-seaborn",
+    "jupyterlab"
+]
+
+aur = [
+    "r"
+]
+
+[services]
+enable = []

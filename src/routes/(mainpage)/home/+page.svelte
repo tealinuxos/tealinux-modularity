@@ -85,7 +85,7 @@
 	}
 </script>
 
-<div class="flex flex-col gap-6 p-6 h-full overflow-y-auto">
+<div class="flex h-full flex-col gap-7 overflow-y-auto p-7">
 	<!-- Hero Section -->
 	<Hero profileCount={profiles.length} />
 
@@ -124,7 +124,7 @@
 		</div>
 	{:else}
 		<!-- Profiles Grid -->
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 			{#each profiles as profile (profile.id)}
 				<ProfileCard
 					id={profile.id}

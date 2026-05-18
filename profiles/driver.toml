@@ -1,0 +1,23 @@
+[meta]
+name = "Driver Pack"
+description = "Kumpulan driver printer, scanner, dan firmware."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "system"
+
+[packages]
+install = [
+    "cups",
+    "gutenprint",
+    "foomatic-db-engine",
+    "foomatic-db",
+    "foomatic-db-ppds",
+    "foomatic-db-nonfree",
+    "sane",
+    "linux-firmware"
+]
+
+aur = []
+
+[services]
+enable = ["cups"]

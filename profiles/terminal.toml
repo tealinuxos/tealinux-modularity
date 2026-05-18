@@ -1,0 +1,24 @@
+[meta]
+name = "Terminal Power Pack"
+description = "Tingkatkan produktivitas terminal Anda dengan tools modern."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "tools"
+
+[packages]
+install = [
+    "zsh",
+    "tmux",
+    "fzf",
+    "bat",
+    "eza",
+    "btop",
+    "fastfetch"
+]
+
+aur = [
+    "oh-my-zsh-git"
+]
+
+[services]
+enable = []

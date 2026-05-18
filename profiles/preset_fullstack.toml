@@ -1,0 +1,13 @@
+[meta]
+name = "Fullstack Setup"
+description = "Optimized environment for fullstack web development."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "development"
+
+[packages]
+install = [ "apache", "buildah", "composer", "curl", "dbeaver", "docker", "docker-compose", "git", "mariadb", "mariadb-clients", "nginx", "nodejs", "npm", "php", "php-fpm", "php-gd", "php-sqlite", "phpmyadmin", "podman", "postgresql", "redis", "sqlite", "xdebug", "yarn",]
+aur = [ "beekeeper-studio-bin", "bun-bin", "lazydocker-bin", "pnpm",]
+
+[services]
+enable = [ "docker", "mariadb", "nginx", "php-fpm", "postgresql", "redis",]

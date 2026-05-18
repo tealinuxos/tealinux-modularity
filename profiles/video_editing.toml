@@ -1,0 +1,20 @@
+[meta]
+name = "Video Editing Pack"
+description = "Tools untuk editing video dan compositing."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "multimedia"
+
+[packages]
+install = [
+    "kdenlive",
+    "obs-studio",
+    "ffmpeg"
+]
+
+aur = [
+    "blender"
+]
+
+[services]
+enable = []

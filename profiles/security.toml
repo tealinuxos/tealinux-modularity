@@ -1,0 +1,21 @@
+[meta]
+name = "Security Pack"
+description = "Paket pentesting dasar (John, Hydra, Sqlmap, Aircrack)."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "security"
+
+[packages]
+install = [
+    "john",
+    "hydra",
+    "sqlmap",
+    "aircrack-ng"
+]
+
+aur = [
+    "burpsuite"
+]
+
+[services]
+enable = []

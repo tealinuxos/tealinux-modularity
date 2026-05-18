@@ -1,0 +1,19 @@
+[meta]
+name = "Flutter Developer Pack"
+description = "Paket pengembangan aplikasi dengan Flutter."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "development"
+
+[packages]
+install = [
+    "dart",
+    "android-tools"
+]
+
+aur = [
+    "flutter"
+]
+
+[services]
+enable = []

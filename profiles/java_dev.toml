@@ -1,0 +1,21 @@
+[meta]
+name = "Java Developer Pack"
+description = "Paket pengembangan Java."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "development"
+
+[packages]
+install = [
+    "jdk-openjdk",
+    "maven",
+    "gradle",
+    "ant"
+]
+
+aur = [
+    "intellij-idea-community-edition"
+]
+
+[services]
+enable = []

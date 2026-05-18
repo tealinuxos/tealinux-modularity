@@ -1,0 +1,19 @@
+[meta]
+name = "Utility Pack"
+description = "Tools utility sistem tambahan."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "system"
+
+[packages]
+install = [
+    "gparted",
+    "bleachbit",
+    "timeshift",
+    "baobab"
+]
+
+aur = []
+
+[services]
+enable = []

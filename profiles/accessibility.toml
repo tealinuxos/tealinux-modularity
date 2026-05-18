@@ -1,0 +1,18 @@
+[meta]
+name = "Accessibility Pack"
+description = "Tools aksesibilitas (Screen reader, Magnifier)."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "system"
+
+[packages]
+install = [
+    "orca",
+    "espeak-ng",
+    "speech-dispatcher"
+]
+
+aur = []
+
+[services]
+enable = []

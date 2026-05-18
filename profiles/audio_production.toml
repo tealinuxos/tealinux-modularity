@@ -1,0 +1,18 @@
+[meta]
+name = "Audio Production Pack"
+description = "Tools untuk rekaman dan produksi audio."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "multimedia"
+
+[packages]
+install = [
+    "audacity",
+    "ardour",
+    "easyeffects"
+]
+
+aur = []
+
+[services]
+enable = []

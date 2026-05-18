@@ -1,0 +1,22 @@
+[meta]
+name = "C/C++ Developer Pack"
+description = "Paket pengembangan C dan C++."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "development"
+
+[packages]
+install = [
+    "gcc",
+    "clang",
+    "make",
+    "cmake",
+    "gdb",
+    "valgrind",
+    "codeblocks"
+]
+
+aur = []
+
+[services]
+enable = []

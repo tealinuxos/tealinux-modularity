@@ -1,0 +1,21 @@
+[meta]
+name = "JavaScript Developer Pack"
+description = "Paket pengembangan JavaScript (Node.js, npm, yarn, bun)."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "development"
+
+[packages]
+install = [
+    "nodejs",
+    "npm",
+    "yarn"
+]
+
+aur = [
+    "pnpm",
+    "bun-bin"
+]
+
+[services]
+enable = []

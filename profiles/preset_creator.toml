@@ -1,0 +1,13 @@
+[meta]
+name = "Creator Setup"
+description = "Setup for streamers, video editors, and audio producers."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "multimedia"
+
+[packages]
+install = [ "ardour", "audacity", "easyeffects", "ffmpeg", "kdenlive", "obs-studio", "pavucontrol", "v4l-utils",]
+aur = [ "blender",]
+
+[services]
+enable = []

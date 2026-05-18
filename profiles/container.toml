@@ -1,0 +1,21 @@
+[meta]
+name = "Container Pack"
+description = "Paket pengembangan menggunakan container (Docker, Podman)."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "server"
+
+[packages]
+install = [
+    "docker",
+    "docker-compose",
+    "podman",
+    "buildah"
+]
+
+aur = [
+    "lazydocker-bin"
+]
+
+[services]
+enable = ["docker"]

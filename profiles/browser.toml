@@ -1,0 +1,19 @@
+[meta]
+name = "Browser Pack"
+description = "Kumpulan browser populer untuk berbagai kebutuhan web."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "internet"
+
+[packages]
+install = [
+    "firefox",
+    "chromium"
+]
+
+aur = [
+    "brave-bin"
+]
+
+[services]
+enable = []

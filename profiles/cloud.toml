@@ -1,0 +1,21 @@
+[meta]
+name = "Cloud Pack"
+description = "Paket administrasi layanan cloud."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "server"
+
+[packages]
+install = [
+    "aws-cli",
+    "terraform",
+    "ansible"
+]
+
+aur = [
+    "azure-cli",
+    "google-cloud-cli"
+]
+
+[services]
+enable = []

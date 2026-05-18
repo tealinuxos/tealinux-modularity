@@ -1,0 +1,20 @@
+[meta]
+name = "Fonts Pack"
+description = "Kumpulan font penting untuk dokumen dan antarmuka pengguna."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "system"
+
+[packages]
+install = [
+    "noto-fonts",
+    "noto-fonts-cjk",
+    "noto-fonts-emoji"
+]
+
+aur = [
+    "ttf-ms-fonts"
+]
+
+[services]
+enable = []

@@ -1,0 +1,22 @@
+[meta]
+name = "Internet Pack"
+description = "Paket internet dan komunikasi untuk kebutuhan browsing, email, dan chat."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "internet"
+
+[packages]
+install = [
+    "firefox",
+    "thunderbird",
+    "telegram-desktop",
+    "qbittorrent"
+]
+
+aur = [
+    "discord",
+    "chromium"
+]
+
+[services]
+enable = []

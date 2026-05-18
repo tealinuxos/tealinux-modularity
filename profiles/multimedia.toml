@@ -1,0 +1,27 @@
+[meta]
+name = "Multimedia Pack"
+description = "Paket multimedia dan hiburan untuk kebutuhan audio dan video sehari-hari."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "multimedia"
+
+[packages]
+install = [
+    "vlc",
+    "ffmpeg",
+    "gstreamer",
+    "gst-plugins-good",
+    "gst-plugins-bad",
+    "gst-plugins-ugly",
+    "pavucontrol",
+    "flameshot",
+    "imagemagick"
+]
+
+aur = [
+    "obs-studio",
+    "handbrake"
+]
+
+[services]
+enable = []

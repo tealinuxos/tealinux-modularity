@@ -1,0 +1,18 @@
+[meta]
+name = "Streaming Pack"
+description = "Tools lengkap untuk live streaming."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "multimedia"
+
+[packages]
+install = [
+    "obs-studio",
+    "v4l-utils",
+    "pavucontrol"
+]
+
+aur = []
+
+[services]
+enable = []
