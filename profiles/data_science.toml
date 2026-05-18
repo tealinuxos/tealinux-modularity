@@ -4,19 +4,11 @@ description = "Paket untuk analisis data dan sains."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "development"
+icon = "data_science.svg"
 
 [packages]
-install = [
-    "python-pandas",
-    "python-numpy",
-    "python-matplotlib",
-    "python-seaborn",
-    "jupyterlab"
-]
-
-aur = [
-    "r"
-]
+install = [ "python-pandas", "python-numpy", "python-matplotlib", "python-seaborn", "jupyterlab", "octave", "scilab",]
+aur = [ "r", "geogebra",]
 
 [services]
 enable = []

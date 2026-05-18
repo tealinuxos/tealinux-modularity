@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="128" height="128">
+  <defs><filter id="b2"><feGaussianBlur stdDeviation="3"/></filter></defs>
+  <path d="M25,30 C10,40 10,65 25,75 C40,85 65,85 75,70 C85,55 85,35 70,25 C55,15 40,20 25,30 Z" fill="#0055FF"/>
+  <circle cx="65" cy="65" r="22" fill="#FFFFFF" fill-opacity="0.25" filter="url(#b2)"/>
+  <g transform="translate(57, 56)" fill="#FFFFFF">
+    <path d="M2,1 L12,7 L2,13 Z"/>
+    <rect x="15" y="3" width="2" height="8" rx="0.5"/>
+    <rect x="19" y="1" width="2" height="12" rx="0.5"/>
+  </g>
+</svg>

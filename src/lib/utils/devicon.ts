@@ -583,7 +583,7 @@ export function getDeviconClass(pkg: string): string | null {
     const normalized = pkg.toLowerCase();
 
     // Exact match
-    if (validDevicons.has(normalized)) return `devicon-${normalized}-plain`;
+    if (validDevicons.has(normalized)) return `devicon-${normalized}-plain colored`;
 
     // Common package name to devicon name mappings for linux packages
     const mappings: Record<string, string> = {
@@ -599,16 +599,74 @@ export function getDeviconClass(pkg: string): string | null {
         'visual-studio-code': 'vscode',
         'vscode': 'vscode',
         'docker-compose': 'docker',
-        'mariadb': 'mariadb',
         'mariadb-server': 'mariadb',
-        'mysql-server': 'mysql'
+        'mysql-server': 'mysql',
+        'beekeeper-studio-bin': 'mysql',
+        'linux-firmware': 'linux',
+        'android-tools': 'android',
+        'jupyterlab': 'jupyter',
+        'virtualbox': 'virtualbox',
+        'onlyoffice-bin': 'linux',
+        'clang': 'c',
+        'mariadb-clients': 'mariadb',
+        'k9s': 'kubernetes',
+        'aws-cli': 'amazonwebservices',
+        'bun-bin': 'bun',
+        'rust-analyzer': 'rust',
+        'insomnia-bin': 'insomnia',
+        'base-devel': 'linux',
+        'brave-bin': 'chrome',
+        'android-studio': 'androidstudio',
+        'obs-studio': 'linux',
+        'gopls': 'go',
+        'kubectl': 'kubernetes',
+        'azure-cli': 'azure',
+        'jdk-openjdk': 'java',
+        'arduino-ide-bin': 'arduino',
+        'code': 'vscode',
+        'jupyter-notebook': 'jupyter',
+        'telegram-desktop': 'linux',
+        'python-matplotlib': 'matplotlib',
+        'libreoffice-fresh': 'linux',
+        'python-pip': 'python',
+        'arduino-cli': 'arduino',
+        'postman-bin': 'postman',
+        'lazydocker-bin': 'docker',
+        'phpmyadmin': 'php',
+        'google-cloud-cli': 'googlecloud',
+        'python-tensorflow': 'tensorflow',
+        'php-fpm': 'php',
+        'php-sqlite': 'php',
+        'virtualbox-host-modules-arch': 'virtualbox',
+        'intellij-idea-community-edition': 'intellij',
+        'minikube': 'kubernetes',
+        'php-apache': 'php',
+        'python-seaborn': 'python',
+        'buildah': 'podman',
+        'visual-studio-code-bin': 'vscode',
+        'oh-my-zsh-git': 'ohmyzsh',
+        'chromium': 'chrome',
+        'python-numpy': 'numpy',
+        'discord': 'discordjs',
+        'python-pandas': 'pandas',
+        'python-pytorch': 'pytorch',
+        'vlc': 'linux',
+        'rustup': 'rust',
+        'php-gd': 'php',
+        'python-scipy': 'python',
+        'openssh': 'ssh',
+        'ipython': 'python',
+        'make': 'c',
+        'gdb': 'c',
+        'valgrind': 'c',
+        'xdebug': 'php'
     };
 
-    if (mappings[normalized]) return `devicon-${mappings[normalized]}-plain`;
+    if (mappings[normalized]) return `devicon-${mappings[normalized]}-plain colored`;
 
     // Strip numbers for basic heuristic (e.g. clang-14 -> clang, python310 -> python)
     const stripped = normalized.replace(/[^a-z]/g, '');
-    if (validDevicons.has(stripped)) return `devicon-${stripped}-plain`;
+    if (validDevicons.has(stripped)) return `devicon-${stripped}-plain colored`;
 
     return null;
 }

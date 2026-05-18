@@ -4,19 +4,11 @@ description = "Database engines dan GUI tools."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "development"
+icon = "database.svg"
 
 [packages]
-install = [
-    "mariadb-clients",
-    "postgresql",
-    "sqlite",
-    "redis",
-    "dbeaver"
-]
-
-aur = [
-    "beekeeper-studio-bin"
-]
+install = [ "mariadb-clients", "postgresql", "sqlite", "redis", "dbeaver",]
+aur = [ "beekeeper-studio-bin",]
 
 [services]
-enable = ["postgresql", "redis"]
+enable = [ "postgresql", "redis",]

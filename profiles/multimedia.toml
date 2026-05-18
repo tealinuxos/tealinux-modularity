@@ -4,24 +4,11 @@ description = "Paket multimedia dan hiburan untuk kebutuhan audio dan video seha
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "multimedia"
+icon = "multimedia.svg"
 
 [packages]
-install = [
-    "vlc",
-    "ffmpeg",
-    "gstreamer",
-    "gst-plugins-good",
-    "gst-plugins-bad",
-    "gst-plugins-ugly",
-    "pavucontrol",
-    "flameshot",
-    "imagemagick"
-]
-
-aur = [
-    "obs-studio",
-    "handbrake"
-]
+install = [ "vlc", "ffmpeg", "gstreamer", "gst-plugins-good", "gst-plugins-bad", "gst-plugins-ugly", "pavucontrol", "flameshot", "imagemagick",]
+aur = [ "obs-studio", "handbrake",]
 
 [services]
 enable = []

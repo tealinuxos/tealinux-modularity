@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getDeviconClass } from '$lib/utils/devicon';
+	import { simpleIconsData } from '$lib/utils/simpleicons-data';
 	import { Package, Download } from '@lucide/svelte';
 
 	interface Props {
@@ -13,6 +14,7 @@
 	let { name, variant, isSelected = false, hideIcon = false, onclick }: Props = $props();
 
 	let devIcon = $derived(!hideIcon ? getDeviconClass(name) : null);
+	let simpleIcon = $derived(!hideIcon ? simpleIconsData[name] : null);
 </script>
 
 {#if variant === 'official'}
@@ -25,7 +27,11 @@
 		{onclick}
 	>
 		{#if !hideIcon}
-			{#if devIcon}
+			{#if simpleIcon}
+				<svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="#{simpleIcon.hex}">
+					<path d={simpleIcon.path} />
+				</svg>
+			{:else if devIcon}
 				<i
 					class="{devIcon} shrink-0 text-lg {isSelected
 						? 'text-[#26A768]'
@@ -49,7 +55,11 @@
 		{onclick}
 	>
 		{#if !hideIcon}
-			{#if devIcon}
+			{#if simpleIcon}
+				<svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="#{simpleIcon.hex}">
+					<path d={simpleIcon.path} />
+				</svg>
+			{:else if devIcon}
 				<i class="{devIcon} shrink-0 text-lg text-amber-500"></i>
 			{:else}
 				<Download class="h-4 w-4 shrink-0 text-amber-500" />

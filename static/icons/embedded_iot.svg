@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="128" height="128">
+  <rect x="15" y="15" width="55" height="55" rx="12" fill="#059669"/>
+  <rect x="30" y="30" width="55" height="55" rx="12" fill="#059669" fill-opacity="0.3" stroke="#FFFFFF" stroke-width="1" stroke-opacity="0.5"/>
+  <g transform="translate(46, 46)" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Chip square -->
+    <rect x="5" y="5" width="14" height="14" rx="2.5" stroke-width="2.2" />
+    
+    <!-- Pins (Left side) -->
+    <line x1="0" y1="8.5" x2="5" y2="8.5" />
+    <line x1="0" y1="12" x2="5" y2="12" />
+    <line x1="0" y1="15.5" x2="5" y2="15.5" />
+    
+    <!-- Pins (Right side) -->
+    <line x1="19" y1="8.5" x2="24" y2="8.5" />
+    <line x1="19" y1="12" x2="24" y2="12" />
+    <line x1="19" y1="15.5" x2="24" y2="15.5" />
+    
+    <!-- Pins (Top side) -->
+    <line x1="8.5" y1="0" x2="8.5" y2="5" />
+    <line x1="12" y1="0" x2="12" y2="5" />
+    <line x1="15.5" y1="0" x2="15.5" y2="5" />
+
+    <!-- Pins (Bottom side) -->
+    <line x1="8.5" y1="19" x2="8.5" y2="24" />
+    <line x1="12" y1="19" x2="12" y2="24" />
+    <line x1="15.5" y1="19" x2="15.5" y2="24" />
+
+    <!-- Center dot (filled circle) -->
+    <circle cx="12" cy="12" r="1.2" fill="#FFFFFF" stroke="none" />
+  </g>
+</svg>

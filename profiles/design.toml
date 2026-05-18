@@ -4,20 +4,11 @@ description = "Paket desain grafis dan ilustrasi untuk kreator."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "multimedia"
+icon = "design.svg"
 
 [packages]
-install = [
-    "gimp",
-    "inkscape",
-    "krita",
-    "blender",
-    "font-manager"
-]
-
-aur = [
-    "darktable",
-    "scribus"
-]
+install = [ "gimp", "inkscape", "krita", "blender", "font-manager",]
+aur = [ "darktable", "scribus",]
 
 [services]
 enable = []

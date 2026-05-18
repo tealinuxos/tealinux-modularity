@@ -4,16 +4,11 @@ description = "Kumpulan aplikasi islami (Al-Qur'an, waktu sholat, font arab)."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "education"
+icon = "islamic_education.svg"
 
 [packages]
-install = [
-    "ttf-arabic"
-]
-
-aur = [
-    "quran-desktop",
-    "minbar"
-]
+install = [ "ttf-arabic",]
+aur = [ "quran-desktop", "minbar",]
 
 [services]
 enable = []

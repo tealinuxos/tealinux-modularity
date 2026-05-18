@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="128" height="128">
+  <defs><filter id="b6"><feGaussianBlur stdDeviation="3"/></filter></defs>
+  <path d="M25,30 C10,40 10,65 25,75 C40,85 65,85 75,70 C85,55 85,35 70,25 C55,15 40,20 25,30 Z" fill="#0055FF"/>
+  <circle cx="65" cy="65" r="22" fill="#FFFFFF" fill-opacity="0.25" filter="url(#b6)"/>
+  <text x="65" y="72" font-family="monospace, sans-serif" font-weight="900" font-size="20" fill="#FFFFFF" text-anchor="middle">A</text>
+</svg>

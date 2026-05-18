@@ -32,6 +32,9 @@
 	let IconComponent = $derived(getCategoryIcon(category));
 	let tintClass = $derived(getCategoryColor(category));
 	let badgeClass = $derived(getCategoryBadgeColor(category));
+
+	let useFallback = $state(false);
+	let iconPath = $derived(`/icons/${id}.svg`);
 </script>
 
 <div
@@ -43,7 +46,16 @@
 			<div
 				class="flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] border border-border/60 bg-muted/35 backdrop-blur-sm {tintClass}"
 			>
-				<IconComponent class="h-6 w-6 text-foreground/80" />
+				{#if !useFallback}
+					<img
+						src={iconPath}
+						alt={title}
+						class="h-7 w-7 object-contain transition-transform group-hover:scale-110 duration-300"
+						onerror={() => (useFallback = true)}
+					/>
+				{:else}
+					<IconComponent class="h-6 w-6 text-foreground/80" />
+				{/if}
 			</div>
 			<span
 				class="shrink-0 rounded-full border px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider {badgeClass}"

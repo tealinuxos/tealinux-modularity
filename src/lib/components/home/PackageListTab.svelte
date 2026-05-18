@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Package, Check, Trash2 } from '@lucide/svelte';
 	import { getDeviconClass } from '$lib/utils/devicon';
+	import { simpleIconsData } from '$lib/utils/simpleicons-data';
 
 	interface Props {
 		packages: string[];
@@ -37,6 +38,7 @@
 			{@const selected = selectedPackages.has(pkg)}
 			{@const markedForRemoval = selectedUninstallPackages.has(pkg)}
 			{@const devIcon = getDeviconClass(pkg)}
+			{@const simpleIcon = simpleIconsData[pkg]}
 
 			<button
 				onclick={() => {
@@ -58,10 +60,10 @@
 									: 'bg-background text-muted-foreground border-border shadow-sm'
 						}`}
 					>
-						{#if markedForRemoval}
-							<Trash2 class="w-5 h-5" />
-						{:else if installed}
-							<Check class="w-5 h-5" />
+						{#if simpleIcon}
+							<svg viewBox="0 0 24 24" class="w-6 h-6" fill="#{simpleIcon.hex}">
+								<path d={simpleIcon.path} />
+							</svg>
 						{:else if devIcon}
 							<i class="{devIcon} text-xl"></i>
 						{:else}
@@ -94,7 +96,14 @@
 					>
 						<Trash2 class="w-4 h-4" strokeWidth={3} />
 					</div>
-				{:else if !installed}
+				{:else if installed}
+					<!-- Installed checkbox -->
+					<div
+						class="w-6 h-6 rounded-lg border flex items-center justify-center transition-all duration-200 bg-green-500 border-green-500 text-white shadow-lg shadow-green-500/20 scale-105"
+					>
+						<Check class="w-4 h-4" strokeWidth={3} />
+					</div>
+				{:else}
 					<!-- Install selection checkbox -->
 					<div
 						class={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all duration-200 ${selected ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105' : 'border-input bg-background shadow-inner'}`}

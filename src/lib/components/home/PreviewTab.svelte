@@ -18,6 +18,8 @@
 	let { profile, allInstalled, activeTab, onTabChange, onInstall, onUninstall }: Props = $props();
 
 	let IconComponent = $derived(profile ? getCategoryIcon(profile.category) : null);
+	let useFallback = $state(false);
+	let iconPath = $derived(profile ? `/icons/${profile.id}.svg` : '');
 
 	// ── Selected package state ────────────────────────────────────────────
 	let selectedPackage = $state<string | null>(null);
@@ -81,7 +83,14 @@
 				? 'from-red-500 to-red-600 shadow-[0_4px_14px_rgba(239,68,68,0.35)]'
 				: 'from-[#26A768] to-emerald-600 shadow-[0_4px_14px_rgba(84,205,76,0.35)]'}"
 		>
-			{#if IconComponent}
+			{#if !useFallback && iconPath}
+				<img
+					src={iconPath}
+					alt={profile.name}
+					class="w-7 h-7 object-contain"
+					onerror={() => (useFallback = true)}
+				/>
+			{:else if IconComponent}
 				<IconComponent class="w-7 h-7 {allInstalled ? 'text-white' : 'text-[#052e16]'}" />
 			{/if}
 		</div>

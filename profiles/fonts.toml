@@ -4,17 +4,11 @@ description = "Kumpulan font penting untuk dokumen dan antarmuka pengguna."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "system"
+icon = "fonts.svg"
 
 [packages]
-install = [
-    "noto-fonts",
-    "noto-fonts-cjk",
-    "noto-fonts-emoji"
-]
-
-aur = [
-    "ttf-ms-fonts"
-]
+install = [ "noto-fonts", "noto-fonts-cjk", "noto-fonts-emoji",]
+aur = [ "ttf-ms-fonts",]
 
 [services]
 enable = []
