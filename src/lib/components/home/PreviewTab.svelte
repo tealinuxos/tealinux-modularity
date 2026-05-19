@@ -87,11 +87,11 @@
 				<img
 					src={iconPath}
 					alt={profile.name}
-					class="w-7 h-7 object-contain"
+					class="w-10 h-10 object-contain"
 					onerror={() => (useFallback = true)}
 				/>
 			{:else if IconComponent}
-				<IconComponent class="w-7 h-7 {allInstalled ? 'text-white' : 'text-[#052e16]'}" />
+				<IconComponent class="w-10 h-10 {allInstalled ? 'text-white' : 'text-[#052e16]'}" />
 			{/if}
 		</div>
 		<div class="flex flex-col gap-[0.2rem]">

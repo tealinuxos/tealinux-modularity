@@ -50,7 +50,7 @@
 					<img
 						src={iconPath}
 						alt={title}
-						class="h-7 w-7 object-contain transition-transform group-hover:scale-110 duration-300"
+						class="h-9 w-9 object-contain transition-transform group-hover:scale-110 duration-300"
 						onerror={() => (useFallback = true)}
 					/>
 				{:else}
