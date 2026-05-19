@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="128" height="128">
+  <!-- Main Extrusion (Shadow face) -->
+  <path d="M50,65 L85,47.5 L85,57.5 L50,75 L15,57.5 L15,47.5 Z" fill="#D95B00"/>
+  <!-- Top Slab Face -->
+  <path d="M50,30 L85,47.5 L50,65 L15,47.5 Z" fill="#FF6B00"/>
+  
+  <!-- Tiny indicator lights on the front-left bottom edge -->
+  <circle cx="28" cy="64" r="1.8" fill="#FFFFFF" />
+  <circle cx="36" cy="68" r="1.8" fill="#FFFFFF" />
+</svg>

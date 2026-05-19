@@ -1,4 +1,4 @@
-import { House, Info, SlidersHorizontal, TrendingUp } from '@lucide/svelte';
+import { House, Info, Package, SlidersHorizontal, TrendingUp } from '@lucide/svelte';
 
 export const teabarItems = [
 	{
@@ -16,9 +16,15 @@ export const teabarItems = [
 		label: 'System Information',
 		icon: Info
 	},
+	
+	{
+		href: '/aur',
+		label: 'AUR Packages',
+		icon: Package
+	},
 	{
 		href: '/grub',
-		label: 'GRUB Changer',
+		label: 'Boot Theme',
 		icon: SlidersHorizontal
 	}
 ];

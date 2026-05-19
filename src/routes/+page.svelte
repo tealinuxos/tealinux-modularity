@@ -112,12 +112,12 @@
 			LILYA
 		</h1>
 		<div
-			class="h-3 w-[20rem] rounded-full bg-linear-to-r from-[#54CD4C] via-[#3F9A39] to-[#2A6726] mb-8"
+			class="h-3 w-[20rem] rounded-full bg-linear-to-r from-[#26A768] via-[#3F9A39] to-[#2A6726] mb-8"
 		></div>
 
 		<p class="font-medium text-3xl text-[#999999] tracking-[20%]">
 			BY <span
-				class="text-[#54CD4C] relative pr-6
+				class="text-[#26A768] relative pr-6
       after:content-['']
       after:absolute
       after:w-4
@@ -146,7 +146,7 @@
 			<img src="tealinux.svg" alt="Tealinux Logo" class="size-20 md:size-24 lg:size-32" />
 
 			<h1
-				class="text-[#54CD4C] font-semibold text-5xl md:text-7xl lg:text-8xl xl:text-9xl tracking-tighter leading-none"
+				class="text-[#26A768] font-semibold text-5xl md:text-7xl lg:text-8xl xl:text-9xl tracking-tighter leading-none"
 			>
 				TeaLinuxOS
 			</h1>
@@ -235,11 +235,11 @@
 	<Dialog.Root>
 		<Dialog.Trigger class="mt-2">
 			<Button
-				class="backdrop-blur-md border border-[#00C95033] bg-gradient-to-b from-[#0000001A] to-[#54CD4C1A] shadow-lg
+				class="backdrop-blur-md border border-[#00C95033] bg-gradient-to-b from-[#0000001A] to-[#26A7681A] shadow-lg
                   text-sm md:text-base px-6 py-2 rounded-full text-white
                   hover:border-[#00C950]
                   hover:from-[#0000004D]
-                  hover:to-[#54CD4C4D]
+                  hover:to-[#26A7684D]
                   hover:scale-105
                   transition-all duration-300 ease-in-out"
 			>
@@ -255,8 +255,8 @@
 			<section class="flex flex-col gap-y-4 mt-2">
 				{#each CHANGELOG_LISTS as item (item)}
 					<div class="flex flex-row gap-x-4">
-						<div class="size-6 rounded-full bg-[#54CD4C]/10 flex items-center justify-center">
-							<Check class="text-[#54CD4C] size-4" />
+						<div class="size-6 rounded-full bg-[#26A768]/10 flex items-center justify-center">
+							<Check class="text-[#26A768] size-4" />
 						</div>
 						<p>
 							{item}

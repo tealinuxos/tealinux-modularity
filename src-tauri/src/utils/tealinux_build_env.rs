@@ -1,9 +1,7 @@
-use std::env;
-
 #[derive(Debug, PartialEq)]
 pub enum BuildType {
     Production,
-    Dev
+    Dev,
 }
 
 pub fn tealinux_build_env() -> Result<BuildType, ()> {
@@ -17,12 +15,12 @@ pub fn tealinux_build_env() -> Result<BuildType, ()> {
                 return Ok(BuildType::Dev);
             } else {
                 println!("Error TEALINUX_BUILD is not set properly, see readme please");
-            return Err(());
+                return Err(());
             }
         }
         None => {
             println!("Error TEALINUX_BUILD not found during build, see readme please");
             return Err(());
-        },
+        }
     }
 }

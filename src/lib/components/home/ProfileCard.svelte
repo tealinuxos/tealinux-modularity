@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Download, Package, ChevronRight, Server, LoaderCircle, Check, X } from '@lucide/svelte';
 	import { getCategoryIcon, getCategoryColor, getCategoryBadgeColor } from '$lib/utils/category';
+	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
 		id: string;
@@ -29,82 +30,95 @@
 	}: Props = $props();
 
 	let IconComponent = $derived(getCategoryIcon(category));
-	let gradientClass = $derived(getCategoryColor(category));
+	let tintClass = $derived(getCategoryColor(category));
 	let badgeClass = $derived(getCategoryBadgeColor(category));
+
+	let useFallback = $state(false);
+	let iconPath = $derived(`/icons/${id}.svg`);
 </script>
 
 <div
-	class="group relative bg-card border border-border rounded-2xl overflow-hidden transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5"
->	
-	<!-- Gradient Header -->
-	<div class="h-2 bg-gradient-to-r {gradientClass}"></div>
-
-	<div class="p-6">
+	class="surface surface-outline surface-hover group relative overflow-hidden rounded-[var(--radius-xl)] border border-border/60"
+>
+	<div class="p-6 md:p-7">
 		<!-- Top Row: Icon + Category Badge -->
-		<div class="flex items-start justify-between mb-4">
+		<div class="flex items-start justify-between gap-4 mb-4">
 			<div
-				class="w-12 h-12 rounded-xl bg-gradient-to-br {gradientClass} flex items-center justify-center border"
+				class="flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] border border-border/60 bg-muted/35 backdrop-blur-sm {tintClass}"
 			>
-				<IconComponent class="w-6 h-6 text-foreground/80" />
+				{#if !useFallback}
+					<img
+						src={iconPath}
+						alt={title}
+						class="h-9 w-9 object-contain transition-transform group-hover:scale-110 duration-300"
+						onerror={() => (useFallback = true)}
+					/>
+				{:else}
+					<IconComponent class="h-6 w-6 text-foreground/80" />
+				{/if}
 			</div>
-			<span class="text-xs font-medium px-2.5 py-1 rounded-full border {badgeClass}">
+			<span
+				class="shrink-0 rounded-full border px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider {badgeClass}"
+			>
 				{category}
 			</span>
 		</div>
 
 		<!-- Title & Description -->
-		<h3 class="font-bold text-lg mb-1.5 text-foreground group-hover:text-primary transition-colors">
+		<h3
+			class="mb-1.5 text-[1.05rem] font-semibold tracking-tight text-foreground transition-colors group-hover:text-[color:var(--accent-green)]"
+		>
 			{title}
 		</h3>
-		<p class="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">
+		<p class="mb-4 text-sm leading-relaxed text-muted-foreground line-clamp-2">
 			{description}
 		</p>
 
 		<!-- Stats Row -->
-		<div class="flex items-center gap-4 mb-5 text-xs text-muted-foreground">
+		<div class="mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.72rem] font-medium text-muted-foreground">
 			<div class="flex items-center gap-1.5">
-				<Package class="w-3.5 h-3.5" />
+				<Package class="h-3.5 w-3.5 text-foreground/60" />
 				<span>{packageCount} packages</span>
 			</div>
 			{#if servicesCount > 0}
 				<div class="flex items-center gap-1.5">
-					<Server class="w-3.5 h-3.5" />
+					<Server class="h-3.5 w-3.5 text-foreground/60" />
 					<span>{servicesCount} services</span>
 				</div>
 			{/if}
 		</div>
 
-		<!-- Package Preview Pills -->
+		<!-- Package w Pills -->
 		<div class="flex flex-wrap gap-1.5 mb-5">
-			{#each packages.slice(0, 4) as pkg}
+			{#each packages.slice(0, 3) as pkg}
 				<span
-					class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border"
+					class="rounded-md border border-border/60 bg-muted/35 px-2 py-0.5 font-mono text-[10.5px] text-muted-foreground"
 				>
 					{pkg}
 				</span>
 			{/each}
-			{#if packages.length > 4}
+			{#if packages.length > 3}
 				<span
-					class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border"
+					class="rounded-md border border-border/60 bg-muted/35 px-2 py-0.5 font-mono text-[10.5px] text-muted-foreground"
 				>
-					+{packages.length - 4} more
+					+{packages.length - 3} more
 				</span>
 			{/if}
 		</div>
 
 		<!-- Action Buttons -->
 		<div class="grid grid-cols-2 gap-3">
-			<button
+			<Button
 				onclick={onInstall}
-				disabled={installState === 'installing'}
-				class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-200
+				disabled={installState === 'installing' || installState === 'success'}
+				class="h-10 gap-2 rounded-[var(--radius-lg)] px-4 text-sm font-semibold transition-all duration-200
 					{installState === 'success'
-					? 'bg-green-500/20 text-green-400 border border-green-500/30 cursor-default'
+					? 'bg-green-500/12 text-green-400 border border-green-500/20 cursor-default'
 					: installState === 'error'
-						? 'bg-red-500/20 text-red-400 border border-red-500/30'
+						? 'bg-red-500/12 text-red-400 border border-red-500/20'
 						: installState === 'installing'
-							? 'bg-primary/20 text-primary border border-primary/30 cursor-wait'
-							: 'bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98]'}"
+							? 'bg-[color:var(--accent-green)]/12 text-[color:var(--accent-green)] border border-[color:var(--accent-green)]/25 cursor-wait'
+							: 'bg-[color:var(--accent-green)] text-[#052e16] hover:bg-[color:var(--accent-green-2)] shadow-[0_10px_28px_-18px_color-mix(in_oklab,var(--accent-green)_55%,transparent)] active:scale-[0.98]'}"
 			>
 				{#if installState === 'installing'}
 					<LoaderCircle class="w-4 h-4 animate-spin" />
@@ -119,14 +133,15 @@
 					<Download class="w-4 h-4" />
 					Install
 				{/if}
-			</button>
-			<a
+			</Button>
+			<Button
 				href="/home/{id}"
-				class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium border border-input hover:bg-accent hover:text-accent-foreground transition-all duration-200 active:scale-[0.98] text-foreground decoration-0"
+				variant="outline"
+				class="h-10 gap-2 rounded-[var(--radius-lg)] border-border/70 bg-transparent px-4 text-sm font-medium hover:bg-muted/40"
 			>
 				Details
 				<ChevronRight class="w-4 h-4" />
-			</a>
+			</Button>
 		</div>
 	</div>
 </div>

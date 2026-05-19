@@ -1,0 +1,3767 @@
+{
+    "docker": {
+        "description": "Container runtime. Verify the daemon is running and list active containers.",
+        "commands": [
+            {
+                "label": "Check Docker version",
+                "cmd": "docker version",
+                "type": "maintenance"
+            },
+            {
+                "label": "List running containers",
+                "cmd": "docker ps",
+                "type": "maintenance"
+            },
+            {
+                "label": "List all containers",
+                "cmd": "docker ps -a",
+                "type": "maintenance"
+            },
+            {
+                "label": "Add user to docker group",
+                "cmd": "sudo usermod -aG docker $USER && newgrp docker",
+                "type": "setup"
+            }
+        ]
+    },
+    "postgresql": {
+        "description": "Relational database. Requires initdb on first boot before the service can start.",
+        "commands": [
+            {
+                "label": "Check PostgreSQL version",
+                "cmd": "psql --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check service status",
+                "cmd": "systemctl status postgresql",
+                "type": "maintenance"
+            },
+            {
+                "label": "Initialize database (first time only)",
+                "cmd": "sudo -u postgres initdb -D /var/lib/postgres/data",
+                "type": "setup"
+            },
+            {
+                "label": "Connect to PostgreSQL",
+                "cmd": "sudo -u postgres psql",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "redis": {
+        "description": "In-memory key-value store for caching and sessions.",
+        "commands": [
+            {
+                "label": "Check Redis version",
+                "cmd": "redis-cli --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check service status",
+                "cmd": "systemctl status redis",
+                "type": "maintenance"
+            },
+            {
+                "label": "Ping Redis daemon",
+                "cmd": "redis-cli ping",
+                "type": "maintenance"
+            },
+            {
+                "label": "Monitor live traffic",
+                "cmd": "redis-cli monitor",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "nginx": {
+        "description": "High-performance web server and reverse proxy.",
+        "commands": [
+            {
+                "label": "Check nginx version",
+                "cmd": "nginx -v",
+                "type": "maintenance"
+            },
+            {
+                "label": "Validate configuration",
+                "cmd": "sudo nginx -t",
+                "type": "setup"
+            },
+            {
+                "label": "Check service status",
+                "cmd": "systemctl status nginx",
+                "type": "maintenance"
+            },
+            {
+                "label": "Test HTTP response",
+                "cmd": "curl -I http://localhost",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "git": {
+        "description": "Distributed version control system. Essential for source code management.",
+        "commands": [
+            {
+                "label": "Check Git version",
+                "cmd": "git --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Set your name",
+                "cmd": "git config --global user.name \"Your Name\"",
+                "type": "setup"
+            },
+            {
+                "label": "Set your email",
+                "cmd": "git config --global user.email \"you@example.com\"",
+                "type": "setup"
+            },
+            {
+                "label": "View config",
+                "cmd": "git config --list",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "vim": {
+        "description": "Classic modal text editor with powerful keybindings.",
+        "commands": [
+            {
+                "label": "Check Vim version",
+                "cmd": "vim --version | head -1",
+                "type": "maintenance"
+            },
+            {
+                "label": "Open Vim tutor",
+                "cmd": "vimtutor",
+                "type": "setup"
+            },
+            {
+                "label": "Edit config",
+                "cmd": "vim ~/.vimrc",
+                "type": "setup"
+            }
+        ]
+    },
+    "neovim": {
+        "description": "Modern fork of Vim with Lua scripting and LSP support built-in.",
+        "commands": [
+            {
+                "label": "Check Neovim version",
+                "cmd": "nvim --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Open health check",
+                "cmd": "nvim +checkhealth",
+                "type": "maintenance"
+            },
+            {
+                "label": "Edit config",
+                "cmd": "nvim ~/.config/nvim/init.lua",
+                "type": "setup"
+            }
+        ]
+    },
+    "cmake": {
+        "description": "Cross-platform build system generator for C/C++ projects.",
+        "commands": [
+            {
+                "label": "Check CMake version",
+                "cmd": "cmake --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Generate build files",
+                "cmd": "cmake -B build -S .",
+                "type": "setup"
+            },
+            {
+                "label": "Build project",
+                "cmd": "cmake --build build",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "base-devel": {
+        "description": "Meta-package providing essential build tools (gcc, make, binutils, etc.) needed to compile software from source.",
+        "commands": [
+            {
+                "label": "Check GCC version",
+                "cmd": "gcc --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check Make version",
+                "cmd": "make --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "List installed group packages",
+                "cmd": "pacman -Qg base-devel",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "nodejs": {
+        "description": "JavaScript runtime built on V8 engine for server-side development.",
+        "commands": [
+            {
+                "label": "Check Node.js version",
+                "cmd": "node --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check npm version",
+                "cmd": "npm --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Init new project",
+                "cmd": "npm init -y",
+                "type": "setup"
+            },
+            {
+                "label": "List global packages",
+                "cmd": "npm list -g --depth=0",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "npm": {
+        "description": "Node.js package manager for installing and managing JavaScript packages.",
+        "commands": [
+            {
+                "label": "Check npm version",
+                "cmd": "npm --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Init new project",
+                "cmd": "npm init -y",
+                "type": "setup"
+            },
+            {
+                "label": "List global packages",
+                "cmd": "npm list -g --depth=0",
+                "type": "maintenance"
+            },
+            {
+                "label": "Update npm",
+                "cmd": "npm install -g npm@latest",
+                "type": "setup"
+            }
+        ]
+    },
+    "python": {
+        "description": "Versatile programming language for scripting, web dev, data science, and AI.",
+        "commands": [
+            {
+                "label": "Check Python version",
+                "cmd": "python --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check pip version",
+                "cmd": "pip --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Create virtual environment",
+                "cmd": "python -m venv .venv && source .venv/bin/activate",
+                "type": "setup"
+            },
+            {
+                "label": "List installed packages",
+                "cmd": "pip list",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "go": {
+        "description": "Statically typed language by Google, ideal for backend services and CLI tools.",
+        "commands": [
+            {
+                "label": "Check Go version",
+                "cmd": "go version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Init new module",
+                "cmd": "go mod init myproject",
+                "type": "setup"
+            },
+            {
+                "label": "Check environment",
+                "cmd": "go env",
+                "type": "maintenance"
+            },
+            {
+                "label": "Run tests",
+                "cmd": "go test ./...",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "docker-compose": {
+        "description": "Define and run multi-container Docker applications with YAML configuration.",
+        "commands": [
+            {
+                "label": "Check version",
+                "cmd": "docker compose version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Start services",
+                "cmd": "docker compose up -d",
+                "type": "maintenance"
+            },
+            {
+                "label": "Stop services",
+                "cmd": "docker compose down",
+                "type": "maintenance"
+            },
+            {
+                "label": "View running services",
+                "cmd": "docker compose ps",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "ansible": {
+        "description": "Agentless automation tool for configuration management and app deployment.",
+        "commands": [
+            {
+                "label": "Check Ansible version",
+                "cmd": "ansible --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Ping localhost",
+                "cmd": "ansible localhost -m ping",
+                "type": "maintenance"
+            },
+            {
+                "label": "Run a playbook",
+                "cmd": "ansible-playbook playbook.yml",
+                "type": "setup"
+            }
+        ]
+    },
+    "terraform": {
+        "description": "Infrastructure as Code tool for provisioning cloud resources declaratively.",
+        "commands": [
+            {
+                "label": "Check Terraform version",
+                "cmd": "terraform version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Initialize project",
+                "cmd": "terraform init",
+                "type": "setup"
+            },
+            {
+                "label": "Plan changes",
+                "cmd": "terraform plan",
+                "type": "maintenance"
+            },
+            {
+                "label": "Apply changes",
+                "cmd": "terraform apply",
+                "type": "setup"
+            }
+        ]
+    },
+    "kubectl": {
+        "description": "CLI for Kubernetes cluster management and resource deployment.",
+        "commands": [
+            {
+                "label": "Check kubectl version",
+                "cmd": "kubectl version --client",
+                "type": "maintenance"
+            },
+            {
+                "label": "Get cluster info",
+                "cmd": "kubectl cluster-info",
+                "type": "maintenance"
+            },
+            {
+                "label": "List pods",
+                "cmd": "kubectl get pods -A",
+                "type": "maintenance"
+            },
+            {
+                "label": "List services",
+                "cmd": "kubectl get svc -A",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "minikube": {
+        "description": "Run a single-node Kubernetes cluster locally for development and testing.",
+        "commands": [
+            {
+                "label": "Check Minikube version",
+                "cmd": "minikube version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Start cluster",
+                "cmd": "minikube start",
+                "type": "setup"
+            },
+            {
+                "label": "Check status",
+                "cmd": "minikube status",
+                "type": "maintenance"
+            },
+            {
+                "label": "Open dashboard",
+                "cmd": "minikube dashboard",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "helm": {
+        "description": "Package manager for Kubernetes \u2014 deploy apps with reusable charts.",
+        "commands": [
+            {
+                "label": "Check Helm version",
+                "cmd": "helm version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Add stable repo",
+                "cmd": "helm repo add stable https://charts.helm.sh/stable",
+                "type": "setup"
+            },
+            {
+                "label": "Update repos",
+                "cmd": "helm repo update",
+                "type": "maintenance"
+            },
+            {
+                "label": "List releases",
+                "cmd": "helm list -A",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "code": {
+        "description": "Visual Studio Code \u2014 popular extensible code editor by Microsoft.",
+        "commands": [
+            {
+                "label": "Check VS Code version",
+                "cmd": "code --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "List extensions",
+                "cmd": "code --list-extensions",
+                "type": "maintenance"
+            },
+            {
+                "label": "Install an extension",
+                "cmd": "code --install-extension ms-python.python",
+                "type": "setup"
+            }
+        ]
+    },
+    "htop": {
+        "description": "Interactive process viewer \u2014 a modern alternative to top.",
+        "commands": [
+            {
+                "label": "Check htop version",
+                "cmd": "htop --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch htop",
+                "cmd": "htop",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "nmap": {
+        "description": "Network exploration and security auditing tool for port scanning.",
+        "commands": [
+            {
+                "label": "Check Nmap version",
+                "cmd": "nmap --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Scan localhost",
+                "cmd": "nmap -sV localhost",
+                "type": "maintenance"
+            },
+            {
+                "label": "Quick network scan",
+                "cmd": "nmap -sn 192.168.1.0/24",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "wireshark-qt": {
+        "description": "Network protocol analyzer with GUI for deep packet inspection.",
+        "commands": [
+            {
+                "label": "Check version",
+                "cmd": "wireshark --version | head -1",
+                "type": "maintenance"
+            },
+            {
+                "label": "Add user to wireshark group",
+                "cmd": "sudo usermod -aG wireshark $USER",
+                "type": "setup"
+            },
+            {
+                "label": "CLI capture",
+                "cmd": "tshark -i eth0 -c 10",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "john": {
+        "description": "Password cracker supporting many cipher and hash types.",
+        "commands": [
+            {
+                "label": "Check John version",
+                "cmd": "john --help | head -5",
+                "type": "maintenance"
+            },
+            {
+                "label": "Benchmark performance",
+                "cmd": "john --test",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "aircrack-ng": {
+        "description": "WiFi security auditing toolkit for monitoring, attacking, and testing networks.",
+        "commands": [
+            {
+                "label": "Check version",
+                "cmd": "aircrack-ng --help | head -3",
+                "type": "maintenance"
+            },
+            {
+                "label": "List wireless interfaces",
+                "cmd": "airmon-ng",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "hashcat": {
+        "description": "Advanced GPU-accelerated password recovery utility.",
+        "commands": [
+            {
+                "label": "Check Hashcat version",
+                "cmd": "hashcat --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Benchmark all hashes",
+                "cmd": "hashcat -b",
+                "type": "maintenance"
+            },
+            {
+                "label": "List hash types",
+                "cmd": "hashcat --help | grep -i \"hash-type\"",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "whois": {
+        "description": "Query tool for domain registration and IP ownership information.",
+        "commands": [
+            {
+                "label": "Lookup a domain",
+                "cmd": "whois example.com",
+                "type": "maintenance"
+            },
+            {
+                "label": "Lookup an IP",
+                "cmd": "whois 8.8.8.8",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "tcpdump": {
+        "description": "Command-line packet capture and analysis tool.",
+        "commands": [
+            {
+                "label": "Check tcpdump version",
+                "cmd": "tcpdump --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Capture 10 packets",
+                "cmd": "sudo tcpdump -c 10 -i any",
+                "type": "maintenance"
+            },
+            {
+                "label": "Capture to file",
+                "cmd": "sudo tcpdump -c 100 -w capture.pcap",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "netcat": {
+        "description": "Versatile networking tool for reading/writing across TCP/UDP connections.",
+        "commands": [
+            {
+                "label": "Check netcat help",
+                "cmd": "nc -h 2>&1 | head -3",
+                "type": "maintenance"
+            },
+            {
+                "label": "Port scan",
+                "cmd": "nc -zv localhost 1-1024",
+                "type": "maintenance"
+            },
+            {
+                "label": "Listen on port",
+                "cmd": "nc -l -p 4444",
+                "type": "setup"
+            }
+        ]
+    },
+    "sqlmap": {
+        "description": "Automatic SQL injection detection and exploitation tool.",
+        "commands": [
+            {
+                "label": "Check sqlmap version",
+                "cmd": "sqlmap --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Basic scan example",
+                "cmd": "sqlmap -u \"http://target.com/page?id=1\" --batch",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "visual-studio-code-bin": {
+        "description": "Visual Studio Code \u2014 popular extensible code editor (AUR binary release).",
+        "commands": [
+            {
+                "label": "Check VS Code version",
+                "cmd": "code --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "List extensions",
+                "cmd": "code --list-extensions",
+                "type": "maintenance"
+            },
+            {
+                "label": "Install Python extension",
+                "cmd": "code --install-extension ms-python.python",
+                "type": "setup"
+            }
+        ]
+    },
+    "postman-bin": {
+        "description": "API development environment for building, testing, and documenting APIs.",
+        "commands": [
+            {
+                "label": "Launch Postman",
+                "cmd": "postman",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check installation",
+                "cmd": "which postman",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "burpsuite": {
+        "description": "Integrated platform for web application security testing and vulnerability scanning.",
+        "commands": [
+            {
+                "label": "Launch BurpSuite",
+                "cmd": "burpsuite",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check installation",
+                "cmd": "which burpsuite",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "libreoffice-fresh": {
+        "description": "A powerful free and open-source office suite.",
+        "commands": [
+            {
+                "label": "Launch Writer",
+                "cmd": "libreoffice --writer",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch Calc",
+                "cmd": "libreoffice --calc",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch Impress",
+                "cmd": "libreoffice --impress",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "vlc": {
+        "description": "Free and open source cross-platform multimedia player.",
+        "commands": [
+            {
+                "label": "Check version",
+                "cmd": "vlc --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch VLC",
+                "cmd": "vlc",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gimp": {
+        "description": "GNU Image Manipulation Program for photo retouching and image composition.",
+        "commands": [
+            {
+                "label": "Check version",
+                "cmd": "gimp --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch GIMP",
+                "cmd": "gimp",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "inkscape": {
+        "description": "Professional vector graphics editor.",
+        "commands": [
+            {
+                "label": "Check version",
+                "cmd": "inkscape --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch Inkscape",
+                "cmd": "inkscape",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "steam": {
+        "description": "Digital distribution platform for gaming.",
+        "commands": [
+            {
+                "label": "Launch Steam",
+                "cmd": "steam",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "obs-studio": {
+        "description": "Free and open source software for video recording and live streaming.",
+        "commands": [
+            {
+                "label": "Launch OBS",
+                "cmd": "obs",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "php": {
+        "description": "Popular general-purpose scripting language that is especially suited to web development.",
+        "commands": [
+            {
+                "label": "Check PHP version",
+                "cmd": "php -v",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check PHP modules",
+                "cmd": "php -m",
+                "type": "maintenance"
+            },
+            {
+                "label": "Start built-in server",
+                "cmd": "php -S localhost:8000",
+                "type": "setup"
+            }
+        ]
+    },
+    "mariadb": {
+        "description": "Relational database server, a drop-in replacement for MySQL.",
+        "commands": [
+            {
+                "label": "Start MariaDB service",
+                "cmd": "sudo systemctl start mariadb",
+                "type": "setup"
+            },
+            {
+                "label": "Check service status",
+                "cmd": "systemctl status mariadb",
+                "type": "maintenance"
+            },
+            {
+                "label": "Secure installation (first time)",
+                "cmd": "sudo mariadb-secure-installation",
+                "type": "setup"
+            },
+            {
+                "label": "Connect as root",
+                "cmd": "sudo mariadb -u root",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "apache": {
+        "description": "The Apache HTTP Web Server.",
+        "commands": [
+            {
+                "label": "Start Apache service",
+                "cmd": "sudo systemctl start httpd",
+                "type": "setup"
+            },
+            {
+                "label": "Check service status",
+                "cmd": "systemctl status httpd",
+                "type": "maintenance"
+            },
+            {
+                "label": "Test configuration",
+                "cmd": "sudo apachectl configtest",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "php-fpm": {
+        "description": "FastCGI Process Manager for PHP.",
+        "commands": [
+            {
+                "label": "Start PHP-FPM service",
+                "cmd": "sudo systemctl start php-fpm",
+                "type": "setup"
+            },
+            {
+                "label": "Check service status",
+                "cmd": "systemctl status php-fpm",
+                "type": "maintenance"
+            },
+            {
+                "label": "Test configuration",
+                "cmd": "sudo php-fpm -t",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "composer": {
+        "description": "Dependency Manager for PHP.",
+        "commands": [
+            {
+                "label": "Check Composer version",
+                "cmd": "composer --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Install dependencies",
+                "cmd": "composer install",
+                "type": "setup"
+            },
+            {
+                "label": "Update dependencies",
+                "cmd": "composer update",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "yarn": {
+        "description": "Fast, reliable, and secure dependency management for JavaScript.",
+        "commands": [
+            {
+                "label": "Check Yarn version",
+                "cmd": "yarn --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Install dependencies",
+                "cmd": "yarn install",
+                "type": "setup"
+            },
+            {
+                "label": "Start development server",
+                "cmd": "yarn dev",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "bun-bin": {
+        "description": "Incredibly fast JavaScript runtime, bundler, test runner, and package manager.",
+        "commands": [
+            {
+                "label": "Check Bun version",
+                "cmd": "bun --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Install dependencies",
+                "cmd": "bun install",
+                "type": "setup"
+            },
+            {
+                "label": "Run a script",
+                "cmd": "bun run dev",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "jdk-openjdk": {
+        "description": "Open-source implementation of the Java Platform.",
+        "commands": [
+            {
+                "label": "Check Java version",
+                "cmd": "java -version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check Javac version",
+                "cmd": "javac -version",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "maven": {
+        "description": "Software project management and comprehension tool for Java.",
+        "commands": [
+            {
+                "label": "Check Maven version",
+                "cmd": "mvn -version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Clean and install",
+                "cmd": "mvn clean install",
+                "type": "setup"
+            },
+            {
+                "label": "Run Spring Boot app",
+                "cmd": "mvn spring-boot:run",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gradle": {
+        "description": "Powerful build automation tool focused on flexibility and performance.",
+        "commands": [
+            {
+                "label": "Check Gradle version",
+                "cmd": "gradle -v",
+                "type": "maintenance"
+            },
+            {
+                "label": "Build project",
+                "cmd": "gradle build",
+                "type": "setup"
+            },
+            {
+                "label": "Run application",
+                "cmd": "gradle run",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "rustup": {
+        "description": "The Rust toolchain installer.",
+        "commands": [
+            {
+                "label": "Check Rustup version",
+                "cmd": "rustup --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Update Rust toolchain",
+                "cmd": "rustup update",
+                "type": "setup"
+            },
+            {
+                "label": "Add target architecture",
+                "cmd": "rustup target add wasm32-unknown-unknown",
+                "type": "setup"
+            }
+        ]
+    },
+    "cargo": {
+        "description": "The Rust package manager and build system.",
+        "commands": [
+            {
+                "label": "Check Cargo version",
+                "cmd": "cargo --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Create new project",
+                "cmd": "cargo new my_project",
+                "type": "setup"
+            },
+            {
+                "label": "Build project",
+                "cmd": "cargo build --release",
+                "type": "setup"
+            },
+            {
+                "label": "Run project",
+                "cmd": "cargo run",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "android-studio": {
+        "description": "The Official IDE for Android Application Development.",
+        "commands": [
+            {
+                "label": "Launch Android Studio",
+                "cmd": "android-studio",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "flutter": {
+        "description": "UI toolkit for building beautiful, natively compiled applications for mobile, web, and desktop from a single codebase.",
+        "commands": [
+            {
+                "label": "Check Flutter version",
+                "cmd": "flutter --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Run Flutter doctor",
+                "cmd": "flutter doctor",
+                "type": "setup"
+            },
+            {
+                "label": "Create new project",
+                "cmd": "flutter create my_app",
+                "type": "setup"
+            },
+            {
+                "label": "Run application",
+                "cmd": "flutter run",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "aws-cli": {
+        "description": "Unified tool to manage your AWS services.",
+        "commands": [
+            {
+                "label": "Check AWS CLI version",
+                "cmd": "aws --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Configure credentials",
+                "cmd": "aws configure",
+                "type": "setup"
+            },
+            {
+                "label": "List S3 buckets",
+                "cmd": "aws s3 ls",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "virtualbox": {
+        "description": "Powerful x86 and AMD64/Intel64 virtualization product for enterprise as well as home use.",
+        "commands": [
+            {
+                "label": "Launch VirtualBox",
+                "cmd": "VirtualBox",
+                "type": "maintenance"
+            },
+            {
+                "label": "Load vboxdrv module",
+                "cmd": "sudo modprobe vboxdrv",
+                "type": "setup"
+            }
+        ]
+    },
+    "zsh": {
+        "description": "A powerful shell with extensive scripting and interactive capabilities.",
+        "commands": [
+            {
+                "label": "Check Zsh version",
+                "cmd": "zsh --version",
+                "type": "maintenance"
+            },
+            {
+                "label": "Change default shell to Zsh",
+                "cmd": "chsh -s $(which zsh)",
+                "type": "setup"
+            }
+        ]
+    },
+    "tmux": {
+        "description": "A terminal multiplexer.",
+        "commands": [
+            {
+                "label": "Check Tmux version",
+                "cmd": "tmux -V",
+                "type": "maintenance"
+            },
+            {
+                "label": "Start new session",
+                "cmd": "tmux new -s mysession",
+                "type": "setup"
+            },
+            {
+                "label": "List sessions",
+                "cmd": "tmux ls",
+                "type": "maintenance"
+            },
+            {
+                "label": "Attach to session",
+                "cmd": "tmux attach -t mysession",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "ollama-bin": {
+        "description": "Get up and running with large language models locally.",
+        "commands": [
+            {
+                "label": "Start Ollama service",
+                "cmd": "sudo systemctl start ollama",
+                "type": "setup"
+            },
+            {
+                "label": "Run Llama 3 model",
+                "cmd": "ollama run llama3",
+                "type": "maintenance"
+            },
+            {
+                "label": "List downloaded models",
+                "cmd": "ollama list",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "kdenlive": {
+        "description": "Open source video editor.",
+        "commands": [
+            {
+                "label": "Launch Kdenlive",
+                "cmd": "kdenlive",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "audacity": {
+        "description": "Free, open source, cross-platform audio software for multi-track recording and editing.",
+        "commands": [
+            {
+                "label": "Launch Audacity",
+                "cmd": "audacity",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "zoom": {
+        "description": "Video conferencing platform.",
+        "commands": [
+            {
+                "label": "Launch Zoom",
+                "cmd": "zoom",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "dbeaver": {
+        "description": "Free universal database tool and SQL client.",
+        "commands": [
+            {
+                "label": "Launch DBeaver",
+                "cmd": "dbeaver",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "beekeeper-studio-bin": {
+        "description": "Modern and easy to use SQL client for MySQL, Postgres, SQLite, SQL Server, and more.",
+        "commands": [
+            {
+                "label": "Launch Beekeeper Studio",
+                "cmd": "beekeeper-studio",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "insomnia-bin": {
+        "description": "Open-source, cross-platform API Client for GraphQL, REST, and gRPC.",
+        "commands": [
+            {
+                "label": "Launch Insomnia",
+                "cmd": "insomnia",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "lazydocker-bin": {
+        "description": "A simple terminal UI for both docker and docker-compose.",
+        "commands": [
+            {
+                "label": "Launch Lazydocker",
+                "cmd": "lazydocker",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "android-tools": {
+        "description": "System package or application (android-tools).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi android-tools || paru -Qi android-tools",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "android-tools --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "android-tools",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "ant": {
+        "description": "System package or application (ant).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi ant || paru -Qi ant",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "ant --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "ant",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "anydesk-bin": {
+        "description": "System package or application (anydesk-bin).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi anydesk-bin || paru -Qi anydesk-bin",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "anydesk --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "anydesk",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "ardour": {
+        "description": "System package or application (ardour).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi ardour || paru -Qi ardour",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "ardour --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "ardour",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "arduino-cli": {
+        "description": "System package or application (arduino-cli).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi arduino-cli || paru -Qi arduino-cli",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "arduino-cli --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "arduino-cli",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "arduino-ide-bin": {
+        "description": "System package or application (arduino-ide-bin).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi arduino-ide-bin || paru -Qi arduino-ide-bin",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "arduino-ide --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "arduino-ide",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "avrdude": {
+        "description": "System package or application (avrdude).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi avrdude || paru -Qi avrdude",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "avrdude --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "avrdude",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "azure-cli": {
+        "description": "System package or application (azure-cli).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi azure-cli || paru -Qi azure-cli",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "azure-cli --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "azure-cli",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "baobab": {
+        "description": "System package or application (baobab).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi baobab || paru -Qi baobab",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "baobab --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "baobab",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "bat": {
+        "description": "System package or application (bat).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi bat || paru -Qi bat",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "bat --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "bat",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "bleachbit": {
+        "description": "System package or application (bleachbit).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi bleachbit || paru -Qi bleachbit",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "bleachbit --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "bleachbit",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "blender": {
+        "description": "System package or application (blender).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi blender || paru -Qi blender",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "blender --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "blender",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "brave-bin": {
+        "description": "System package or application (brave-bin).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi brave-bin || paru -Qi brave-bin",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "brave --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "brave",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "brightnessctl": {
+        "description": "System package or application (brightnessctl).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi brightnessctl || paru -Qi brightnessctl",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "brightnessctl --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "brightnessctl",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "btop": {
+        "description": "System package or application (btop).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi btop || paru -Qi btop",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "btop --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "btop",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "buildah": {
+        "description": "System package or application (buildah).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi buildah || paru -Qi buildah",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "buildah --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "buildah",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "chromium": {
+        "description": "System package or application (chromium).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi chromium || paru -Qi chromium",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "chromium --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "chromium",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "clang": {
+        "description": "System package or application (clang).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi clang || paru -Qi clang",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "clang --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "clang",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "codeblocks": {
+        "description": "System package or application (codeblocks).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi codeblocks || paru -Qi codeblocks",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "codeblocks --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "codeblocks",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "cups": {
+        "description": "System package or application (cups).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi cups || paru -Qi cups",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "cups --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "cups",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "curl": {
+        "description": "System package or application (curl).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi curl || paru -Qi curl",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "curl --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "curl",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "darktable": {
+        "description": "System package or application (darktable).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi darktable || paru -Qi darktable",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "darktable --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "darktable",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "dart": {
+        "description": "System package or application (dart).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi dart || paru -Qi dart",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "dart --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "dart",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "deja-dup": {
+        "description": "System package or application (deja-dup).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi deja-dup || paru -Qi deja-dup",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "deja-dup --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "deja-dup",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "delve": {
+        "description": "System package or application (delve).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi delve || paru -Qi delve",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "delve --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "delve",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "discord": {
+        "description": "System package or application (discord).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi discord || paru -Qi discord",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "discord --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "discord",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "easyeffects": {
+        "description": "System package or application (easyeffects).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi easyeffects || paru -Qi easyeffects",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "easyeffects --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "easyeffects",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "espeak-ng": {
+        "description": "System package or application (espeak-ng).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi espeak-ng || paru -Qi espeak-ng",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "espeak-ng --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "espeak-ng",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "evince": {
+        "description": "System package or application (evince).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi evince || paru -Qi evince",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "evince --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "evince",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "eza": {
+        "description": "System package or application (eza).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi eza || paru -Qi eza",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "eza --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "eza",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "fastfetch": {
+        "description": "System package or application (fastfetch).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi fastfetch || paru -Qi fastfetch",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "fastfetch --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "fastfetch",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "ffmpeg": {
+        "description": "System package or application (ffmpeg).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi ffmpeg || paru -Qi ffmpeg",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "ffmpeg --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "ffmpeg",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "firefox": {
+        "description": "System package or application (firefox).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi firefox || paru -Qi firefox",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "firefox --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "firefox",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "flameshot": {
+        "description": "System package or application (flameshot).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi flameshot || paru -Qi flameshot",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "flameshot --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "flameshot",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "font-manager": {
+        "description": "Font package (font-manager).",
+        "commands": [
+            {
+                "label": "View installed fonts",
+                "cmd": "fc-list | grep -i font-manager",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "fonts-noto": {
+        "description": "Font package (fonts-noto).",
+        "commands": [
+            {
+                "label": "View installed fonts",
+                "cmd": "fc-list | grep -i fonts-noto",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "foomatic-db": {
+        "description": "System package or application (foomatic-db).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi foomatic-db || paru -Qi foomatic-db",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "foomatic-db --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "foomatic-db",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "foomatic-db-engine": {
+        "description": "System package or application (foomatic-db-engine).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi foomatic-db-engine || paru -Qi foomatic-db-engine",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "foomatic-db-engine --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "foomatic-db-engine",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "foomatic-db-nonfree": {
+        "description": "System package or application (foomatic-db-nonfree).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi foomatic-db-nonfree || paru -Qi foomatic-db-nonfree",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "foomatic-db-nonfree --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "foomatic-db-nonfree",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "foomatic-db-ppds": {
+        "description": "System package or application (foomatic-db-ppds).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi foomatic-db-ppds || paru -Qi foomatic-db-ppds",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "foomatic-db-ppds --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "foomatic-db-ppds",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "fzf": {
+        "description": "System package or application (fzf).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi fzf || paru -Qi fzf",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "fzf --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "fzf",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gamemode": {
+        "description": "System package or application (gamemode).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi gamemode || paru -Qi gamemode",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "gamemode --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "gamemode",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gcc": {
+        "description": "System package or application (gcc).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi gcc || paru -Qi gcc",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "gcc --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "gcc",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gdb": {
+        "description": "System package or application (gdb).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi gdb || paru -Qi gdb",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "gdb --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "gdb",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "geogebra": {
+        "description": "System package or application (geogebra).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi geogebra || paru -Qi geogebra",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "geogebra --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "geogebra",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gnome-calculator": {
+        "description": "System package or application (gnome-calculator).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi gnome-calculator || paru -Qi gnome-calculator",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "gnome-calculator --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "gnome-calculator",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gnome-calendar": {
+        "description": "System package or application (gnome-calendar).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi gnome-calendar || paru -Qi gnome-calendar",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "gnome-calendar --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "gnome-calendar",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "google-cloud-cli": {
+        "description": "System package or application (google-cloud-cli).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi google-cloud-cli || paru -Qi google-cloud-cli",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "google-cloud-cli --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "google-cloud-cli",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gopls": {
+        "description": "System package or application (gopls).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi gopls || paru -Qi gopls",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "gopls --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "gopls",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gparted": {
+        "description": "System package or application (gparted).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi gparted || paru -Qi gparted",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "gparted --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "gparted",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gst-plugins-bad": {
+        "description": "Library, plugin, or module (gst-plugins-bad).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql gst-plugins-bad",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gst-plugins-good": {
+        "description": "Library, plugin, or module (gst-plugins-good).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql gst-plugins-good",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gst-plugins-ugly": {
+        "description": "Library, plugin, or module (gst-plugins-ugly).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql gst-plugins-ugly",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gstreamer": {
+        "description": "System package or application (gstreamer).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi gstreamer || paru -Qi gstreamer",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "gstreamer --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "gstreamer",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "gutenprint": {
+        "description": "System package or application (gutenprint).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi gutenprint || paru -Qi gutenprint",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "gutenprint --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "gutenprint",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "handbrake": {
+        "description": "System package or application (handbrake).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi handbrake || paru -Qi handbrake",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "handbrake --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "handbrake",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "heroic-games-launcher-bin": {
+        "description": "System package or application (heroic-games-launcher-bin).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi heroic-games-launcher-bin || paru -Qi heroic-games-launcher-bin",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "heroic-games-launcher --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "heroic-games-launcher",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "httpie": {
+        "description": "System package or application (httpie).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi httpie || paru -Qi httpie",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "httpie --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "httpie",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "hunspell": {
+        "description": "System package or application (hunspell).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi hunspell || paru -Qi hunspell",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "hunspell --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "hunspell",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "hunspell-id": {
+        "description": "System package or application (hunspell-id).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi hunspell-id || paru -Qi hunspell-id",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "hunspell-id --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "hunspell-id",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "hydra": {
+        "description": "System package or application (hydra).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi hydra || paru -Qi hydra",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "hydra --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "hydra",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "hyphen": {
+        "description": "System package or application (hyphen).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi hyphen || paru -Qi hyphen",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "hyphen --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "hyphen",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "imagemagick": {
+        "description": "System package or application (imagemagick).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi imagemagick || paru -Qi imagemagick",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "imagemagick --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "imagemagick",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "intellij-idea-community-edition": {
+        "description": "System package or application (intellij-idea-community-edition).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi intellij-idea-community-edition || paru -Qi intellij-idea-community-edition",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "intellij-idea-community-edition --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "intellij-idea-community-edition",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "ipython": {
+        "description": "System package or application (ipython).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi ipython || paru -Qi ipython",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "ipython --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "ipython",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "jq": {
+        "description": "System package or application (jq).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi jq || paru -Qi jq",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "jq --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "jq",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "jupyter-notebook": {
+        "description": "System package or application (jupyter-notebook).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi jupyter-notebook || paru -Qi jupyter-notebook",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "jupyter-notebook --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "jupyter-notebook",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "jupyterlab": {
+        "description": "System package or application (jupyterlab).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi jupyterlab || paru -Qi jupyterlab",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "jupyterlab --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "jupyterlab",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "k9s": {
+        "description": "System package or application (k9s).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi k9s || paru -Qi k9s",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "k9s --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "k9s",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "krita": {
+        "description": "System package or application (krita).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi krita || paru -Qi krita",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "krita --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "krita",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "libvirt": {
+        "description": "System package or application (libvirt).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi libvirt || paru -Qi libvirt",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "libvirt --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "libvirt",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "linux-firmware": {
+        "description": "Library, plugin, or module (linux-firmware).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql linux-firmware",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "lutris": {
+        "description": "System package or application (lutris).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi lutris || paru -Qi lutris",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "lutris --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "lutris",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "make": {
+        "description": "System package or application (make).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi make || paru -Qi make",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "make --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "make",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "mangohud": {
+        "description": "System package or application (mangohud).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi mangohud || paru -Qi mangohud",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "mangohud --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "mangohud",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "mariadb-clients": {
+        "description": "System package or application (mariadb-clients).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi mariadb-clients || paru -Qi mariadb-clients",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "mariadb-clients --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "mariadb-clients",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "minbar": {
+        "description": "System package or application (minbar).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi minbar || paru -Qi minbar",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "minbar --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "minbar",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "nano": {
+        "description": "System package or application (nano).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi nano || paru -Qi nano",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "nano --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "nano",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "net-tools": {
+        "description": "System package or application (net-tools).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi net-tools || paru -Qi net-tools",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "net-tools --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "net-tools",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "noto-fonts": {
+        "description": "Font package (noto-fonts).",
+        "commands": [
+            {
+                "label": "View installed fonts",
+                "cmd": "fc-list | grep -i noto-fonts",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "noto-fonts-cjk": {
+        "description": "Font package (noto-fonts-cjk).",
+        "commands": [
+            {
+                "label": "View installed fonts",
+                "cmd": "fc-list | grep -i noto-fonts-cjk",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "noto-fonts-emoji": {
+        "description": "Font package (noto-fonts-emoji).",
+        "commands": [
+            {
+                "label": "View installed fonts",
+                "cmd": "fc-list | grep -i noto-fonts-emoji",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "octave": {
+        "description": "System package or application (octave).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi octave || paru -Qi octave",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "octave --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "octave",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "oh-my-zsh-git": {
+        "description": "System package or application (oh-my-zsh-git).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi oh-my-zsh-git || paru -Qi oh-my-zsh-git",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "oh-my-zsh --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "oh-my-zsh",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "onlyoffice-bin": {
+        "description": "System package or application (onlyoffice-bin).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi onlyoffice-bin || paru -Qi onlyoffice-bin",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "onlyoffice --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "onlyoffice",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "openssh": {
+        "description": "System package or application (openssh).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi openssh || paru -Qi openssh",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "openssh --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "openssh",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "orca": {
+        "description": "System package or application (orca).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi orca || paru -Qi orca",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "orca --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "orca",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "pavucontrol": {
+        "description": "System package or application (pavucontrol).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi pavucontrol || paru -Qi pavucontrol",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "pavucontrol --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "pavucontrol",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "perl": {
+        "description": "System package or application (perl).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi perl || paru -Qi perl",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "perl --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "perl",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "php-apache": {
+        "description": "Library, plugin, or module (php-apache).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql php-apache",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "php-gd": {
+        "description": "Library, plugin, or module (php-gd).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql php-gd",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "php-sqlite": {
+        "description": "Library, plugin, or module (php-sqlite).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql php-sqlite",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "phpmyadmin": {
+        "description": "System package or application (phpmyadmin).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi phpmyadmin || paru -Qi phpmyadmin",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "phpmyadmin --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "phpmyadmin",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "platformio": {
+        "description": "System package or application (platformio).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi platformio || paru -Qi platformio",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "platformio --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "platformio",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "pnpm": {
+        "description": "System package or application (pnpm).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi pnpm || paru -Qi pnpm",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "pnpm --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "pnpm",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "podman": {
+        "description": "System package or application (podman).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi podman || paru -Qi podman",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "podman --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "podman",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "poppler": {
+        "description": "System package or application (poppler).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi poppler || paru -Qi poppler",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "poppler --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "poppler",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "powertop": {
+        "description": "System package or application (powertop).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi powertop || paru -Qi powertop",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "powertop --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "powertop",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "python-matplotlib": {
+        "description": "Library, plugin, or module (python-matplotlib).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql python-matplotlib",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "python-numpy": {
+        "description": "Library, plugin, or module (python-numpy).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql python-numpy",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "python-pandas": {
+        "description": "Library, plugin, or module (python-pandas).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql python-pandas",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "python-pip": {
+        "description": "Library, plugin, or module (python-pip).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql python-pip",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "python-pytorch": {
+        "description": "Library, plugin, or module (python-pytorch).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql python-pytorch",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "python-scipy": {
+        "description": "Library, plugin, or module (python-scipy).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql python-scipy",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "python-seaborn": {
+        "description": "Library, plugin, or module (python-seaborn).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql python-seaborn",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "python-tensorflow": {
+        "description": "Library, plugin, or module (python-tensorflow).",
+        "commands": [
+            {
+                "label": "List package files",
+                "cmd": "pacman -Ql python-tensorflow",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "qbittorrent": {
+        "description": "System package or application (qbittorrent).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi qbittorrent || paru -Qi qbittorrent",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "qbittorrent --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "qbittorrent",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "qemu-full": {
+        "description": "System package or application (qemu-full).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi qemu-full || paru -Qi qemu-full",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "qemu-full --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "qemu-full",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "quran-desktop": {
+        "description": "System package or application (quran-desktop).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi quran-desktop || paru -Qi quran-desktop",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "quran-desktop --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "quran-desktop",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "r": {
+        "description": "System package or application (r).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi r || paru -Qi r",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "r --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "r",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "remmina": {
+        "description": "System package or application (remmina).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi remmina || paru -Qi remmina",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "remmina --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "remmina",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "rsync": {
+        "description": "System package or application (rsync).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi rsync || paru -Qi rsync",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "rsync --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "rsync",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "rust-analyzer": {
+        "description": "System package or application (rust-analyzer).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi rust-analyzer || paru -Qi rust-analyzer",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "rust-analyzer --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "rust-analyzer",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "sane": {
+        "description": "System package or application (sane).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi sane || paru -Qi sane",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "sane --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "sane",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "scilab": {
+        "description": "System package or application (scilab).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi scilab || paru -Qi scilab",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "scilab --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "scilab",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "scribus": {
+        "description": "System package or application (scribus).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi scribus || paru -Qi scribus",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "scribus --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "scribus",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "simple-scan": {
+        "description": "System package or application (simple-scan).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi simple-scan || paru -Qi simple-scan",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "simple-scan --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "simple-scan",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "speech-dispatcher": {
+        "description": "System package or application (speech-dispatcher).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi speech-dispatcher || paru -Qi speech-dispatcher",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "speech-dispatcher --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "speech-dispatcher",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "sqlite": {
+        "description": "System package or application (sqlite).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi sqlite || paru -Qi sqlite",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "sqlite --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "sqlite",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "teams": {
+        "description": "System package or application (teams).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi teams || paru -Qi teams",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "teams --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "teams",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "telegram-desktop": {
+        "description": "System package or application (telegram-desktop).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi telegram-desktop || paru -Qi telegram-desktop",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "telegram-desktop --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "telegram-desktop",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "thunderbird": {
+        "description": "System package or application (thunderbird).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi thunderbird || paru -Qi thunderbird",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "thunderbird --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "thunderbird",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "timeshift": {
+        "description": "System package or application (timeshift).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi timeshift || paru -Qi timeshift",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "timeshift --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "timeshift",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "tlp": {
+        "description": "System package or application (tlp).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi tlp || paru -Qi tlp",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "tlp --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "tlp",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "traceroute": {
+        "description": "System package or application (traceroute).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi traceroute || paru -Qi traceroute",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "traceroute --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "traceroute",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "tree": {
+        "description": "System package or application (tree).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi tree || paru -Qi tree",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "tree --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "tree",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "ttf-arabic": {
+        "description": "Font package (ttf-arabic).",
+        "commands": [
+            {
+                "label": "View installed fonts",
+                "cmd": "fc-list | grep -i arabic",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "ttf-ms-fonts": {
+        "description": "Font package (ttf-ms-fonts).",
+        "commands": [
+            {
+                "label": "View installed fonts",
+                "cmd": "fc-list | grep -i ms-fonts",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "unzip": {
+        "description": "System package or application (unzip).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi unzip || paru -Qi unzip",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "unzip --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "unzip",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "v4l-utils": {
+        "description": "System package or application (v4l-utils).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi v4l-utils || paru -Qi v4l-utils",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "v4l-utils --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "v4l-utils",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "valgrind": {
+        "description": "System package or application (valgrind).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi valgrind || paru -Qi valgrind",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "valgrind --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "valgrind",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "virt-manager": {
+        "description": "System package or application (virt-manager).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi virt-manager || paru -Qi virt-manager",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "virt-manager --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "virt-manager",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "virtualbox-host-modules-arch": {
+        "description": "System package or application (virtualbox-host-modules-arch).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi virtualbox-host-modules-arch || paru -Qi virtualbox-host-modules-arch",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "virtualbox-host-modules-arch --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "virtualbox-host-modules-arch",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "wget": {
+        "description": "System package or application (wget).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi wget || paru -Qi wget",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "wget --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "wget",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "wine": {
+        "description": "System package or application (wine).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi wine || paru -Qi wine",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "wine --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "wine",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "winetricks": {
+        "description": "System package or application (winetricks).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi winetricks || paru -Qi winetricks",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "winetricks --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "winetricks",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "xdebug": {
+        "description": "System package or application (xdebug).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi xdebug || paru -Qi xdebug",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "xdebug --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "xdebug",
+                "type": "maintenance"
+            }
+        ]
+    },
+    "zip": {
+        "description": "System package or application (zip).",
+        "commands": [
+            {
+                "label": "Show package info",
+                "cmd": "pacman -Qi zip || paru -Qi zip",
+                "type": "maintenance"
+            },
+            {
+                "label": "Check help/version",
+                "cmd": "zip --help",
+                "type": "maintenance"
+            },
+            {
+                "label": "Launch application",
+                "cmd": "zip",
+                "type": "maintenance"
+            }
+        ]
+    }
+}

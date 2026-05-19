@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { commands, type ProfileInfo, type BackendResult } from '$lib/commands';
+	import {
+		commands,
+		type ProfileInfo,
+		type BackendResult,
+		type PackageSizeInfo
+	} from '$lib/commands';
 	import { onMount } from 'svelte';
 	import { LoaderCircle, TriangleAlert } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
@@ -8,7 +13,6 @@
 	import PreviewTab from '$lib/components/home/PreviewTab.svelte';
 	import PackageListTab from '$lib/components/home/PackageListTab.svelte';
 	import InstallActionBar from '$lib/components/home/InstallActionBar.svelte';
-	import HeroDetail from '$lib/components/home/HeroDetail.svelte';
 	// ─── Props & State ────────────────────────────────────────────────────────────
 	let profileId = $derived(page.params.id);
 	let profile = $state<ProfileInfo | null>(null);
@@ -220,19 +224,58 @@
 		installedPackages.size > 0 &&
 			installedPackages.size === (profile?.packages_install?.length ?? 0)
 	);
-	let totalSize = $derived('~1.2 GB');
-	let estTime = $derived('~' + Math.max(1, Math.ceil(selectedCount / 5)) + ' mins');
+
+	// Real package size state
+	let sizeInfo = $state<PackageSizeInfo | null>(null);
+	let sizeLoading = $state(false);
+
+	// Fetch real sizes whenever the selection changes
+	$effect(() => {
+		const pkgsToFetch = Array.from(selectedPackages);
+		if (pkgsToFetch.length === 0) {
+			sizeInfo = null;
+			return;
+		}
+		sizeLoading = true;
+		commands
+			.getPackageSizes(pkgsToFetch)
+			.then((info) => {
+				sizeInfo = info;
+			})
+			.catch((e) => {
+				console.error('[get_package_sizes] error:', e);
+				sizeInfo = null;
+			})
+			.finally(() => {
+				sizeLoading = false;
+			});
+	});
+
+	// Derived display strings
+	let totalDownloadSize = $derived(
+		sizeLoading
+			? 'Fetching...'
+			: sizeInfo
+				? sizeInfo.total_download_human
+				: selectedCount > 0
+					? 'Unknown'
+					: '—'
+	);
+	let totalInstallSize = $derived(sizeLoading ? '' : sizeInfo ? sizeInfo.total_install_human : '');
+	// Estimate time: assume 25 Mbps connection
+	let estTime = $derived(
+		!sizeInfo || sizeLoading
+			? '—'
+			: (() => {
+					const seconds = sizeInfo.total_download_bytes / ((25 * 1024 * 1024) / 8);
+					if (seconds < 60) return '<1 min';
+					const mins = Math.ceil(seconds / 60);
+					return `~${mins} min${mins > 1 ? 's' : ''}`;
+				})()
+	);
 </script>
 
-<div class="flex flex-col h-full bg-background relative overflow-hidden">
-	{#if profile && !loading && !error}
-		<HeroDetail
-			{profile}
-			{allInstalled}
-			onInstall={handleInstall}
-			onUninstall={handleUninstallAll}
-		/>
-	{/if}
+<div class="flex flex-col h-full bg-background relative">
 	<div class="flex-1 overflow-y-auto">
 		{#if loading}
 			<div class="flex flex-col items-center justify-center h-full gap-4">
@@ -258,6 +301,8 @@
 						{allInstalled}
 						{activeTab}
 						onTabChange={(tab) => (activeTab = tab)}
+						onInstall={handleInstall}
+						onUninstall={() => handleUninstall()}
 					/>
 
 					{#if activeTab === 'package'}
@@ -281,7 +326,9 @@
 		<InstallActionBar
 			{selectedCount}
 			{uninstallCount}
-			{totalSize}
+			totalSize={totalDownloadSize}
+			{totalInstallSize}
+			{sizeLoading}
 			{estTime}
 			{installState}
 			{installMessage}

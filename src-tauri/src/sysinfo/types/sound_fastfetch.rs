@@ -17,8 +17,8 @@ pub struct WelcomeElement {
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Result {
-    pub active: bool,
-    pub main: bool,
+    #[serde(rename = "type")]
+    pub result_type: Option<Vec<String>>,
     pub volume: i64,
     pub name: String,
     pub identifier: String,

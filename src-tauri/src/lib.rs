@@ -3,10 +3,14 @@ use specta_typescript::Typescript;
 use tauri::Manager;
 use tauri_specta::{collect_commands, Builder};
 
+use std::sync::Mutex;
+
 use crate::grub::initialization::GrubManager;
 
+mod aur;
 mod grub;
 mod installer;
+mod pkexec_args;
 mod settings;
 mod splash;
 mod sysinfo;
@@ -15,7 +19,7 @@ mod utils;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // GRUB Manager Struct Setup
-    let grub_manager = GrubManager::new();
+    let grub_manager = Mutex::new(GrubManager::new());
 
     let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
         // System info commands
@@ -27,6 +31,7 @@ pub fn run() {
         installer::backend_runner::remove_packages,
         installer::backend_runner::update_db,
         installer::backend_runner::check_package_installed,
+        installer::backend_runner::get_package_sizes,
         // Profile commands (install/uninstall via pacman + systemctl directly)
         installer::backend_runner::install_profile,
         installer::backend_runner::uninstall_profile,
@@ -43,13 +48,24 @@ pub fn run() {
         // GRUB Commands
         grub::command::get_grub_themes,
         grub::command::set_grub_theme,
-        // Settings Commands
-        settings::command::get_cache_size,
-        settings::command::clean_cache,
-        settings::command::refresh_mirror,
-        settings::command::switch_dns,
-        settings::command::set_cpu_profile,
-        settings::command::set_swap_mode,
+        // Modularitea integrations (RSS, mirrors, DNS, swap, cache, cpufreq)
+        settings::fetch_parsed_news,
+        settings::mirror_reflector_country_list,
+        settings::settings_refresh_mirror,
+        settings::settings_change_dns,
+        settings::settings_dns_status_line,
+        settings::settings_toggle_swap,
+        settings::settings_swap_enabled_state,
+        settings::settings_clean_package_cache,
+        settings::settings_set_cpu_profile,
+        settings::settings_cpu_governor_line,
+        // AUR Commands
+        aur::commands::search_aur_packages,
+        aur::commands::get_aur_package_info,
+        aur::commands::install_aur_package,
+        aur::commands::remove_aur_package,
+        aur::commands::list_installed_aur,
+        aur::commands::get_top_aur_packages,
     ]);
 
     #[cfg(debug_assertions)]

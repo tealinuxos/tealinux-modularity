@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="128" height="128">
+  <defs><filter id="b5"><feGaussianBlur stdDeviation="3"/></filter></defs>
+  <path d="M25,30 C10,40 10,65 25,75 C40,85 65,85 75,70 C85,55 85,35 70,25 C55,15 40,20 25,30 Z" fill="#0055FF"/>
+  <circle cx="65" cy="65" r="22" fill="#FFFFFF" fill-opacity="0.25" filter="url(#b5)"/>
+  <path d="M53,61 C53,58 56,56 60,56 L70,56 C74,56 77,58 77,61 L79,69 C80,72 77,75 74,74 L69,72 L61,72 L56,74 C53,75 50,72 51,69 Z" fill="#FFFFFF"/>
+  <circle cx="58" cy="65" r="1.5" fill="#0055FF"/>
+  <circle cx="72" cy="62" r="1" fill="#0055FF"/>
+  <circle cx="74" cy="66" r="1" fill="#0055FF"/>
+</svg>

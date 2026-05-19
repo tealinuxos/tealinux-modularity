@@ -1,217 +1,304 @@
 <script lang="ts">
 	import type { ProfileInfo } from '$lib/commands';
+	import PackageBadge from './PackageBadge.svelte';
+	import ServiceGuideCard from './ServiceGuideCard.svelte';
 	import { getCategoryIcon } from '$lib/utils/category';
-	import { Package, Download, Terminal } from '@lucide/svelte';
+	import { Package, Download, Terminal, Trash2, Info } from '@lucide/svelte';
+	import packageGuidesRaw from '$lib/data/packageGuides.json';
 
 	interface Props {
 		profile: ProfileInfo;
 		allInstalled: boolean;
 		activeTab: 'preview' | 'package';
 		onTabChange: (tab: 'preview' | 'package') => void;
+		onInstall?: () => void;
+		onUninstall?: () => void;
 	}
 
-	let { profile, allInstalled, activeTab, onTabChange }: Props = $props();
+	let { profile, allInstalled, activeTab, onTabChange, onInstall, onUninstall }: Props = $props();
 
-	let IconComponent = $derived(getCategoryIcon(profile.category));
+	let IconComponent = $derived(profile ? getCategoryIcon(profile.category) : null);
+	let useFallback = $state(false);
+	let iconPath = $derived(profile ? `/icons/${profile.id}.svg` : '');
+
+	// ── Selected package state ────────────────────────────────────────────
+	let selectedPackage = $state<string | null>(null);
+
+	function handlePackageClick(pkg: string) {
+		selectedPackage = selectedPackage === pkg ? null : pkg;
+	}
+
+	// ── Package verification guides ──────────────────────────────────────
+	type ServiceCommand = {
+		label: string;
+		cmd: string;
+		type: 'setup' | 'maintenance';
+	};
+
+	type ServiceGuide = {
+		description: string;
+		commands: ServiceCommand[];
+	};
+
+	const packageGuides = packageGuidesRaw as Record<string, ServiceGuide>;
+
+	let selectedGuide = $derived(selectedPackage ? (packageGuides[selectedPackage] ?? null) : null);
+	let isService = $derived(
+		selectedPackage ? profile.services_enable.includes(selectedPackage) : false
+	);
+
+	let copiedCmd = $state<string | null>(null);
+	let copyTimeout: ReturnType<typeof setTimeout> | null = null;
+
+	async function copyToClipboard(cmd: string) {
+		try {
+			await navigator.clipboard.writeText(cmd);
+		} catch {
+			// Fallback for environments without clipboard API
+			const ta = document.createElement('textarea');
+			ta.value = cmd;
+			ta.style.position = 'fixed';
+			ta.style.opacity = '0';
+			document.body.appendChild(ta);
+			ta.select();
+			document.execCommand('copy');
+			document.body.removeChild(ta);
+		}
+		copiedCmd = cmd;
+		if (copyTimeout) clearTimeout(copyTimeout);
+		copyTimeout = setTimeout(() => {
+			copiedCmd = null;
+		}, 1500);
+	}
 </script>
 
-<div class="pt-container">
-	<!-- ── Shared Header ──────────────────────────── -->
-	<div class="pt-header">
-		<div class="pt-header-left">
-			<h1 class="pt-title">{profile.name}</h1>
-			<p class="pt-desc">{profile.description}</p>
+<!-- Header -->
+<div
+	class="flex items-start justify-between gap-6 px-8 pt-7 pb-5 max-sm:flex-col max-sm:px-5 max-sm:pt-5 max-sm:pb-4"
+>
+	<!-- Left: icon + identity -->
+	<div class="flex items-center gap-4">
+		<div
+			class="w-[3.25rem] h-[3.25rem] rounded-[0.875rem] shrink-0 flex items-center justify-center transition-all duration-300 bg-gradient-to-br {allInstalled
+				? 'from-red-500 to-red-600 shadow-[0_4px_14px_rgba(239,68,68,0.35)]'
+				: 'from-[#26A768] to-emerald-600 shadow-[0_4px_14px_rgba(84,205,76,0.35)]'}"
+		>
+			{#if !useFallback && iconPath}
+				<img
+					src={iconPath}
+					alt={profile.name}
+					class="w-10 h-10 object-contain"
+					onerror={() => (useFallback = true)}
+				/>
+			{:else if IconComponent}
+				<IconComponent class="w-10 h-10 {allInstalled ? 'text-white' : 'text-[#052e16]'}" />
+			{/if}
 		</div>
-		<div class="pt-tabs">
-			<div class="bg-muted/50 p-1 rounded-lg border border-border flex">
-				<button
-					onclick={() => onTabChange('preview')}
-					class={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === 'preview' ? 'bg-background shadow-sm text-[#54CD4C]' : 'text-muted-foreground hover:text-foreground'}`}
+		<div class="flex flex-col gap-[0.2rem]">
+			<div class="flex items-center gap-[0.6rem]">
+				<h1
+					class="text-[1.35rem] font-extrabold text-foreground m-0 tracking-[-0.015em] leading-[1.2]"
 				>
-					Preview
-				</button>
-				<button
-					onclick={() => onTabChange('package')}
-					class={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${activeTab === 'package' ? 'bg-background shadow-sm text-[#54CD4C]' : 'text-muted-foreground hover:text-foreground'}`}
+					{profile.name}
+				</h1>
+				<span
+					class="py-[0.15rem] px-[0.5rem] rounded-full text-[0.58rem] font-extrabold uppercase tracking-[0.08em] leading-[1.6] transition-all duration-300 {allInstalled
+						? 'bg-red-500 text-white'
+						: 'bg-[#26A768] text-[#052e16]'}"
 				>
-					Package
-				</button>
+					{allInstalled ? 'INSTALLED' : 'STABLE'}
+				</span>
 			</div>
+			<p class="m-0 max-w-[22rem] text-[0.8rem] leading-relaxed text-muted-foreground mt-1">
+				{profile.description}
+			</p>
 		</div>
 	</div>
 
-	<hr class="pt-divider" />
+	<!-- Right: Actions + Tabs -->
+	<div class="flex flex-col sm:flex-row items-end sm:items-center gap-4 self-start sm:self-center">
+		<!-- Segmented Tabs -->
+		<div
+			class="flex shrink-0 items-center rounded-lg border border-border/60 bg-muted/40 p-1 shadow-sm"
+		>
+			<button
+				onclick={() => onTabChange('preview')}
+				class="flex transition-all cursor-pointer items-center justify-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium {activeTab ===
+				'preview'
+					? 'bg-background text-[#26A768] shadow-sm font-bold border border-border/30'
+					: 'text-muted-foreground hover:text-foreground border border-transparent'}"
+			>
+				Preview
+			</button>
+			<button
+				onclick={() => onTabChange('package')}
+				class="flex transition-all cursor-pointer items-center justify-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium {activeTab ===
+				'package'
+					? 'bg-background text-[#26A768] shadow-sm font-bold border border-border/30'
+					: 'text-muted-foreground hover:text-foreground border border-transparent'}"
+			>
+				Package
+			</button>
+		</div>
 
-	<!-- ── Preview Content ───────────────────────── -->
-	{#if activeTab === 'preview'}
-		<div class="pt-content">
-			<div class="rounded-2xl bg-card border border-border p-6 space-y-6">
-				<h2 class="text-lg font-semibold">Installation Preview</h2>
+		<!-- Install / Uninstall buttons from HeroDetail -->
+		{#if allInstalled}
+			<button
+				class="flex items-center gap-1.5 py-[0.55rem] px-5 rounded-[0.65rem] border-none bg-red-500 text-white text-[0.8rem] hover:bg-red-600 shadow-[0_3px_12px_rgba(239,68,68,0.25)] hover:shadow-[0_4px_16px_rgba(239,68,68,0.35)] hover:-translate-y-px font-extrabold transition-all cursor-pointer break-keep whitespace-nowrap"
+				onclick={onUninstall}
+			>
+				<Trash2 class="w-4 h-4" />
+				Uninstall Pack
+			</button>
+		{:else}
+			<button
+				class="flex items-center gap-1.5 py-[0.55rem] px-5 rounded-[0.65rem] border-none bg-[#26A768] text-[#052e16] hover:bg-[#4bc043] shadow-[0_3px_12px_rgba(84,205,76,0.3)] hover:shadow-[0_4px_16px_rgba(84,205,76,0.4)] hover:-translate-y-px text-[0.8rem] font-extrabold transition-all cursor-pointer break-keep whitespace-nowrap"
+				onclick={onInstall}
+			>
+				<Download class="w-4 h-4" />
+				Install Pack
+			</button>
+		{/if}
+	</div>
+</div>
 
-				<div class="space-y-6">
-					<!-- Official Packages -->
-					{#if profile.packages_install.length > 0}
-						<div class="space-y-3">
-							<h3 class="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-								Official Packages
-							</h3>
-							<div class="flex flex-wrap gap-2">
-								{#each profile.packages_install as pkg}
-									<div
-										class="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border border-border hover:bg-muted transition-colors"
-									>
-										<Package class="w-4 h-4 text-muted-foreground" />
-										<span class="font-mono text-sm">{pkg}</span>
-									</div>
-								{/each}
+<hr class="mx-8 border-t border-border/50 max-sm:mx-5" />
+
+<!-- ── Preview Content ───────────────────────── -->
+{#if activeTab === 'preview'}
+	<div class="flex flex-col gap-5 px-8 pt-6 pb-8 max-sm:p-5">
+		<div class="space-y-6">
+			<div class="flex items-center justify-between">
+				<h2 class="text-[0.95rem] font-bold uppercase tracking-widest text-muted-foreground/80">
+					Installation Preview
+				</h2>
+				{#if selectedPackage}
+					<button
+						onclick={() => (selectedPackage = null)}
+						class="cursor-pointer rounded-md border border-border/50 bg-muted/50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+					>
+						Clear Selection
+					</button>
+				{/if}
+			</div>
+
+			<div class="space-y-8">
+				<!-- Official Packages -->
+				{#if profile.packages_install.length > 0}
+					<div class="space-y-3">
+						<h3
+							class="flex items-center gap-2 text-[0.8rem] font-extrabold uppercase tracking-widest text-foreground"
+						>
+							<div class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
+							Official Packages
+							<span
+								class="ml-1 text-[0.65rem] normal-case font-medium tracking-normal opacity-60 text-muted-foreground"
+							>
+								— click to see guide
+							</span>
+						</h3>
+						<div class="flex flex-wrap gap-2">
+							{#each profile.packages_install as pkg}
+								<PackageBadge
+									name={pkg}
+									variant="official"
+									isSelected={selectedPackage === pkg}
+									onclick={() => handlePackageClick(pkg)}
+								/>
+							{/each}
+						</div>
+					</div>
+				{/if}
+
+				<!-- AUR Packages -->
+				{#if profile.packages_aur.length > 0}
+					<div class="space-y-3">
+						<h3
+							class="flex items-center gap-2 text-[0.8rem] font-extrabold uppercase tracking-widest text-foreground"
+						>
+							<div class="w-2 h-2 rounded-full bg-[#26A768] shrink-0"></div>
+							AUR Packages
+							<span
+								class="ml-1 text-[0.65rem] normal-case font-medium tracking-normal opacity-60 text-muted-foreground"
+							>
+								— click to see guide
+							</span>
+						</h3>
+						<div class="flex flex-wrap gap-2">
+							{#each profile.packages_aur as pkg}
+								<PackageBadge
+									name={pkg}
+									variant="aur"
+									isSelected={selectedPackage === pkg}
+									onclick={() => handlePackageClick(pkg)}
+								/>
+							{/each}
+						</div>
+					</div>
+				{/if}
+
+				<hr class="border-t border-dashed border-border/60" />
+
+				<!-- ── Service Configuration Guide ─────────────── -->
+				<div class="space-y-4">
+					<h3 class="text-[0.8rem] font-extrabold uppercase tracking-widest text-foreground">
+						Services Configuration & Guides
+					</h3>
+
+					{#if selectedPackage && selectedGuide}
+						<!-- Show guide for selected package -->
+						<div class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+							{#if isService}
+								<div
+									class="mb-4 flex items-center gap-3 rounded-xl border border-[#26A768]/20 bg-[#26A768]/5 px-4 py-3 shadow-[0_2px_10px_rgba(84,205,76,0.05)]"
+								>
+									<div class="h-2 w-2 shrink-0 rounded-full bg-[#26A768] animate-pulse"></div>
+									<span class="text-[0.75rem] font-bold uppercase tracking-wider text-[#26A768]/90">
+										This package is a service — it will be enabled automatically
+									</span>
+								</div>
+							{/if}
+							<ServiceGuideCard
+								svc={selectedPackage}
+								guide={selectedGuide}
+								{copiedCmd}
+								onCopy={copyToClipboard}
+							/>
+						</div>
+					{:else if selectedPackage && !selectedGuide}
+						<!-- Package selected but no guide available -->
+						<div
+							class="flex flex-col items-center gap-3 rounded-[1.25rem] border border-border/50 bg-muted/20 py-10 shadow-sm"
+						>
+							<div
+								class="flex h-12 w-12 items-center justify-center rounded-[1rem] bg-muted/60 border border-border/40 shadow-sm"
+							>
+								<Info class="h-5 w-5 text-muted-foreground/80" />
+							</div>
+							<div class="text-center">
+								<p class="m-0 text-sm font-extrabold text-foreground truncate">
+									{selectedPackage}
+								</p>
+								<p class="m-0 mt-1 text-[0.8rem] text-muted-foreground/80 leading-relaxed max-w-sm">
+									No specific setup guide available for this package yet.
+								</p>
 							</div>
 						</div>
-					{/if}
-
-					<!-- AUR Packages -->
-					{#if profile.packages_aur.length > 0}
-						<div class="space-y-3">
-							<h3 class="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-								AUR Packages
-							</h3>
-							<div class="flex flex-wrap gap-2">
-								{#each profile.packages_aur as pkg}
-									<div
-										class="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border border-l-2 border-l-amber-500/50 hover:bg-muted/30 transition-colors"
-									>
-										<Download class="w-4 h-4 text-amber-500" />
-										<span class="font-mono text-sm">{pkg}</span>
-									</div>
-								{/each}
+					{:else}
+						<!-- No package selected — show instruction -->
+						<div
+							class="flex flex-col items-center gap-3 rounded-[1.25rem] border border-dashed border-border/60 bg-muted/10 py-10"
+						>
+							<div class="flex h-12 w-12 items-center justify-center rounded-[1rem] bg-muted/40">
+								<Info class="h-5 w-5 text-muted-foreground/50" />
 							</div>
-						</div>
-					{/if}
-
-					<!-- Services -->
-					{#if profile.services_enable.length > 0}
-						<div class="space-y-3">
-							<h3 class="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-								Services configuration
-							</h3>
-							<div class="flex flex-wrap gap-2">
-								{#each profile.services_enable as svc}
-									<div
-										class="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border border-l-2 border-l-blue-500/50 hover:bg-muted/30 transition-colors"
-									>
-										<Terminal class="w-4 h-4 text-blue-500" />
-										<span class="font-mono text-sm">systemctl enable {svc}</span>
-									</div>
-								{/each}
-							</div>
+							<p class="m-0 text-center text-[0.8rem] font-medium text-muted-foreground/70">
+								Click on a package badge above to view its setup guide and commands
+							</p>
 						</div>
 					{/if}
 				</div>
 			</div>
 		</div>
-	{/if}
-</div>
-
-<style>
-	/* ── Container ───────────────────────────────── */
-	.pt-container {
-		display: flex;
-		flex-direction: column;
-	}
-
-	/* ── Header ──────────────────────────────────── */
-	.pt-header {
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		gap: 1.5rem;
-		padding: 1.75rem 2rem 1.25rem;
-	}
-
-	.pt-header-left {
-		display: flex;
-		flex-direction: column;
-		gap: 0.3rem;
-	}
-
-	.pt-title {
-		font-size: 1.45rem;
-		font-weight: 800;
-		color: hsl(var(--foreground));
-		margin: 0;
-		letter-spacing: -0.02em;
-		line-height: 1.15;
-	}
-
-	.pt-desc {
-		font-size: 0.8rem;
-		color: hsl(var(--muted-foreground));
-		margin: 0;
-		line-height: 1.55;
-		max-width: 22rem;
-	}
-
-	/* ── Tab Switcher ────────────────────────────── */
-	.pt-tabs {
-		display: flex;
-		align-items: center;
-		gap: 0;
-		padding: 0.2rem;
-		border-radius: 0.6rem;
-		background: hsl(var(--muted) / 0.4);
-		border: 1px solid hsl(var(--border));
-		flex-shrink: 0;
-	}
-
-	.pt-tab {
-		padding: 0.45rem 1.1rem;
-		border-radius: 0.45rem;
-		font-size: 0.78rem;
-		font-weight: 600;
-		border: none;
-		cursor: pointer;
-		background: transparent;
-		color: hsl(var(--muted-foreground));
-		transition: all 0.18s ease;
-		white-space: nowrap;
-	}
-
-	.pt-tab:hover:not(.pt-tab--active) {
-		color: hsl(var(--foreground));
-	}
-
-	.pt-tab--active {
-		background: #22c55e;
-		color: #052e16;
-		box-shadow: 0 1px 6px rgba(34, 197, 94, 0.35);
-	}
-
-	/* ── Divider ─────────────────────────────────── */
-	.pt-divider {
-		border: none;
-		border-top: 1px solid hsl(var(--border) / 0.5);
-		margin: 0 2rem;
-	}
-
-	/* ── Preview Content ─────────────────────────── */
-	.pt-content {
-		display: flex;
-		flex-direction: column;
-		gap: 1.4rem;
-		padding: 1.5rem 2rem 2rem;
-	}
-
-	@media (max-width: 640px) {
-		.pt-header {
-			flex-direction: column;
-			padding: 1.25rem 1.25rem 1rem;
-		}
-
-		.pt-content {
-			padding: 1.25rem;
-		}
-
-		.pt-divider {
-			margin: 0 1.25rem;
-		}
-	}
-</style>
+	</div>
+{/if}

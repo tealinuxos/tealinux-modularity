@@ -1,0 +1,14 @@
+[meta]
+name = "Gaming Pack"
+description = "Paket gaming Linux untuk performa dan kompabilitas terbaik."
+version = "1.0.0"
+author = "TeaLinuxOS Team"
+category = "games"
+icon = "gaming.svg"
+
+[packages]
+install = [ "steam", "gamemode", "mangohud", "lutris", "wine", "winetricks",]
+aur = [ "heroic-games-launcher-bin",]
+
+[services]
+enable = []
