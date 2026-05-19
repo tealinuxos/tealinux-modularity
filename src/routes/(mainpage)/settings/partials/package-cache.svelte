@@ -1,5 +1,3 @@
-// TODO: Save when the last package is cleaned using store
-
 <script lang="ts">
 	import { Trash2, Clock, HardDrive, LoaderCircle } from '@lucide/svelte';
 	import * as Card from '$lib/components/ui/card';
@@ -7,6 +5,7 @@
 	import { commands } from '$lib/commands';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
+	import { settingsState } from '$lib/state/settings.svelte';
 
 	let clearing = $state(false);
 	let cacheSize = $state<string>('0 B');
@@ -31,6 +30,18 @@
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 	}
 
+	function formatLastCleaned(timestamp: number | null) {
+		if (!timestamp) return 'Never cleaned';
+		const diff = Date.now() - timestamp;
+		const minutes = Math.floor(diff / 60000);
+		if (minutes < 1) return 'Just now';
+		if (minutes < 60) return `${minutes}m ago`;
+		const hours = Math.floor(minutes / 60);
+		if (hours < 24) return `${hours}h ago`;
+		const days = Math.floor(hours / 24);
+		return `${days}d ago`;
+	}
+
 	onMount(() => {
 		fetchCacheSize();
 	});
@@ -40,6 +51,7 @@
 		try {
 			const result = await commands.cleanCache();
 			if (result.status === 'ok') {
+				settingsState.lastCacheCleaned = Date.now();
 				toast.success('Package cache cleared', {
 					description: 'Disk space has been freed successfully'
 				});
@@ -86,7 +98,7 @@
 	<Card.Footer class="flex h-17.5 items-center justify-between border-t">
 		<div class="flex items-center gap-1.5 text-xs text-muted-foreground">
 			<Clock class="size-3" />
-			<span>Last cleaned recently</span>
+			<span>Last cleaned {formatLastCleaned(settingsState.lastCacheCleaned)}</span>
 		</div>
 		<Button
 			variant="destructive"

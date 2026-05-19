@@ -1,18 +1,14 @@
-// TODO: Save what CPU Gov that user selected using store
-
 <script lang="ts">
 	import { Gauge, Zap, Cpu, Battery, LoaderCircle } from '@lucide/svelte';
 	import * as Card from '$lib/components/ui/card';
-	import { commands } from '$lib/commands';
+	import { commands, type CpuProfile } from '$lib/commands';
 	import { toast } from 'svelte-sonner';
+	import { settingsState } from '$lib/state/settings.svelte';
 
-	type Governor = 'powersave' | 'performance' | 'ondemand';
-
-	let active = $state<Governor>('performance');
 	let updating = $state(false);
 
 	const governors: {
-		value: Governor;
+		value: CpuProfile;
 		label: string;
 		sub: string;
 		Icon: typeof Cpu;
@@ -41,14 +37,14 @@
 		}
 	];
 
-	async function handleSetProfile(profile: Governor) {
-		if (active === profile) return;
+	async function handleSetProfile(profile: CpuProfile) {
+		if (settingsState.cpuGovernor === profile) return;
 
 		updating = true;
 		try {
 			const result = await commands.setCpuProfile(profile);
 			if (result.status === 'ok') {
-				active = profile;
+				settingsState.cpuGovernor = profile;
 				toast.success('CPU Profile Updated', {
 					description: `System is now running in ${profile} mode.`
 				});
@@ -83,7 +79,7 @@
 
 		<div class="grid grid-cols-3 gap-2 sm:flex sm:shrink-0 sm:items-stretch">
 			{#each governors as { value, label, sub, Icon, iconClass } (value)}
-				{@const isActive = active === value}
+				{@const isActive = settingsState.cpuGovernor === value}
 				<button
 					onclick={() => handleSetProfile(value)}
 					disabled={updating}

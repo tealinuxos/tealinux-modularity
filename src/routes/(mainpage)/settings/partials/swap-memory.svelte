@@ -1,5 +1,3 @@
-// TODO: Save swap status using store
-
 <script lang="ts">
 	import { Database, LoaderCircle } from '@lucide/svelte';
 	import * as Card from '$lib/components/ui/card';
@@ -7,8 +5,8 @@
 	import { Label } from '$lib/components/ui/label';
 	import { commands } from '$lib/commands';
 	import { toast } from 'svelte-sonner';
+	import { settingsState } from '$lib/state/settings.svelte';
 
-	let enabled = $state(false);
 	let updating = $state(false);
 
 	async function handleToggleSwap(checked: boolean) {
@@ -18,7 +16,7 @@
 			const result = await commands.setSwapMode(mode);
 
 			if (result.status === 'ok') {
-				enabled = checked;
+				settingsState.swapEnabled = checked;
 				toast.success(`Swap ${checked ? 'Enabled' : 'Disabled'}`, {
 					description: `Virtual memory has been ${checked ? 'activated' : 'deactivated'} successfully.`
 				});
@@ -26,13 +24,11 @@
 				toast.error('Failed to change swap status', {
 					description: result.error
 				});
-				enabled = !checked;
 			}
 		} catch (err) {
 			toast.error('Unexpected error', {
 				description: String(err)
 			});
-			enabled = !checked;
 		} finally {
 			updating = false;
 		}
@@ -71,12 +67,12 @@
 					{/if}
 				</div>
 				<p class="text-xs text-muted-foreground">
-					{enabled ? 'Active — 2 GB allocated' : 'Inactive'}
+					{settingsState.swapEnabled ? 'Active — 2 GB allocated' : 'Inactive'}
 				</p>
 			</div>
 			<Switch
 				id="swap-toggle"
-				bind:checked={enabled}
+				checked={settingsState.swapEnabled}
 				disabled={updating}
 				onCheckedChange={handleToggleSwap}
 			/>

@@ -1,10 +1,10 @@
-// TODO: Save what the DNS is selected using store
-
 <script lang="ts">
-	import { ShieldCheck } from '@lucide/svelte';
+	import { ShieldCheck, LoaderCircle } from '@lucide/svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as RadioGroup from '$lib/components/ui/radio-group';
-	import type { DnsProvider } from '$lib/commands';
+	import { commands, type DnsProvider } from '$lib/commands';
+	import { settingsState } from '$lib/state/settings.svelte';
+	import { toast } from 'svelte-sonner';
 
 	type DNS_VALUE = {
 		name: string;
@@ -20,7 +20,33 @@
 		adguard: { name: 'AdGuard DNS', address: '94.140.14.14', desc: 'Ad & tracker blocking' }
 	};
 
-	let selected = $state<DnsProvider>('cloudflare');
+	let updating = $state(false);
+
+	async function handleDnsChange(value: string) {
+		const provider = value as DnsProvider;
+		if (settingsState.dnsProvider === provider) return;
+
+		updating = true;
+		try {
+			const result = await commands.switchDns(provider);
+			if (result.status === 'ok') {
+				settingsState.dnsProvider = provider;
+				toast.success('DNS Updated', {
+					description: `Now using ${providers[provider].name} as your DNS resolver.`
+				});
+			} else {
+				toast.error('Failed to update DNS', {
+					description: result.error
+				});
+			}
+		} catch (err) {
+			toast.error('Unexpected error', {
+				description: String(err)
+			});
+		} finally {
+			updating = false;
+		}
+	}
 </script>
 
 <Card.Root class="h-[24.3rem]">
@@ -30,19 +56,31 @@
 				<ShieldCheck class="size-4 text-green-600" />
 			</div>
 			<div>
-				<Card.Title class="text-base">DNS Configuration</Card.Title>
+				<div class="flex items-center gap-2">
+					<Card.Title class="text-base">DNS Configuration</Card.Title>
+					{#if updating}
+						<LoaderCircle class="size-3 animate-spin text-muted-foreground" />
+					{/if}
+				</div>
 				<Card.Description class="text-xs">Preferred resolver</Card.Description>
 			</div>
 		</div>
 	</Card.Header>
 
 	<Card.Content class="overflow-scroll">
-		<RadioGroup.Root bind:value={selected} class="space-y-2">
+		<RadioGroup.Root
+			value={settingsState.dnsProvider}
+			onValueChange={handleDnsChange}
+			disabled={updating}
+			class="space-y-2"
+		>
 			{#each Object.entries(providers) as [key, provider] (key)}
+				{@const isSelected = settingsState.dnsProvider === key}
 				<label
 					for="dns-{key}"
 					class="flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-all
-						{selected === key ? 'border-primary bg-primary/5' : 'border-border bg-muted/20 hover:bg-muted/40'}"
+						{isSelected ? 'border-primary bg-primary/5' : 'border-border bg-muted/20 hover:bg-muted/40'}
+						{updating ? 'opacity-50 cursor-not-allowed' : ''}"
 				>
 					<div class="flex items-center gap-3">
 						<RadioGroup.Item value={key} id="dns-{key}" />
