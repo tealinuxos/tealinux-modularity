@@ -1,7 +1,5 @@
-<<<<<<< HEAD
 pub mod command;
 pub mod models;
-=======
 mod mirror_countries;
 
 use crate::pkexec_args::{merged_output_text, pkexec_stderr_local_result, run_pkexec_program};
@@ -9,7 +7,6 @@ use mirror_countries::is_allowed_mirror_country;
 use crate::utils::error_libs::{LocalCommandOutput, LocalModulariteaError};
 use crate::utils::modularitea_path::resolve_on_path;
 use modularitea_libs::infrastructure::news_parser::{NewsParser, ParsedNewsItem};
-use modularitea_libs::infrastructure::tools_utils::{CpuBooster, MirrorUtils};
 use serde::Serialize;
 use specta::Type;
 use std::path::Path;
@@ -80,7 +77,7 @@ pub struct ApiResultStr {
     pub code: Option<String>,
 }
 
-fn ok_void() -> ApiResultVoid {
+pub(crate) fn ok_void() -> ApiResultVoid {
     ApiResultVoid {
         success: true,
         error: None,
@@ -88,7 +85,7 @@ fn ok_void() -> ApiResultVoid {
     }
 }
 
-pub(crate) fn err_void<E: ToString>(e: E, code: &'static str) -> ApiResultVoid {
+pub fn err_void<E: ToString>(e: E, code: &'static str) -> ApiResultVoid {
     ApiResultVoid {
         success: false,
         error: Some(e.to_string()),
@@ -96,7 +93,7 @@ pub(crate) fn err_void<E: ToString>(e: E, code: &'static str) -> ApiResultVoid {
     }
 }
 
-fn err_str<E: ToString>(e: E, code: &'static str) -> ApiResultStr {
+pub fn err_str<E: ToString>(e: E, code: &'static str) -> ApiResultStr {
     ApiResultStr {
         success: false,
         data: None,
@@ -125,7 +122,7 @@ fn classify_local_err(e: &LocalModulariteaError) -> &'static str {
     }
 }
 
-fn classify_any_msg(s: &str) -> &'static str {
+pub fn classify_any_msg(s: &str) -> &'static str {
     let l = s.to_lowercase();
     if l.contains("permission")
         || l.contains("denied")
@@ -143,7 +140,7 @@ fn classify_any_msg(s: &str) -> &'static str {
     "UNKNOWN_ERROR"
 }
 
-pub(crate) fn map_mkerr_void(msg: impl Into<String>, code_str: &'static str) -> ApiResultVoid {
+pub fn map_mkerr_void(msg: impl Into<String>, code_str: &'static str) -> ApiResultVoid {
     ApiResultVoid {
         success: false,
         error: Some(msg.into()),
@@ -151,7 +148,7 @@ pub(crate) fn map_mkerr_void(msg: impl Into<String>, code_str: &'static str) -> 
     }
 }
 
-pub(crate) fn map_pkexec_void(res: Result<LocalCommandOutput, LocalModulariteaError>) -> ApiResultVoid {
+pub fn map_pkexec_void(res: Result<LocalCommandOutput, LocalModulariteaError>) -> ApiResultVoid {
     match res {
         Ok(_) => ok_void(),
         Err(e) => ApiResultVoid {
@@ -221,6 +218,7 @@ pub async fn settings_refresh_mirror(country: String) -> ApiResultStr {
         };
     }
 
+    use modularitea_libs::infrastructure::tools_utils::MirrorUtils;
     match tokio::task::spawn_blocking(move || MirrorUtils::set_country(Some(trimmed.clone())).refresh_fastest_mirror()).await {
         Ok(Ok(co)) => ApiResultStr {
             success: true,
@@ -362,6 +360,7 @@ pub async fn settings_clean_package_cache() -> ApiResultBool {
 #[tauri::command]
 #[specta::specta]
 pub async fn settings_set_cpu_profile(profile: String) -> ApiResultVoid {
+    use modularitea_libs::infrastructure::tools_utils::CpuBooster;
     let p = profile.trim().to_lowercase();
     if !matches!(p.as_str(), "powersave" | "performance" | "ondemand") {
         return err_void(format!("invalid CPU profile: {}", profile.trim()), "INVALID_ARGUMENT");
@@ -391,4 +390,3 @@ pub async fn settings_cpu_governor_line() -> ApiResultStr {
         Err(e) => err_str(e.to_string(), "UNKNOWN_ERROR"),
     }
 }
->>>>>>> development-harry
