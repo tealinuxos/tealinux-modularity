@@ -1,7 +1,9 @@
 use std::process::Command;
 
+use duct::cmd;
+
 use modularitea_libs::infrastructure::{
-    tools_utils::{CpuBooster, DnsSwitcher, MirrorUtils, Swap},
+    tools_utils::{CpuBooster, DnsSwitcher, MirrorUtils},
     PackageCacheCleaner,
 };
 
@@ -48,9 +50,20 @@ pub fn refresh_mirror(country: Option<String>) -> Result<LocalCommandOutput, Str
 #[tauri::command]
 #[specta::specta]
 pub fn switch_dns(provider: DnsProvider) -> Result<LocalCommandOutput, String> {
-    DnsSwitcher::switch(provider.as_str())
-        .map(Into::into)
-        .map_err(|e| e.to_string())
+    let output = cmd("pkexec", ["modularitea-dns-changer", provider.as_str()])
+        .stdout_capture()
+        .stderr_capture()
+        .run()
+        .map_err(|e| e.to_string())?;
+
+    let exit_code = output.status.code().unwrap_or(-1);
+
+    Ok(LocalCommandOutput {
+        exit_code,
+        success: output.status.success(),
+        stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
+        stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
+    })
 }
 
 #[tauri::command]
@@ -64,7 +77,23 @@ pub fn set_cpu_profile(profile: CpuProfile) -> Result<LocalCommandOutput, String
 #[tauri::command]
 #[specta::specta]
 pub fn set_swap_mode(mode: SwapMode) -> Result<LocalCommandOutput, String> {
-    Swap::set(mode.into())
-        .map(Into::into)
-        .map_err(|e| e.to_string())
+    let state = match mode {
+        SwapMode::Enable => "on",
+        SwapMode::Disable => "off",
+    };
+
+    let output = cmd("pkexec", ["modularitea-swap", state])
+        .stdout_capture()
+        .stderr_capture()
+        .run()
+        .map_err(|e| e.to_string())?;
+
+    let exit_code = output.status.code().unwrap_or(-1);
+
+    Ok(LocalCommandOutput {
+        exit_code,
+        success: output.status.success(),
+        stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
+        stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
+    })
 }
