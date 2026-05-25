@@ -1,11 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import {
-		commands,
-		type ProfileInfo,
-		type BackendResult,
-		type PackageSizeInfo
-	} from '$lib/commands';
+	import { commands, type ProfileInfo, type PackageSizeInfo } from '$lib/commands';
 	import { onMount } from 'svelte';
 	import { LoaderCircle, TriangleAlert } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
@@ -13,33 +8,70 @@
 	import PreviewTab from '$lib/components/home/PreviewTab.svelte';
 	import PackageListTab from '$lib/components/home/PackageListTab.svelte';
 	import InstallActionBar from '$lib/components/home/InstallActionBar.svelte';
-	// ─── Props & State ────────────────────────────────────────────────────────────
-	let profileId = $derived(page.params.id);
+
+	// ── Global install state (persists across navigation) ─────────────────────
+	import { installStore } from '$lib/stores/install.svelte';
+	import {
+		installPackages,
+		uninstallPackages,
+		syncActiveTasks
+	} from '$lib/services/installManager';
+
+	// ── Profile data ──────────────────────────────────────────────────────────
+	let profileId = $derived(page.params.id ?? '');
 	let profile = $state<ProfileInfo | null>(null);
 	let loading = $state(true);
 	let error = $state('');
 
-	// Tab state
+	// Tab state — local UI, fine to reset on navigation
 	let activeTab: 'preview' | 'package' = $state('package');
 
-	// Package selection & status
+	// Package selection & installed status — local to this page
 	let selectedPackages: Set<string> = $state(new Set());
 	let installedPackages: Set<string> = $state(new Set());
 	let checkingPackages = $state(false);
 
-	// Install state
-	let installState: 'idle' | 'installing' | 'success' | 'error' = $state('idle');
-	let installMessage = $state('');
-
-	// Uninstall state
+	// Uninstall selection — local to this page
 	let selectedUninstallPackages: Set<string> = $state(new Set());
-	let uninstallState: 'idle' | 'uninstalling' | 'success' | 'error' = $state('idle');
-	let uninstallMessage = $state('');
-	let showForceConfirm = $state(false);
 	let hasDependencyError = $state(false);
 
-	// ─── Lifecycle ────────────────────────────────────────────────────────────────
+	// ── Read install state from global store ──────────────────────────────────
+	// These are DERIVED from the global store — no local copies
+	let installState = $derived(
+		installStore.activeInstall?.profileId === profileId
+			? (installStore.activeInstall?.phase as 'idle' | 'installing' | 'success' | 'error')
+			: (installStore.getProfilePhase(profileId) as
+					| 'idle'
+					| 'installing'
+					| 'success'
+					| 'error')
+	);
+
+	let installMessage = $derived(
+		installStore.activeInstall?.profileId === profileId
+			? (installStore.activeInstall?.message ?? '')
+			: ''
+	);
+
+	let uninstallState = $derived(
+		installStore.activeUninstall?.profileId === profileId
+			? (installStore.activeUninstall?.phase as
+					| 'idle'
+					| 'uninstalling'
+					| 'success'
+					| 'error')
+			: 'idle'
+	);
+
+	let uninstallMessage = $derived(
+		installStore.activeUninstall?.profileId === profileId
+			? (installStore.activeUninstall?.message ?? '')
+			: ''
+	);
+
+	// ── Lifecycle ─────────────────────────────────────────────────────────────
 	onMount(async () => {
+		await syncActiveTasks();
 		await loadProfile();
 	});
 
@@ -80,7 +112,6 @@
 					selectedPackages.delete(pkg);
 				}
 			}
-			// Trigger reactivity
 			installedPackages = new Set(installedPackages);
 			selectedPackages = new Set(selectedPackages);
 		} catch (e) {
@@ -92,7 +123,6 @@
 
 	function togglePackage(pkg: string) {
 		if (installedPackages.has(pkg)) return;
-
 		if (selectedPackages.has(pkg)) {
 			selectedPackages.delete(pkg);
 		} else {
@@ -103,7 +133,6 @@
 
 	function toggleUninstallPackage(pkg: string) {
 		if (!installedPackages.has(pkg)) return;
-
 		if (selectedUninstallPackages.has(pkg)) {
 			selectedUninstallPackages.delete(pkg);
 		} else {
@@ -112,56 +141,53 @@
 		selectedUninstallPackages = new Set(selectedUninstallPackages);
 	}
 
+	// ── Install handler — delegates to global installManager ──────────────────
 	async function handleInstall() {
-		if (!profile || selectedPackages.size === 0) return;
+		if (!profile || !profileId || selectedPackages.size === 0) return;
+		if (installStore.isBusy) return;
 
-		installState = 'installing';
-		installMessage = '';
+		const pkgs = Array.from(selectedPackages);
 
-		try {
-			const packagesToInstall = Array.from(selectedPackages);
-			console.log(`[install] Installing packages: ${packagesToInstall.join(', ')}`);
+		// This returns immediately — progress updates arrive via global events
+		await installPackages(profileId, profile.name, pkgs, profile.services_enable);
 
-			const result: BackendResult = await commands.installProfile(
-				profile.id,
-				packagesToInstall,
-				profile.services_enable
-			);
-
-			if (result.success) {
-				installState = 'success';
-				installMessage = result.stdout || 'Installation completed successfully.';
-				await checkPackagesStatus(packagesToInstall);
-			} else {
-				installState = 'error';
-				installMessage = result.stderr || 'Installation failed.';
-			}
-		} catch (e) {
-			console.error('Install error:', e);
-			installState = 'error';
-			installMessage = String(e);
-		}
+		// After the install finishes (detected via the store), refresh package status
+		// We watch for phase change using $effect below
 	}
 
+	// When install completes, refresh installed status
+	$effect(() => {
+		const phase = installStore.activeInstall?.phase;
+		const pid = installStore.activeInstall?.profileId;
+		if (phase === 'success' && pid === profileId && profile) {
+			// Refresh installed packages status
+			checkPackagesStatus(profile.packages_install);
+		}
+	});
+
+	// ── Uninstall handler — delegates to global installManager ────────────────
 	async function handleUninstall(force: boolean = false) {
-		if (!profile || selectedUninstallPackages.size === 0) return;
+		if (!profile || !profileId || selectedUninstallPackages.size === 0) return;
+		if (installStore.isBusy) return;
 
-		uninstallState = 'uninstalling';
-		uninstallMessage = '';
-		showForceConfirm = false;
 		hasDependencyError = false;
+		const packagesToRemove = Array.from(selectedUninstallPackages);
 
-		try {
-			const packagesToRemove = Array.from(selectedUninstallPackages);
-			console.log(`[uninstall] Removing packages (force=${force}): ${packagesToRemove.join(', ')}`);
+		const result = await uninstallPackages(
+			profileId,
+			profile.name,
+			packagesToRemove,
+			profile.services_enable,
+			force
+		);
 
-			const result: BackendResult = await commands.removePackages(packagesToRemove, force);
+		hasDependencyError = result.hasDependencyError;
 
+		if (result.success) {
 			// Re-check actual status of each package (handles partial success)
 			for (const pkg of packagesToRemove) {
 				const stillInstalled = await commands.checkPackageInstalled(pkg);
 				if (!stillInstalled) {
-					// Package was successfully removed
 					installedPackages.delete(pkg);
 					selectedUninstallPackages.delete(pkg);
 					selectedPackages.add(pkg);
@@ -170,33 +196,6 @@
 			installedPackages = new Set(installedPackages);
 			selectedPackages = new Set(selectedPackages);
 			selectedUninstallPackages = new Set(selectedUninstallPackages);
-
-			if (result.success) {
-				uninstallState = 'success';
-				uninstallMessage = result.stdout || 'Packages removed successfully.';
-
-				setTimeout(() => {
-					uninstallState = 'idle';
-				}, 2000);
-			} else {
-				// Check if it's a dependency error (offer force-remove)
-				const isDependencyIssue =
-					result.stderr.includes('depend on it') ||
-					result.stderr.includes('required by') ||
-					result.stderr.includes('Cannot remove');
-
-				hasDependencyError = isDependencyIssue && !force;
-
-				const hasSuccesses = result.stdout.includes('✓');
-				uninstallState = 'error';
-				uninstallMessage = hasSuccesses
-					? 'Some packages removed. ' + result.stderr
-					: result.stderr || 'Uninstall failed.';
-			}
-		} catch (e) {
-			console.error('Uninstall error:', e);
-			uninstallState = 'error';
-			uninstallMessage = String(e);
 		}
 	}
 
@@ -206,18 +205,14 @@
 
 	async function handleUninstallAll() {
 		if (!profile) return;
-
-		// Select all installed packages for uninstall
 		for (const pkg of installedPackages) {
 			selectedUninstallPackages.add(pkg);
 		}
 		selectedUninstallPackages = new Set(selectedUninstallPackages);
-
-		// Then trigger uninstall
 		await handleUninstall();
 	}
 
-	// Computed stats
+	// ── Computed stats ────────────────────────────────────────────────────────
 	let selectedCount = $derived(selectedPackages.size);
 	let uninstallCount = $derived(selectedUninstallPackages.size);
 	let allInstalled = $derived(
@@ -229,7 +224,6 @@
 	let sizeInfo = $state<PackageSizeInfo | null>(null);
 	let sizeLoading = $state(false);
 
-	// Fetch real sizes whenever the selection changes
 	$effect(() => {
 		const pkgsToFetch = Array.from(selectedPackages);
 		if (pkgsToFetch.length === 0) {
@@ -251,7 +245,6 @@
 			});
 	});
 
-	// Derived display strings
 	let totalDownloadSize = $derived(
 		sizeLoading
 			? 'Fetching...'
@@ -262,7 +255,6 @@
 					: '—'
 	);
 	let totalInstallSize = $derived(sizeLoading ? '' : sizeInfo ? sizeInfo.total_install_human : '');
-	// Estimate time: assume 25 Mbps connection
 	let estTime = $derived(
 		!sizeInfo || sizeLoading
 			? '—'

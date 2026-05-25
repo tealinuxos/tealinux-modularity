@@ -2,20 +2,22 @@
 	import Hero from '$lib/components/home/Hero.svelte';
 	import ProfileCard from '$lib/components/home/ProfileCard.svelte';
 
-	import { commands, type ProfileInfo, type BackendResult } from '$lib/commands';
+	import { commands, type ProfileInfo } from '$lib/commands';
 	import { onMount } from 'svelte';
 	import { LoaderCircle, RefreshCw, CircleAlert } from '@lucide/svelte';
+
+	// ── Global install state — persists across navigation ──────────────────
+	import { installStore } from '$lib/stores/install.svelte';
+	import { installPackages, syncActiveTasks } from '$lib/services/installManager';
 
 	// ─── State ────────────────────────────────────────────────────────────────────
 	let profiles: ProfileInfo[] = $state([]);
 	let loading = $state(true);
 	let loadError = $state('');
 
-	// Install states per profile id
-	let installStates: Record<string, 'idle' | 'installing' | 'success' | 'error'> = $state({});
-
 	// ─── Load profiles from backend on mount ──────────────────────────────────────
 	onMount(async () => {
+		await syncActiveTasks();
 		await loadProfiles();
 	});
 
@@ -24,10 +26,6 @@
 		loadError = '';
 		try {
 			profiles = await commands.listProfiles();
-			// Initialize install states
-			for (const p of profiles) {
-				installStates[p.id] = 'idle';
-			}
 		} catch (e) {
 			console.error('Failed to load profiles:', e);
 			loadError = String(e);
@@ -36,52 +34,34 @@
 		}
 	}
 
-	// ─── Install handler ──────────────────────────────────────────────────────────
-	async function handleInstall(profile: ProfileInfo) {
-		installStates[profile.id] = 'installing';
+	// ── Install handler — uses global async streaming system ──────────────────
+	async function handleCardInstall(profile: ProfileInfo) {
+		if (installStore.isBusy) return;
 
-		try {
-			// Only install official packages via backend (pacman)
-			// AUR packages cannot be installed via pkexec pacman and need a separate user-level flow (yay/paru)
-			const officialPackages = profile.packages_install;
-			const aurPackages = profile.packages_aur;
+		const officialPackages = profile.packages_install;
+		const aurPackages = profile.packages_aur;
 
-			if (aurPackages.length > 0) {
-				console.warn(`[install] Skipping AUR packages for now: ${aurPackages.join(', ')}`);
-			}
-
-			console.log(`[install] Profile: ${profile.name}`);
-			console.log(`[install] Official Packages: ${officialPackages.join(', ')}`);
-			console.log(`[install] Services: ${profile.services_enable.join(', ')}`);
-
-			const result: BackendResult = await commands.installProfile(
-				profile.id,
-				officialPackages,
-				profile.services_enable
-			);
-
-			console.log('[install] Result:', result);
-
-			if (result.success) {
-				installStates[profile.id] = 'success';
-			} else {
-				installStates[profile.id] = 'error';
-			}
-		} catch (e) {
-			console.error('[install] Error:', e);
-			installStates[profile.id] = 'error';
+		if (aurPackages.length > 0) {
+			console.warn(`[install] Skipping AUR packages for now: ${aurPackages.join(', ')}`);
 		}
 
-		// Auto-reset error state after 5s so user can retry
-		if (installStates[profile.id] === 'error') {
-			setTimeout(() => {
-				installStates[profile.id] = 'idle';
-			}, 5000);
-		}
+		// Use the global streaming install system
+		await installPackages(profile.id, profile.name, officialPackages, profile.services_enable);
 	}
 
-	function handleCardInstall(profile: ProfileInfo) {
-		handleInstall(profile);
+	// ── Derive install state per profile from global store ─────────────────────
+	function getProfileInstallState(profileId: string): 'idle' | 'installing' | 'success' | 'error' {
+		if (installStore.activeInstall?.profileId === profileId) {
+			const phase = installStore.activeInstall.phase;
+			if (phase === 'installing') return 'installing';
+			if (phase === 'success') return 'success';
+			if (phase === 'error') return 'error';
+		}
+		const stored = installStore.getProfilePhase(profileId);
+		if (stored === 'installing') return 'installing';
+		if (stored === 'success') return 'success';
+		if (stored === 'error') return 'error';
+		return 'idle';
 	}
 </script>
 
@@ -134,7 +114,7 @@
 					packageCount={profile.package_count}
 					packages={[...profile.packages_install, ...profile.packages_aur]}
 					servicesCount={profile.services_enable.length}
-					installState={installStates[profile.id] || 'idle'}
+					installState={getProfileInstallState(profile.id)}
 					onInstall={() => handleCardInstall(profile)}
 				/>
 			{/each}

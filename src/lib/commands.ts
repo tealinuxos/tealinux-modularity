@@ -221,6 +221,30 @@ async listInstalledAur() : Promise<InstalledAurInfo[]> {
  */
 async getTopAurPackages() : Promise<AurPackageInfo[]> {
     return await TAURI_INVOKE("get_top_aur_packages");
+},
+/**
+ * Install a full profile with realtime streaming via Tauri events.
+ * 
+ * Returns immediately with the task_id. Progress, logs, and completion
+ * are delivered via events:
+ * - `install-log`      → InstallLogPayload
+ * - `install-progress` → InstallProgressPayload
+ * - `install-finished` → InstallFinishedPayload
+ */
+async installProfileAsync(taskId: string, profileName: string, packages: string[], services: string[]) : Promise<string> {
+    return await TAURI_INVOKE("install_profile_async", { taskId, profileName, packages, services });
+},
+/**
+ * Cancel the currently running async install.
+ */
+async cancelInstall() : Promise<void> {
+    await TAURI_INVOKE("cancel_install");
+},
+/**
+ * Query currently active background installations.
+ */
+async getActiveInstalls() : Promise<ActiveInstallTask[]> {
+    return await TAURI_INVOKE("get_active_installs");
 }
 }
 
@@ -234,6 +258,8 @@ async getTopAurPackages() : Promise<AurPackageInfo[]> {
 
 /** user-defined types **/
 
+export type ActiveInstallLog = { line: string; stream: string; ts: bigint }
+export type ActiveInstallTask = { task_id: string; profile_name: string; packages: string[]; services: string[]; step: string; percent: number; started_at: bigint; logs: ActiveInstallLog[] }
 export type ApiResultBool = { success: boolean; data?: boolean | null; error?: string | null; code?: string | null }
 export type ApiResultParsedNews = { success: boolean; data?: ParsedNewsItemDto[] | null; error?: string | null; code?: string | null }
 export type ApiResultStr = { success: boolean; data?: string | null; error?: string | null; code?: string | null }

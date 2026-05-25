@@ -7,12 +7,12 @@
 	import type { AurPackageInfo } from '$lib/commands';
 
 	interface Props {
-		actionStates: Record<string, 'idle' | 'installing' | 'uninstalling' | 'success' | 'error'>;
+		getAurState: (name: string) => 'idle' | 'installing' | 'uninstalling' | 'success' | 'error';
 		oninstall: (name: string) => void;
 		onremove: (name: string) => void;
 	}
 
-	let { actionStates, oninstall, onremove }: Props = $props();
+	let { getAurState, oninstall, onremove }: Props = $props();
 
 	let popularPackages: AurPackageInfo[] = $state([]);
 	let loading = $state(true);
@@ -82,7 +82,7 @@
 			{#each paginatedPackages as pkg (pkg.name)}
 				<AurPackageCard
 					{pkg}
-					installState={actionStates[pkg.name] || 'idle'}
+					installState={getAurState(pkg.name)}
 					{oninstall}
 					{onremove}
 				/>

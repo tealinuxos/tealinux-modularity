@@ -73,6 +73,10 @@ pub fn run() {
         aur::commands::remove_aur_package,
         aur::commands::list_installed_aur,
         aur::commands::get_top_aur_packages,
+        // Streaming install commands
+        installer::backend_runner::install_profile_async,
+        installer::backend_runner::cancel_install,
+        installer::backend_runner::get_active_installs,
     ]);
 
     #[cfg(debug_assertions)]

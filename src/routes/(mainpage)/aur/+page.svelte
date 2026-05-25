@@ -17,6 +17,9 @@
 		X
 	} from '@lucide/svelte';
 
+	// ── Global install state for persistent AUR action tracking ────────────
+	import { installStateStore } from '$lib/stores/installState.svelte';
+
 	type TabId = 'search' | 'installed';
 	type AurActionState = 'idle' | 'installing' | 'uninstalling' | 'success' | 'error';
 
@@ -28,7 +31,6 @@
 	let hasSearched = $state(false);
 	let installedPackages: any[] = $state([]);
 	let installedLoading = $state(false);
-	let actionStates: Record<string, AurActionState> = $state({});
 	let installedFilterQuery = $state('');
 	let filteredInstalledPackages = $derived(
 		installedFilterQuery.trim()
@@ -37,6 +39,16 @@
 				)
 			: installedPackages
 	);
+
+	// ── Derive AUR action states from global store ────────────────────────
+	// Maps package name to AUR-style action state for the card UI
+	function getAurState(name: string): AurActionState {
+		const status = installStateStore.getStatus(name);
+		if (status === 'installing') return 'installing';
+		if (status === 'success') return 'success';
+		if (status === 'error') return 'error';
+		return 'idle';
+	}
 
 	onMount(async () => {
 		await loadInstalledPackages();
@@ -74,44 +86,56 @@
 	}
 
 	async function handleInstall(name: string) {
-		actionStates[name] = 'installing';
+		// Set global state so it persists across navigation
+		installStateStore.setPackageStatus(name, 'installing', {
+			progress: 0,
+			startedAt: Date.now(),
+			taskId: `aur-${name}-${Date.now()}`,
+			logs: []
+		});
 		try {
 			const result = await commands.installAurPackage(name);
 			if (result.success) {
-				actionStates[name] = 'success';
+				installStateStore.setPackageStatus(name, 'success', { progress: 100 });
 				searchResults = searchResults.map((pkg: any) =>
 					pkg.name === name ? { ...pkg, installed: true } : pkg
 				);
 				await loadInstalledPackages();
 			} else {
-				actionStates[name] = 'error';
+				installStateStore.setPackageStatus(name, 'error');
 			}
 		} catch (e) {
-			actionStates[name] = 'error';
+			installStateStore.setPackageStatus(name, 'error');
 		}
 		setTimeout(() => {
-			actionStates[name] = 'idle';
+			installStateStore.setPackageStatus(name, 'idle');
 		}, 4000);
 	}
 
 	async function handleRemove(name: string) {
-		actionStates[name] = 'uninstalling';
+		// Track uninstall state globally too — use 'installing' status type for spinner
+		installStateStore.setPackageStatus(name, 'installing', {
+			progress: 0,
+			startedAt: Date.now(),
+			taskId: `aur-rm-${name}-${Date.now()}`,
+			logs: []
+		});
 		try {
 			const result = await commands.removeAurPackage(name);
 			if (result.success) {
-				actionStates[name] = 'success';
+				installStateStore.setPackageStatus(name, 'success', { progress: 100 });
 				searchResults = searchResults.map((pkg: any) =>
 					pkg.name === name ? { ...pkg, installed: false } : pkg
 				);
 				await loadInstalledPackages();
 			} else {
-				actionStates[name] = 'error';
+				installStateStore.setPackageStatus(name, 'error');
 			}
 		} catch (e) {
-			actionStates[name] = 'error';
+			installStateStore.setPackageStatus(name, 'error');
 		}
 		setTimeout(() => {
-			actionStates[name] = 'idle';
+			installStateStore.setPackageStatus(name, 'idle');
 		}, 4000);
 	}
 </script>
@@ -256,7 +280,7 @@
 								{#each searchResults as pkg (pkg.name)}
 									<AurPackageCard
 										{pkg}
-										installState={actionStates[pkg.name] || 'idle'}
+										installState={getAurState(pkg.name)}
 										oninstall={handleInstall}
 										onremove={handleRemove}
 									/>
@@ -264,7 +288,7 @@
 							</div>
 						{:else}
 							<AurRecommendations
-								{actionStates}
+								{getAurState}
 								oninstall={handleInstall}
 								onremove={handleRemove}
 							/>
@@ -372,7 +396,7 @@
 												</div>
 											</div>
 											<div class="shrink-0 flex items-center">
-												{#if actionStates[pkg.name] === 'uninstalling'}
+												{#if getAurState(pkg.name) === 'uninstalling' || getAurState(pkg.name) === 'installing'}
 													<div
 														class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 text-red-500 text-xs font-semibold uppercase tracking-widest"
 													>

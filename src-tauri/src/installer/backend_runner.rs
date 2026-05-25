@@ -1,7 +1,11 @@
 use modularitea_libs::infrastructure::Pacman;
 use serde::{Deserialize, Serialize};
 use specta::Type;
+use std::collections::HashMap;
 use std::process::Command;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex, OnceLock};
+use tauri::Emitter;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct BackendResult {
@@ -482,3 +486,453 @@ pub async fn get_package_sizes(packages: Vec<String>) -> PackageSizeInfo {
         total_install_human: format_bytes(total_install),
     }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Async streaming install — emits Tauri events for realtime frontend updates
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Global cancel flag: set to true by cancel_install command.
+static CANCEL_REQUESTED: OnceLock<Arc<AtomicBool>> = OnceLock::new();
+
+fn cancel_flag() -> Arc<AtomicBool> {
+    CANCEL_REQUESTED
+        .get_or_init(|| Arc::new(AtomicBool::new(false)))
+        .clone()
+}
+
+// ─── Event payloads ──────────────────────────────────────────────────────────
+
+// ─── Event payloads ──────────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct InstallStartedPayload {
+    pub task_id: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct InstallLogPayload {
+    pub task_id: String,
+    pub line: String,
+    pub stream: String, // "stdout" | "stderr" | "system"
+    pub ts: u64,        // unix ms
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct InstallFinishedPayload {
+    pub task_id: String,
+    pub success: bool,
+    pub message: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct InstallProgressPayload {
+    pub task_id: String,
+    pub step: String, // e.g. "db-update" | "installing" | "services" | "done"
+    pub percent: u8,  // 0-100
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct ActiveInstallLog {
+    pub line: String,
+    pub stream: String,
+    pub ts: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct ActiveInstallTask {
+    pub task_id: String,
+    pub profile_name: String,
+    pub packages: Vec<String>,
+    pub services: Vec<String>,
+    pub step: String,
+    pub percent: u8,
+    pub started_at: u64,
+    pub logs: Vec<ActiveInstallLog>,
+}
+
+static ACTIVE_INSTALLS: OnceLock<Mutex<HashMap<String, ActiveInstallTask>>> = OnceLock::new();
+
+pub fn active_installs() -> &'static Mutex<HashMap<String, ActiveInstallTask>> {
+    ACTIVE_INSTALLS.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+// ─── Helper: current unix timestamp in ms ────────────────────────────────────
+
+fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis() as u64
+}
+
+// ─── Helpers: emit events to frontend & update registry ──────────────────────
+
+fn emit_log(app: &tauri::AppHandle, task_id: &str, line: &str, stream: &str) {
+    let ts = now_ms();
+    let _ = app.emit(
+        "install-log",
+        InstallLogPayload {
+            task_id: task_id.to_string(),
+            line: line.to_string(),
+            stream: stream.to_string(),
+            ts,
+        },
+    );
+
+    // Update ACTIVE_INSTALLS
+    if let Ok(mut map) = active_installs().lock() {
+        if let Some(task) = map.get_mut(task_id) {
+            task.logs.push(ActiveInstallLog {
+                line: line.to_string(),
+                stream: stream.to_string(),
+                ts,
+            });
+            if task.logs.len() > 500 {
+                task.logs.remove(0);
+            }
+        }
+    }
+}
+
+fn emit_progress(app: &tauri::AppHandle, task_id: &str, step: &str, percent: u8) {
+    let _ = app.emit(
+        "install-progress",
+        InstallProgressPayload {
+            task_id: task_id.to_string(),
+            step: step.to_string(),
+            percent,
+        },
+    );
+
+    // Update ACTIVE_INSTALLS
+    if let Ok(mut map) = active_installs().lock() {
+        if let Some(task) = map.get_mut(task_id) {
+            task.step = step.to_string();
+            task.percent = percent;
+        }
+    }
+}
+
+fn emit_finished(app: &tauri::AppHandle, task_id: &str, success: bool, message: &str) {
+    if success {
+        let _ = app.emit(
+            "install-finished",
+            InstallFinishedPayload {
+                task_id: task_id.to_string(),
+                success: true,
+                message: message.to_string(),
+            },
+        );
+    } else {
+        // Emit both install-failed and install-finished for compatibility
+        let _ = app.emit(
+            "install-failed",
+            InstallFinishedPayload {
+                task_id: task_id.to_string(),
+                success: false,
+                message: message.to_string(),
+            },
+        );
+        let _ = app.emit(
+            "install-finished",
+            InstallFinishedPayload {
+                task_id: task_id.to_string(),
+                success: false,
+                message: message.to_string(),
+            },
+        );
+    }
+
+    // Remove from ACTIVE_INSTALLS
+    if let Ok(mut map) = active_installs().lock() {
+        map.remove(task_id);
+    }
+}
+
+
+// ─── Helper: run pkexec and stream output line by line ───────────────────────
+
+fn run_pkexec_streaming(
+    app: &tauri::AppHandle,
+    task_id: &str,
+    binary_path: &str,
+    args: &[&str],
+    cancel: &Arc<AtomicBool>,
+) -> BackendResult {
+    use std::io::{BufRead, BufReader};
+    use std::process::Stdio;
+
+    let mut cmd = Command::new("pkexec");
+    cmd.arg(binary_path);
+    cmd.args(args);
+    cmd.stdout(Stdio::piped());
+    cmd.stderr(Stdio::piped());
+
+    eprintln!(
+        "[install_stream] Running: pkexec {} {}",
+        binary_path,
+        args.join(" ")
+    );
+
+    let mut child = match cmd.spawn() {
+        Ok(c) => c,
+        Err(e) => {
+            let msg = format!("Failed to spawn pkexec: {}", e);
+            emit_log(app, task_id, &msg, "system");
+            return BackendResult::error(&msg);
+        }
+    };
+
+    // Stream stdout in a thread
+    let stdout_pipe = child.stdout.take().unwrap();
+    let stdout_reader = BufReader::new(stdout_pipe);
+    let app_stdout = app.clone();
+    let task_id_stdout = task_id.to_string();
+    let cancel_stdout = cancel.clone();
+    let stdout_buf = Arc::new(Mutex::new(String::new()));
+    let stdout_buf_clone = stdout_buf.clone();
+
+    let stdout_thread = std::thread::spawn(move || {
+        for line in stdout_reader.lines() {
+            if cancel_stdout.load(Ordering::Relaxed) {
+                break;
+            }
+            if let Ok(l) = line {
+                emit_log(&app_stdout, &task_id_stdout, &l, "stdout");
+                let mut buf = stdout_buf_clone.lock().unwrap();
+                buf.push_str(&l);
+                buf.push('\n');
+            }
+        }
+    });
+
+    // Stream stderr in a thread
+    let stderr_pipe = child.stderr.take().unwrap();
+    let stderr_reader = BufReader::new(stderr_pipe);
+    let app_stderr = app.clone();
+    let task_id_stderr = task_id.to_string();
+    let cancel_stderr = cancel.clone();
+    let stderr_buf = Arc::new(Mutex::new(String::new()));
+    let stderr_buf_clone = stderr_buf.clone();
+
+    let stderr_thread = std::thread::spawn(move || {
+        for line in stderr_reader.lines() {
+            if cancel_stderr.load(Ordering::Relaxed) {
+                break;
+            }
+            if let Ok(l) = line {
+                emit_log(&app_stderr, &task_id_stderr, &l, "stderr");
+                let mut buf = stderr_buf_clone.lock().unwrap();
+                buf.push_str(&l);
+                buf.push('\n');
+            }
+        }
+    });
+
+    let _ = stdout_thread.join();
+    let _ = stderr_thread.join();
+
+    let status = child.wait();
+
+    let stdout = stdout_buf.lock().unwrap().clone();
+    let stderr = stderr_buf.lock().unwrap().clone();
+
+    match status {
+        Ok(s) => BackendResult {
+            success: s.success(),
+            stdout,
+            stderr,
+            exit_code: s.code().unwrap_or(-1),
+        },
+        Err(_) => BackendResult {
+            success: false,
+            stdout,
+            stderr: format!("{}\nProcess wait failed", stderr),
+            exit_code: -1,
+        },
+    }
+}
+
+/// Install a full profile with realtime streaming via Tauri events.
+///
+/// Returns immediately with the task_id. Progress, logs, and completion
+/// are delivered via events:
+///   - `install-log`      → InstallLogPayload
+///   - `install-progress` → InstallProgressPayload  
+///   - `install-finished` → InstallFinishedPayload
+#[tauri::command]
+#[specta::specta]
+pub async fn install_profile_async(
+    app: tauri::AppHandle,
+    task_id: String,
+    profile_name: String,
+    packages: Vec<String>,
+    services: Vec<String>,
+) -> String {
+    // Reset cancel flag at the start of a new task
+    cancel_flag().store(false, Ordering::Relaxed);
+
+    let cancel = cancel_flag();
+    let returned_task_id = task_id.clone();
+
+    // Register active install in ACTIVE_INSTALLS
+    let initial_task = ActiveInstallTask {
+        task_id: task_id.clone(),
+        profile_name: profile_name.clone(),
+        packages: packages.clone(),
+        services: services.clone(),
+        step: "idle".to_string(),
+        percent: 0,
+        started_at: now_ms(),
+        logs: vec![ActiveInstallLog {
+            line: format!("Starting install: {}", profile_name),
+            stream: "system".to_string(),
+            ts: now_ms(),
+        }],
+    };
+    if let Ok(mut map) = active_installs().lock() {
+        map.insert(task_id.clone(), initial_task);
+    }
+
+    // Emit install-started
+    let _ = app.emit("install-started", InstallStartedPayload { task_id: task_id.clone() });
+
+    // Spawn a detached OS thread — NOT tied to the async command lifetime
+    std::thread::spawn(move || {
+        install_profile_worker(&app, &task_id, &profile_name, &packages, &services, &cancel);
+    });
+
+    returned_task_id
+}
+
+
+fn install_profile_worker(
+    app: &tauri::AppHandle,
+    task_id: &str,
+    profile_name: &str,
+    packages: &[String],
+    services: &[String],
+    cancel: &Arc<AtomicBool>,
+) {
+    eprintln!(
+        "[install_worker] task={} profile={} pkgs={} svcs={}",
+        task_id,
+        profile_name,
+        packages.len(),
+        services.len()
+    );
+
+    // Step 0: Update pacman database
+    if !packages.is_empty() {
+        if cancel.load(Ordering::Relaxed) {
+            emit_finished(app, task_id, false, "Install cancelled");
+            return;
+        }
+        emit_progress(app, task_id, "db-update", 5);
+        emit_log(app, task_id, "Updating package database…", "system");
+
+        let db_result = run_pkexec_streaming(app, task_id, "pacman", &["-Sy"], cancel);
+        if cancel.load(Ordering::Relaxed) {
+            emit_finished(app, task_id, false, "Install cancelled");
+            return;
+        }
+        if db_result.success {
+            emit_log(app, task_id, "✓ Package database updated", "system");
+        } else {
+            emit_log(
+                app,
+                task_id,
+                &format!("⚠ DB update warning: {}", db_result.stderr.trim()),
+                "system",
+            );
+        }
+    }
+
+    // Step 1: Install packages via pacman
+    if !packages.is_empty() {
+        if cancel.load(Ordering::Relaxed) {
+            emit_finished(app, task_id, false, "Install cancelled");
+            return;
+        }
+        emit_progress(app, task_id, "installing", 20);
+        emit_log(
+            app,
+            task_id,
+            &format!("Installing {} package(s)…", packages.len()),
+            "system",
+        );
+
+        let mut args = vec!["-S", "--noconfirm", "--needed"];
+        let pkg_refs: Vec<&str> = packages.iter().map(|s| s.as_str()).collect();
+        args.extend_from_slice(&pkg_refs);
+
+        let result = run_pkexec_streaming(app, task_id, "pacman", &args, cancel);
+
+        if cancel.load(Ordering::Relaxed) {
+            emit_finished(app, task_id, false, "Install cancelled");
+            return;
+        }
+
+        if !result.success {
+            let msg = format!("Package installation failed: {}", result.stderr.trim());
+            emit_log(app, task_id, &msg, "system");
+            emit_finished(app, task_id, false, &msg);
+            return;
+        }
+        emit_log(
+            app,
+            task_id,
+            &format!("✓ {} package(s) installed successfully", packages.len()),
+            "system",
+        );
+    }
+
+    // Step 2: Enable services
+    let svc_total = services.len();
+    for (i, svc) in services.iter().enumerate() {
+        if cancel.load(Ordering::Relaxed) {
+            emit_finished(app, task_id, false, "Install cancelled");
+            return;
+        }
+        let pct = 80u8 + ((i + 1) * 15 / svc_total.max(1)) as u8;
+        emit_progress(app, task_id, "services", pct.min(95));
+        emit_log(app, task_id, &format!("Enabling service '{}'…", svc), "system");
+
+        let result = run_pkexec_streaming(app, task_id, "systemctl", &["enable", "--now", svc], cancel);
+        if result.success {
+            emit_log(app, task_id, &format!("✓ Service '{}' enabled and started", svc), "system");
+        } else {
+            emit_log(
+                app,
+                task_id,
+                &format!("⚠ Service '{}' warning: {}", svc, result.stderr.trim()),
+                "system",
+            );
+        }
+    }
+
+    emit_progress(app, task_id, "done", 100);
+    let success_msg = format!("✓ Profile '{}' installed successfully!", profile_name);
+    emit_log(app, task_id, &success_msg, "system");
+    emit_finished(app, task_id, true, &success_msg);
+}
+
+/// Cancel the currently running async install.
+#[tauri::command]
+#[specta::specta]
+pub fn cancel_install() {
+    eprintln!("[install] Cancel requested by frontend");
+    cancel_flag().store(true, Ordering::Relaxed);
+}
+
+/// Query currently active background installations.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_active_installs() -> Vec<ActiveInstallTask> {
+    if let Ok(map) = active_installs().lock() {
+        map.values().cloned().collect()
+    } else {
+        Vec::new()
+    }
+}
+
