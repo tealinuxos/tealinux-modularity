@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Toaster } from 'svelte-sonner';
 	import { ModeWatcher } from 'mode-watcher';
 	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import { commands } from '$lib/commands';
@@ -18,6 +19,7 @@
 	});
 </script>
 
+<Toaster richColors />
 <ModeWatcher defaultMode="system" disableTransitions={false} />
 <QueryClientProvider client={queryClient}>
 	{@render children?.()}

@@ -14,7 +14,7 @@
 
 <Sidebar.Root>
 	<Sidebar.Header class="flex flex-row gap-x-1 items-center px-4 py-3 border-b">
-		<img class="size-8 rounded-md" src="modularitea.png" alt="Modularitea Logo" />
+		<img class="size-9 rounded-[4px]" src="modularitea.png" alt="Modularitea Logo" />
 		<p class="text-[#26A768] font-bold text-xl">Modularitea</p>
 	</Sidebar.Header>
 	<Sidebar.Content class="px-3.5 py-3">
