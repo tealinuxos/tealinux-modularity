@@ -138,6 +138,54 @@ async settingsSetCpuProfile(profile: string) : Promise<ApiResultVoid> {
 async settingsCpuGovernorLine() : Promise<ApiResultStr> {
     return await TAURI_INVOKE("settings_cpu_governor_line");
 },
+async getCacheSize() : Promise<Result<bigint, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_cache_size") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async cleanCache() : Promise<Result<LocalCommandOutput, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("clean_cache") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async refreshMirror(country: string | null) : Promise<Result<LocalCommandOutput, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("refresh_mirror", { country }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async switchDns(provider: DnsProvider) : Promise<Result<LocalCommandOutput, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("switch_dns", { provider }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async setCpuProfile(profile: CpuProfile) : Promise<Result<LocalCommandOutput, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_cpu_profile", { profile }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async setSwapMode(mode: SwapMode) : Promise<Result<LocalCommandOutput, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_swap_mode", { mode }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 /**
  * Search AUR packages by query string
  */
@@ -194,8 +242,11 @@ export type Audio = { devices: string[]; errors: string[] }
 export type AurPackageInfo = { name: string; version: string; description: string; maintainer: string; num_votes: number; popularity: number; out_of_date: boolean; installed: boolean; url: string; aur_url: string; first_submitted: bigint | null; last_modified: bigint | null; license: string[]; depends: string[]; make_depends: string[]; opt_depends: string[] }
 export type BackendResult = { success: boolean; stdout: string; stderr: string; exit_code: number }
 export type Computer = { processor: string; memory: bigint; operating_system: string; kernel_version: string; username: string[]; errors: string[] }
+export type CpuProfile = "powersave" | "performance" | "ondemand"
 export type Display = { monitor_name: string[]; graphic_cards: string[]; display_protocol: string; display_windows_manager: string; errors: string[] }
+export type DnsProvider = "cloudflare" | "google" | "quad9" | "opendns" | "adguard"
 export type InstalledAurInfo = { name: string; version: string }
+export type LocalCommandOutput = { exit_code: number; stdout: string; stderr: string; success: boolean }
 /**
  * Per-package size information from `pacman -Si`
  */
@@ -212,6 +263,7 @@ export type ParsedNewsItemDto = { url: string; title: string; descriptive: strin
  */
 export type ProfileInfo = { id: string; name: string; description: string; version: string; author: string; category: string; packages_install: string[]; packages_aur: string[]; packages_remove: string[]; services_enable: string[]; services_disable: string[]; package_count: number }
 export type Step = { type: "copy_dir"; from: string; to: string } | { type: "copy_file"; from: string; to: string } | { type: "set_grub_var"; key: string; value: string } | { type: "replace_in_file"; file: string; search: string; replace: string }
+export type SwapMode = "enable" | "disable"
 export type ThemeManifest = { name: string; version: string; github_url: string | null; preview_image: string | null; description: string | null; author: string | null; name_concat: string | null; steps: Step[] }
 
 /** tauri-specta globals **/

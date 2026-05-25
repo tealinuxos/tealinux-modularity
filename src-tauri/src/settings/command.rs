@@ -3,7 +3,7 @@ use std::process::Command;
 use duct::cmd;
 
 use modularitea_libs::infrastructure::{
-    tools_utils::{CpuBooster, DnsSwitcher, MirrorUtils},
+    tools_utils::{CpuBooster, MirrorUtils},
     PackageCacheCleaner,
 };
 

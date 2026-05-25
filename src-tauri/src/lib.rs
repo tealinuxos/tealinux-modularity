@@ -59,6 +59,13 @@ pub fn run() {
         settings::settings_clean_package_cache,
         settings::settings_set_cpu_profile,
         settings::settings_cpu_governor_line,
+        // Settings command module (direct/legacy commands used by frontend)
+        settings::command::get_cache_size,
+        settings::command::clean_cache,
+        settings::command::refresh_mirror,
+        settings::command::switch_dns,
+        settings::command::set_cpu_profile,
+        settings::command::set_swap_mode,
         // AUR Commands
         aur::commands::search_aur_packages,
         aur::commands::get_aur_package_info,
