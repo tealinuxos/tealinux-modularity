@@ -13,21 +13,27 @@
 		"windows": [
 			{
 				"title": "tealinux-modularity",
-				"width": 1024,
-				"height": 576,
-				"decorations": false,
 				"label": "main",
+				"url": "/home",
+				"decorations": false,
 				"visible": false,
-				"url": "/home"
+				"resizable": true,
+				"width": 1280,
+				"height": 768,
+				"minWidth": 800,
+				"minHeight": 600
 			},
 			{
 				"label": "splashscreen",
-				"width": 1024,
-				"height": 576,
 				"title": "Welcome to TeaLinuxOS!",
+				"url": "/",
 				"decorations": false,
 				"visible": false,
-				"url": "/"
+				"resizable": false,
+				"width": 1200,
+				"height": 720,
+				"minWidth": 920,
+				"minHeight": 560
 			}
 		],
 		"security": {
