@@ -5,6 +5,9 @@
 	import { commands, type DnsProvider } from '$lib/commands';
 	import { settingsState } from '$lib/state/settings.svelte';
 	import { toast } from 'svelte-sonner';
+	import { onMount } from 'svelte';
+
+	$inspect(settingsState.dnsProvider);
 
 	type DNS_VALUE = {
 		name: string;
@@ -21,6 +24,20 @@
 	};
 
 	let updating = $state(false);
+	let loaded = $state(false);
+
+	onMount(async () => {
+		try {
+			const result = await commands.getCurrentDnsProvider();
+			if (result.status === 'ok') {
+				settingsState.dnsProvider = result.data;
+			}
+		} catch (err) {
+			console.error('Failed to fetch DNS provider:', err);
+		} finally {
+			loaded = true;
+		}
+	});
 
 	async function handleDnsChange(value: string) {
 		const provider = value as DnsProvider;
@@ -62,25 +79,34 @@
 						<LoaderCircle class="size-3 animate-spin text-muted-foreground" />
 					{/if}
 				</div>
-				<Card.Description class="text-xs">Preferred resolver</Card.Description>
+				<Card.Description class="text-xs">
+					{#if !loaded}
+						Detecting…
+					{:else if settingsState.dnsProvider === null}
+						Custom DNS Detected
+					{:else}
+						Preferred resolver
+					{/if}
+				</Card.Description>
 			</div>
 		</div>
 	</Card.Header>
 
 	<Card.Content class="overflow-scroll">
 		<RadioGroup.Root
-			value={settingsState.dnsProvider}
+			value={settingsState.dnsProvider ?? undefined}
 			onValueChange={handleDnsChange}
-			disabled={updating}
+			disabled={updating || !loaded}
 			class="space-y-2"
 		>
 			{#each Object.entries(providers) as [key, provider] (key)}
 				{@const isSelected = settingsState.dnsProvider === key}
+				{@const isLoading = !loaded}
 				<label
 					for="dns-{key}"
 					class="flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-all
 						{isSelected ? 'border-primary bg-primary/5' : 'border-border bg-muted/20 hover:bg-muted/40'}
-						{updating ? 'opacity-50 cursor-not-allowed' : ''}"
+						{updating || isLoading ? 'opacity-50 cursor-not-allowed' : ''}"
 				>
 					<div class="flex items-center gap-3">
 						<RadioGroup.Item value={key} id="dns-{key}" />

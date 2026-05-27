@@ -6,8 +6,20 @@
 	import { commands } from '$lib/commands';
 	import { toast } from 'svelte-sonner';
 	import { settingsState } from '$lib/state/settings.svelte';
+	import { onMount } from 'svelte';
 
 	let updating = $state(false);
+
+	onMount(async () => {
+		try {
+			const result = await commands.isSwapEnabled();
+			if (result.status === 'ok') {
+				settingsState.swapEnabled = result.data;
+			}
+		} catch (err) {
+			console.error('Failed to fetch swap status:', err);
+		}
+	});
 
 	async function handleToggleSwap(checked: boolean) {
 		updating = true;
@@ -67,13 +79,17 @@
 					{/if}
 				</div>
 				<p class="text-xs text-muted-foreground">
-					{settingsState.swapEnabled ? 'Active — 2 GB allocated' : 'Inactive'}
+					{#if settingsState.swapEnabled === null}
+						Detecting…
+					{:else}
+						{settingsState.swapEnabled ? 'Active' : 'Inactive'}
+					{/if}
 				</p>
 			</div>
 			<Switch
 				id="swap-toggle"
-				checked={settingsState.swapEnabled}
-				disabled={updating}
+				checked={settingsState.swapEnabled ?? false}
+				disabled={updating || settingsState.swapEnabled === null}
 				onCheckedChange={handleToggleSwap}
 			/>
 		</div>

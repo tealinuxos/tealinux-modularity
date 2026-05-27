@@ -4,8 +4,23 @@
 	import { commands, type CpuProfile } from '$lib/commands';
 	import { toast } from 'svelte-sonner';
 	import { settingsState } from '$lib/state/settings.svelte';
+	import { onMount } from 'svelte';
 
 	let updating = $state(false);
+	let loaded = $state(false);
+
+	onMount(async () => {
+		try {
+			const result = await commands.getCpuGovernorState();
+			if (result.status === 'ok') {
+				settingsState.cpuGovernor = result.data;
+			}
+		} catch (err) {
+			console.error('Failed to fetch CPU governor:', err);
+		} finally {
+			loaded = true;
+		}
+	});
 
 	const governors: {
 		value: CpuProfile;
@@ -72,7 +87,13 @@
 			<div>
 				<p class="text-sm font-semibold">CPU Performance</p>
 				<p class="mt-0.5 max-w-sm text-xs leading-relaxed text-muted-foreground">
-					Adjust the frequency scaling governor to balance energy efficiency and raw speed.
+					{#if !loaded}
+						Detecting current governor…
+					{:else if settingsState.cpuGovernor === null}
+						Custom governor detected — pick a supported profile to override
+					{:else}
+						Adjust the frequency scaling governor to balance energy efficiency and raw speed.
+					{/if}
 				</p>
 			</div>
 		</div>
@@ -80,14 +101,15 @@
 		<div class="grid grid-cols-3 gap-2 sm:flex sm:shrink-0 sm:items-stretch">
 			{#each governors as { value, label, sub, Icon, iconClass } (value)}
 				{@const isActive = settingsState.cpuGovernor === value}
+				{@const isLoading = !loaded}
 				<button
 					onclick={() => handleSetProfile(value)}
-					disabled={updating}
+					disabled={updating || isLoading}
 					class="flex min-w-25 flex-col items-center gap-1.5 rounded-xl border px-4 py-3 transition-all
 						{isActive
 						? 'border-primary bg-primary text-primary-foreground shadow-sm'
 						: 'border-border bg-muted/30 text-foreground hover:bg-muted/60'}
-						{updating ? 'opacity-50 cursor-not-allowed' : ''}"
+						{updating || isLoading ? 'opacity-50 cursor-not-allowed' : ''}"
 				>
 					{#if updating && isActive}
 						<LoaderCircle class="size-4 animate-spin text-primary-foreground" />
