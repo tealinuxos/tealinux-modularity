@@ -50,6 +50,9 @@ pub fn run() {
         settings::command::switch_dns,
         settings::command::set_cpu_profile,
         settings::command::set_swap_mode,
+        settings::command::is_swap_enabled,
+        settings::command::get_current_dns_provider,
+        settings::command::get_cpu_governor_state,
     ]);
 
     #[cfg(debug_assertions)]

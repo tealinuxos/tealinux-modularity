@@ -153,6 +153,30 @@ async setSwapMode(mode: SwapMode) : Promise<Result<LocalCommandOutput, string>> 
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+async isSwapEnabled() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("is_swap_enabled") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async getCurrentDnsProvider() : Promise<Result<DnsProvider | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_current_dns_provider") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async getCpuGovernorState() : Promise<Result<CpuProfile | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_cpu_governor_state") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 

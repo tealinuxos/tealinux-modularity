@@ -3,7 +3,7 @@ use std::process::Command;
 use duct::cmd;
 
 use modularitea_libs::infrastructure::{
-    tools_utils::{CpuBooster, DnsSwitcher, MirrorUtils},
+    tools_utils::{CpuBooster, DnsSwitcher, MirrorUtils, StatusState},
     PackageCacheCleaner,
 };
 
@@ -64,6 +64,26 @@ pub fn switch_dns(provider: DnsProvider) -> Result<LocalCommandOutput, String> {
         stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
         stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
     })
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn is_swap_enabled() -> Result<bool, String> {
+    Ok(StatusState::is_swap_enable())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn get_current_dns_provider() -> Result<Option<DnsProvider>, String> {
+    Ok(DnsProvider::from_lib_str(
+        &StatusState::get_current_dns_provider(),
+    ))
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn get_cpu_governor_state() -> Result<Option<CpuProfile>, String> {
+    Ok(CpuProfile::from_lib_str(&StatusState::cpu_governor_state()))
 }
 
 #[tauri::command]
