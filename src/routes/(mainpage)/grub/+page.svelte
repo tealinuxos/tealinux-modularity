@@ -3,7 +3,6 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card/index';
-	import * as Carousel from '$lib/components/ui/carousel/index';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { onMount } from 'svelte';
@@ -139,17 +138,17 @@
 
 			<section class="flex flex-col shrink-0">
 				<p class="text-[#99A1AF] mb-2">Choose A Theme</p>
-				<Carousel.Root opts={{ align: 'start', skipSnaps: true }} class="w-full">
-					<Carousel.Content>
+				<div class="theme-scroll w-full overflow-x-auto">
+					<div class="flex">
 						{#if listThemes.isLoading}
 							{#each Array(5)}
 								{@render SkeletonCard()}
 							{/each}
 						{:else}
 							{#each listThemes.data as theme, i (theme.name)}
-								<Carousel.Item
+								<div
 									onclick={() => themeClickHandler(theme, i)}
-									class="basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+									class="shrink-0 basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
 								>
 									<div class="p-1">
 										<Card.Root
@@ -166,11 +165,11 @@
 											/>
 										</Card.Root>
 									</div>
-								</Carousel.Item>
+								</div>
 							{/each}
 						{/if}
-					</Carousel.Content>
-				</Carousel.Root>
+					</div>
+				</div>
 			</section>
 		</Card.Content>
 
@@ -181,12 +180,38 @@
 </div>
 
 {#snippet SkeletonCard()}
-	<Carousel.Item class="basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+	<div class="shrink-0 basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
 		<div class="p-1">
 			<Skeleton class="aspect-video w-full rounded-xl" />
 		</div>
-	</Carousel.Item>
+	</div>
 {/snippet}
+
+<style>
+	.theme-scroll {
+		scrollbar-width: thin;
+		scrollbar-color: var(--muted-foreground) transparent;
+	}
+
+	.theme-scroll::-webkit-scrollbar {
+		height: 8px;
+	}
+
+	.theme-scroll::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.theme-scroll::-webkit-scrollbar-thumb {
+		background-color: var(--muted-foreground);
+		border-radius: 9999px;
+		border: 2px solid transparent;
+		background-clip: padding-box;
+	}
+
+	.theme-scroll::-webkit-scrollbar-thumb:hover {
+		background-color: var(--border);
+	}
+</style>
 
 {#snippet ApplyButton()}
 	<Button
