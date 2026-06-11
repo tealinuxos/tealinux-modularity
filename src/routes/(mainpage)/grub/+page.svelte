@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { SlidersHorizontal, LoaderCircle } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
-	import * as Carousel from '$lib/components/ui/carousel';
-	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+	import * as Card from '$lib/components/ui/card/index';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog/index';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { onMount } from 'svelte';
 	import { cn } from '$lib/utils';
@@ -151,41 +150,10 @@
 				</div>
 			</section>
 
-			<section class="flex flex-col shrink-0 gap-2">
-				<p class="text-muted-foreground">Choose A Theme</p>
-				<input
-					class={cn(
-						'w-full max-w-md rounded-md border border-input bg-background px-3 py-2 text-sm',
-						'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
-					)}
-					placeholder="Search themes…"
-					bind:value={themeFilterInput}
-				/>
-				{#if listThemes.error}
-					<div class="rounded-md border border-destructive/40 bg-destructive/10 p-4 flex flex-col gap-2 items-start">
-						<p class="text-sm text-destructive">{listThemes.error}</p>
-						<Button
-							size="sm"
-							variant="outline"
-							onclick={async () => {
-								listThemes.isLoading = true;
-								listThemes.error = null;
-								const result = await fetchThemes();
-								if (result.success) {
-									listThemes.data = result.data;
-									selectedTheme.theme = result.data[0];
-								} else {
-									listThemes.error = briefErrorMessage(result.code, result.error);
-								}
-								listThemes.isLoading = false;
-							}}
-						>
-							Try Again
-						</Button>
-					</div>
-				{/if}
-				<Carousel.Root opts={{ align: 'start', skipSnaps: true }} class="w-full">
-					<Carousel.Content>
+			<section class="flex flex-col shrink-0">
+				<p class="text-[#99A1AF] mb-2">Choose A Theme</p>
+				<div class="theme-scroll w-full overflow-x-auto">
+					<div class="flex">
 						{#if listThemes.isLoading}
 							{#each { length: 5 } as _, i (i)}
 								{@render SkeletonCard()}
@@ -193,10 +161,10 @@
 						{:else if visibleThemes.length === 0}
 							<p class="text-sm text-muted-foreground py-6 px-2">No themes match your search.</p>
 						{:else}
-							{#each visibleThemes as theme (theme.name)}
-								<Carousel.Item
-									onclick={() => themeClickHandler(theme)}
-									class="basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+							{#each listThemes.data as theme, i (theme.name)}
+								<div
+									onclick={() => themeClickHandler(theme, i)}
+									class="shrink-0 basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
 								>
 									<div class="p-1">
 										<Card.Root
@@ -218,11 +186,11 @@
 											/>
 										</Card.Root>
 									</div>
-								</Carousel.Item>
+								</div>
 							{/each}
 						{/if}
-					</Carousel.Content>
-				</Carousel.Root>
+					</div>
+				</div>
 			</section>
 		</Card.Content>
 
@@ -233,12 +201,38 @@
 </main>
 
 {#snippet SkeletonCard()}
-	<Carousel.Item class="basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+	<div class="shrink-0 basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
 		<div class="p-1">
 			<Skeleton class="aspect-video w-full rounded-xl" />
 		</div>
-	</Carousel.Item>
+	</div>
 {/snippet}
+
+<style>
+	.theme-scroll {
+		scrollbar-width: thin;
+		scrollbar-color: var(--muted-foreground) transparent;
+	}
+
+	.theme-scroll::-webkit-scrollbar {
+		height: 8px;
+	}
+
+	.theme-scroll::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.theme-scroll::-webkit-scrollbar-thumb {
+		background-color: var(--muted-foreground);
+		border-radius: 9999px;
+		border: 2px solid transparent;
+		background-clip: padding-box;
+	}
+
+	.theme-scroll::-webkit-scrollbar-thumb:hover {
+		background-color: var(--border);
+	}
+</style>
 
 {#snippet ApplyButton()}
 	<Button

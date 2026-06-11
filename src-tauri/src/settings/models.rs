@@ -1,8 +1,8 @@
 use modularitea_libs::infrastructure::tools_utils::mode;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use specta::Type;
 
-#[derive(Debug, Clone, Deserialize, Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "lowercase")]
 pub enum DnsProvider {
     Cloudflare,
@@ -22,9 +22,20 @@ impl DnsProvider {
             DnsProvider::Adguard => "adguard",
         }
     }
+
+    pub fn from_lib_str(s: &str) -> Option<Self> {
+        match s.trim().to_lowercase().as_str() {
+            "cloudflare" => Some(Self::Cloudflare),
+            "google" => Some(Self::Google),
+            "quad9" => Some(Self::Quad9),
+            "opendns" => Some(Self::Opendns),
+            "adguard" => Some(Self::Adguard),
+            _ => None,
+        }
+    }
 }
 
-#[derive(Debug, Clone, Deserialize, Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "lowercase")]
 pub enum CpuProfile {
     Powersave,
@@ -38,6 +49,15 @@ impl CpuProfile {
             CpuProfile::Powersave => "powersave",
             CpuProfile::Performance => "performance",
             CpuProfile::Ondemand => "ondemand",
+        }
+    }
+
+    pub fn from_lib_str(s: &str) -> Option<Self> {
+        match s.trim().to_lowercase().as_str() {
+            "powersave" => Some(Self::Powersave),
+            "performance" => Some(Self::Performance),
+            "ondemand" => Some(Self::Ondemand),
+            _ => None,
         }
     }
 }

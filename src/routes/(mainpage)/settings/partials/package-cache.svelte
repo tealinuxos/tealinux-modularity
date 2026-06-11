@@ -5,7 +5,7 @@
 	import { commands } from '$lib/commands';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
-	import { settingsState } from '$lib/state/settings.svelte';
+	import { appMetaState } from '$lib/state/settings.svelte';
 
 	let clearing = $state(false);
 	let cacheSize = $state<string>('0 B');
@@ -51,7 +51,7 @@
 		try {
 			const result = await commands.cleanCache();
 			if (result.status === 'ok') {
-				settingsState.lastCacheCleaned = Date.now();
+				appMetaState.lastCacheCleaned = Date.now();
 				toast.success('Package cache cleared', {
 					description: 'Disk space has been freed successfully'
 				});
@@ -98,7 +98,7 @@
 	<Card.Footer class="flex h-17.5 items-center justify-between border-t">
 		<div class="flex items-center gap-1.5 text-xs text-muted-foreground">
 			<Clock class="size-3" />
-			<span>Last cleaned {formatLastCleaned(settingsState.lastCacheCleaned)}</span>
+			<span>Last cleaned {formatLastCleaned(appMetaState.lastCacheCleaned)}</span>
 		</div>
 		<Button
 			variant="destructive"

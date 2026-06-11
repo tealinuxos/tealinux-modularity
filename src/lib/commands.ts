@@ -38,13 +38,6 @@ async checkPackageInstalled(packageName: string) : Promise<boolean> {
     return await TAURI_INVOKE("check_package_installed", { packageName });
 },
 /**
- * Get download and install sizes for a list of packages using `pacman -Si`
- * Only queries packages that are NOT already installed (to reduce noise).
- */
-async getPackageSizes(packages: string[]) : Promise<PackageSizeInfo> {
-    return await TAURI_INVOKE("get_package_sizes", { packages });
-},
-/**
  * Install a full profile.
  * 
  * This reads the profile data from the frontend (which already parsed the TOML),
@@ -102,41 +95,16 @@ async checkConfigurationFile() : Promise<Result<boolean, string>> {
 async showMainWindow() : Promise<void> {
     await TAURI_INVOKE("show_main_window");
 },
-async getGrubThemes() : Promise<ThemeManifest[]> {
+async getGrubThemes() : Promise<LocalThemeManifest[]> {
     return await TAURI_INVOKE("get_grub_themes");
 },
-async setGrubTheme(themeName: string) : Promise<ApiResultVoid> {
-    return await TAURI_INVOKE("set_grub_theme", { themeName });
-},
-async fetchParsedNews(forceRefresh: boolean) : Promise<ApiResultParsedNews> {
-    return await TAURI_INVOKE("fetch_parsed_news", { forceRefresh });
-},
-async mirrorReflectorCountryList() : Promise<string[]> {
-    return await TAURI_INVOKE("mirror_reflector_country_list");
-},
-async settingsRefreshMirror(country: string) : Promise<ApiResultStr> {
-    return await TAURI_INVOKE("settings_refresh_mirror", { country });
-},
-async settingsChangeDns(provider: string) : Promise<ApiResultVoid> {
-    return await TAURI_INVOKE("settings_change_dns", { provider });
-},
-async settingsDnsStatusLine() : Promise<ApiResultStr> {
-    return await TAURI_INVOKE("settings_dns_status_line");
-},
-async settingsToggleSwap(enabled: boolean) : Promise<ApiResultVoid> {
-    return await TAURI_INVOKE("settings_toggle_swap", { enabled });
-},
-async settingsSwapEnabledState() : Promise<ApiResultBool> {
-    return await TAURI_INVOKE("settings_swap_enabled_state");
-},
-async settingsCleanPackageCache() : Promise<ApiResultBool> {
-    return await TAURI_INVOKE("settings_clean_package_cache");
-},
-async settingsSetCpuProfile(profile: string) : Promise<ApiResultVoid> {
-    return await TAURI_INVOKE("settings_set_cpu_profile", { profile });
-},
-async settingsCpuGovernorLine() : Promise<ApiResultStr> {
-    return await TAURI_INVOKE("settings_cpu_governor_line");
+async setGrubTheme(themeName: string) : Promise<Result<LocalCommandOutput, LocalModulariteaError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_grub_theme", { themeName }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 },
 async getCacheSize() : Promise<Result<bigint, string>> {
     try {
@@ -186,65 +154,29 @@ async setSwapMode(mode: SwapMode) : Promise<Result<LocalCommandOutput, string>> 
     else return { status: "error", error: e  as any };
 }
 },
-/**
- * Search AUR packages by query string
- */
-async searchAurPackages(query: string) : Promise<AurPackageInfo[]> {
-    return await TAURI_INVOKE("search_aur_packages", { query });
+async isSwapEnabled() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("is_swap_enabled") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 },
-/**
- * Get detailed info for a single AUR package
- */
-async getAurPackageInfo(name: string) : Promise<AurPackageInfo | null> {
-    return await TAURI_INVOKE("get_aur_package_info", { name });
+async getCurrentDnsProvider() : Promise<Result<DnsProvider | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_current_dns_provider") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 },
-/**
- * Install an AUR package via paru
- */
-async installAurPackage(name: string) : Promise<BackendResult> {
-    return await TAURI_INVOKE("install_aur_package", { name });
-},
-/**
- * Remove an AUR package via paru
- */
-async removeAurPackage(name: string) : Promise<BackendResult> {
-    return await TAURI_INVOKE("remove_aur_package", { name });
-},
-/**
- * List all installed AUR (foreign) packages
- */
-async listInstalledAur() : Promise<InstalledAurInfo[]> {
-    return await TAURI_INVOKE("list_installed_aur");
-},
-/**
- * Get top popular AUR packages (scraped + batch-fetched, cached for 10 minutes)
- */
-async getTopAurPackages() : Promise<AurPackageInfo[]> {
-    return await TAURI_INVOKE("get_top_aur_packages");
-},
-/**
- * Install a full profile with realtime streaming via Tauri events.
- * 
- * Returns immediately with the task_id. Progress, logs, and completion
- * are delivered via events:
- * - `install-log`      → InstallLogPayload
- * - `install-progress` → InstallProgressPayload
- * - `install-finished` → InstallFinishedPayload
- */
-async installProfileAsync(taskId: string, profileName: string, packages: string[], services: string[]) : Promise<string> {
-    return await TAURI_INVOKE("install_profile_async", { taskId, profileName, packages, services });
-},
-/**
- * Cancel the currently running async install.
- */
-async cancelInstall() : Promise<void> {
-    await TAURI_INVOKE("cancel_install");
-},
-/**
- * Query currently active background installations.
- */
-async getActiveInstalls() : Promise<ActiveInstallTask[]> {
-    return await TAURI_INVOKE("get_active_installs");
+async getCpuGovernorState() : Promise<Result<CpuProfile | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_cpu_governor_state") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -258,39 +190,24 @@ async getActiveInstalls() : Promise<ActiveInstallTask[]> {
 
 /** user-defined types **/
 
-export type ActiveInstallLog = { line: string; stream: string; ts: bigint }
-export type ActiveInstallTask = { task_id: string; profile_name: string; packages: string[]; services: string[]; step: string; percent: number; started_at: bigint; logs: ActiveInstallLog[] }
-export type ApiResultBool = { success: boolean; data?: boolean | null; error?: string | null; code?: string | null }
-export type ApiResultParsedNews = { success: boolean; data?: ParsedNewsItemDto[] | null; error?: string | null; code?: string | null }
-export type ApiResultStr = { success: boolean; data?: string | null; error?: string | null; code?: string | null }
-export type ApiResultVoid = { success: boolean; error?: string | null; code?: string | null }
 export type Audio = { devices: string[]; errors: string[] }
-export type AurPackageInfo = { name: string; version: string; description: string; maintainer: string; num_votes: number; popularity: number; out_of_date: boolean; installed: boolean; url: string; aur_url: string; first_submitted: bigint | null; last_modified: bigint | null; license: string[]; depends: string[]; make_depends: string[]; opt_depends: string[] }
 export type BackendResult = { success: boolean; stdout: string; stderr: string; exit_code: number }
 export type Computer = { processor: string; memory: bigint; operating_system: string; kernel_version: string; username: string[]; errors: string[] }
 export type CpuProfile = "powersave" | "performance" | "ondemand"
 export type Display = { monitor_name: string[]; graphic_cards: string[]; display_protocol: string; display_windows_manager: string; errors: string[] }
 export type DnsProvider = "cloudflare" | "google" | "quad9" | "opendns" | "adguard"
-export type InstalledAurInfo = { name: string; version: string }
+export type LocalCommandError = { operation: string; exit_code: number | null; stderr: string }
 export type LocalCommandOutput = { exit_code: number; stdout: string; stderr: string; success: boolean }
-/**
- * Per-package size information from `pacman -Si`
- */
-export type PackageDownloadInfo = { name: string; download_size_bytes: number; install_size_bytes: number; download_size_human: string; install_size_human: string; available: boolean }
-/**
- * Summary of total download/install size for a list of packages
- */
-export type PackageSizeInfo = { packages: PackageDownloadInfo[]; total_download_bytes: number; total_install_bytes: number; total_download_human: string; total_install_human: string }
-export type ParsedNewsItemDto = { url: string; title: string; descriptive: string; thumbnail: string | null }
+export type LocalModulariteaError = { type: "ProfileReadError"; data: { path: string; source: string } } | { type: "ProfileParseError"; data: { path: string; source: string } } | { type: "ProfileValidationError"; data: { message: string } } | { type: "PlanningError"; data: { message: string } } | { type: "DependencyError"; data: { message: string } } | { type: "CircularDependencyError"; data: { cycle: string } } | { type: "ExecutionError"; data: { task_name: string; source: string } } | { type: "RollbackError"; data: { task_name: string; reason: string } } | { type: "PacmanError"; data: LocalCommandError } | { type: "GrubError"; data: { operation: string; reason: string } } | { type: "SystemctlError"; data: { operation: string; exit_code: number | null; stderr: string } } | { type: "FilesystemError"; data: { operation: string; source: string } } | { type: "PrivilegeError"; data: { reason: string } } | { type: "PkexecNotFound" } | { type: "PolkitCancelled" } | { type: "RootBinaryNotFound"; data: { binary: string } } | { type: "CommandError"; data: { command: string; exit_code: number | null; stderr: string } } | { type: "IoError"; data: string } | { type: "InternalError"; data: string }
+export type LocalStep = { type: "copy_dir"; from: string; to: string } | { type: "copy_file"; from: string; to: string } | { type: "set_grub_var"; key: string; value: string } | { type: "replace_in_file"; file: string; search: string; replace: string }
+export type LocalThemeManifest = { name: string; version: string; github_url: string | null; preview_image: string | null; description: string | null; author: string | null; name_concat: string | null; steps: LocalStep[] }
 /**
  * Profile metadata exposed to the frontend via Tauri commands.
  * This is a DTO (Data Transfer Object) that wraps the libs' domain model
  * with `specta::Type` for TypeScript binding generation.
  */
 export type ProfileInfo = { id: string; name: string; description: string; version: string; author: string; category: string; packages_install: string[]; packages_aur: string[]; packages_remove: string[]; services_enable: string[]; services_disable: string[]; package_count: number }
-export type Step = { type: "copy_dir"; from: string; to: string } | { type: "copy_file"; from: string; to: string } | { type: "set_grub_var"; key: string; value: string } | { type: "replace_in_file"; file: string; search: string; replace: string }
 export type SwapMode = "enable" | "disable"
-export type ThemeManifest = { name: string; version: string; github_url: string | null; preview_image: string | null; description: string | null; author: string | null; name_concat: string | null; steps: Step[] }
 
 /** tauri-specta globals **/
 
