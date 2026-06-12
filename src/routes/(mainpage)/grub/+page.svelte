@@ -123,7 +123,7 @@
 
 <main>
 	<div class="flex flex-row items-center gap-x-2 mb-4 shrink-0">
-		<SlidersHorizontal class="text-[#54CD4C] size-8" />
+		<SlidersHorizontal class="text-[#26A768] size-8" />
 		<h1 class="text-2xl font-semibold">Boot Theme</h1>
 	</div>
 

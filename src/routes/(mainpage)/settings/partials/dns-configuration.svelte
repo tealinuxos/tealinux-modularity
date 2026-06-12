@@ -52,8 +52,8 @@
 					description: `Now using ${providers[provider].name} as your DNS resolver.`
 				});
 			} else {
-				toast.error('Failed to update DNS', {
-					description: result.error
+				toast.error('Failed to update DNS settings.', {
+					description: 'Administrator privileges are required.'
 				});
 			}
 		} catch (err) {

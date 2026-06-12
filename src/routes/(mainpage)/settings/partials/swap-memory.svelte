@@ -33,8 +33,8 @@
 					description: `Virtual memory has been ${checked ? 'activated' : 'deactivated'} successfully.`
 				});
 			} else {
-				toast.error('Failed to change swap status', {
-					description: result.error
+				toast.error('Failed to change the swap status.', {
+					description: 'Administrator privileges are required.'
 				});
 			}
 		} catch (err) {

@@ -24,7 +24,7 @@
 <main class="min-h-screen">
 	<div class="flex flex-row items-center justify-between mb-4">
 		<div class="flex flex-row items-center gap-x-2">
-			<TrendingUp class="text-[#54CD4C] size-8" />
+			<TrendingUp class="text-[#26A768] size-8" />
 			<h1 class="text-2xl">Latest News & Updates</h1>
 		</div>
 		<div class="flex flex-row gap-x-2">

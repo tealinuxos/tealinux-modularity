@@ -36,7 +36,7 @@
 					description: `Now using ${mirrors[selected].label} mirrors`
 				});
 			} else {
-				toast.error('Failed to refresh mirror', { description: result.error });
+				toast.error('Failed to refresh the mirror list.', { description: 'Administrator privileges are required.' });
 			}
 		} catch (err) {
 			toast.error('Unexpected error', { description: String(err) });

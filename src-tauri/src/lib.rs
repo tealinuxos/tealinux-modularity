@@ -7,6 +7,7 @@ use crate::grub::initialization::GrubManager;
 
 mod grub;
 mod installer;
+mod pkexec_args;
 mod settings;
 mod splash;
 mod sysinfo;

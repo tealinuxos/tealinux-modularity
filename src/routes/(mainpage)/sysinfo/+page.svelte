@@ -113,7 +113,7 @@
 <div class="space-y-6 pb-6">
 	<div class="flex items-center gap-3">
 		<div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-			<Cpu class="size-5 text-primary" />
+			<Cpu class="size-5 text-[#26A768]" />
 		</div>
 		<div>
 			<h1 class="text-xl font-semibold tracking-tight">System Information</h1>

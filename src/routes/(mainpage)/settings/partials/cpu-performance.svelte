@@ -64,8 +64,8 @@
 					description: `System is now running in ${profile} mode.`
 				});
 			} else {
-				toast.error('Failed to set CPU profile', {
-					description: result.error
+				toast.error('Failed to change the CPU profile', {
+					description: 'Please try again or check your system permissions.'
 				});
 			}
 		} catch (err) {
