@@ -24,7 +24,7 @@ pub struct GrubInstruction {
 pub fn grub_themes_dir_path() -> String {
     std::env::var("TEALINUX_GRUB_CHANGER_MANIFEST_DIR").unwrap_or_else(|_| {
         option_env!("TEALINUX_GRUB_CHANGER_MANIFEST_DIR")
-            .unwrap_or("/usr/share/tealinux/grub-themes")
+            .unwrap_or("/usr/share/modularitea-libs/grub-theme")
             .to_string()
     })
 }
@@ -142,7 +142,7 @@ impl GrubInstructionExecutor for GrubInstruction {
             s.replace(
                 "${MANIFEST_DIR}",
                 option_env!("TEALINUX_GRUB_CHANGER_MANIFEST_DIR")
-                    .unwrap_or("/usr/share/tealinux/grub-themes"),
+                    .unwrap_or("/usr/share/modularitea-libs/grub-theme"),
             )
         };
 

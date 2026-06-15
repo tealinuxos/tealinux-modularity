@@ -1,6 +1,6 @@
 [meta]
 name = "Developer Essentials Pack"
-description = "Paket dasar developer Linux dengan perlengkapan wajib."
+description = "Basic Linux developer package with essential tools."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "development"

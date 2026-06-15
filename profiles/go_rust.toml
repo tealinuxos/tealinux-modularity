@@ -1,6 +1,6 @@
 [meta]
 name = "Go & Rust Developer Pack"
-description = "Paket pengembangan Go (Golang)."
+description = "Go (Golang) development package."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "development"

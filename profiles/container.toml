@@ -1,6 +1,6 @@
 [meta]
 name = "Container Pack"
-description = "Paket pengembangan menggunakan container (Docker, Podman)."
+description = "Development package using containers (Docker, Podman)."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "development"

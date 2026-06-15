@@ -1,6 +1,6 @@
 [meta]
 name = "Backup, Optimization & Remote Pack"
-description = "Tools untuk backup sistem dan data."
+description = "Tools for system and data backup."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "system"

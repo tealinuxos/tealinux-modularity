@@ -1,6 +1,6 @@
 [meta]
 name = "Python Pack"
-description = "Paket pengembangan Python dan Data Science dasar."
+description = "Basic Python and Data Science development package."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "development"

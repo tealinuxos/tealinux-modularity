@@ -1,6 +1,6 @@
 [meta]
 name = "AI Pack (Ollama & TensorFlow)"
-description = "Tools untuk pengembangan AI dan integrasi."
+description = "Tools for AI development and integration."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "development"

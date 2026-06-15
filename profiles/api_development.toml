@@ -1,6 +1,6 @@
 [meta]
 name = "API Development Pack"
-description = "Tools untuk pengembangan dan testing API."
+description = "Tools for API development and testing."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "development"

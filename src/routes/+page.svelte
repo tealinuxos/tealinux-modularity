@@ -140,7 +140,7 @@
 			class="font-medium tracking-[0.1em] text-[#999999] leading-relaxed mt-2"
 			style="font-size: clamp(0.75rem, 1.1vw, 1.1rem);"
 		>
-			RELEASED ON MAY 2026
+			RELEASED ON JUNE 2026
 		</p>
 	</div>
 {/snippet}

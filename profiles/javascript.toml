@@ -1,6 +1,6 @@
 [meta]
 name = "JS Pack"
-description = "Paket pengembangan JavaScript (Node.js, npm, yarn, bun)."
+description = "JavaScript development package (Node.js, npm, yarn, bun)."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "development"

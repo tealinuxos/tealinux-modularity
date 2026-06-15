@@ -1,6 +1,6 @@
 [meta]
 name = "PHP Pack"
-description = "Modern native Linux PHP stack untuk Laravel, CodeIgniter, dan pengembangan PHP."
+description = "Modern native Linux PHP stack for Laravel, CodeIgniter, and PHP development."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "development"

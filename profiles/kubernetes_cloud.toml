@@ -1,6 +1,6 @@
 [meta]
 name = "Kubernetes & Cloud Pack"
-description = "Paket pengembangan Kubernetes."
+description = "Kubernetes development package."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "server"

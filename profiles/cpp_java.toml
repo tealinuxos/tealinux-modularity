@@ -1,6 +1,6 @@
 [meta]
-name = "C++ dan Java Pack"
-description = "Paket pengembangan C dan C++."
+name = "C++ and Java Pack"
+description = "C and C++ development package."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "development"

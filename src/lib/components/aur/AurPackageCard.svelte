@@ -300,9 +300,9 @@
 
 	.progress-fill {
 		height: 100%;
-		background: linear-gradient(90deg, #26a768, #4bc043);
+		background: linear-gradient(90deg, #26a768, #54cd4c);
 		border-radius: 999px;
-		transition: width 0.3s ease-in-out;
+		transition: width 0.3s ease-in-out;		
 	}
 
 	.progress-uninstalling .progress-fill {

@@ -1,6 +1,6 @@
 [meta]
 name = "Data Science Pack"
-description = "Paket untuk analisis data dan sains."
+description = "Package for data analysis and science."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "development"

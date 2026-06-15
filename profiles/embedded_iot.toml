@@ -1,6 +1,6 @@
 [meta]
 name = "Embedded/IoT Pack"
-description = "Tools untuk pengembangan hardware, mikrokontroler, dan IoT."
+description = "Tools for hardware, microcontroller, and IoT development."
 version = "1.0.0"
 author = "TeaLinuxOS Team"
 category = "development"
