@@ -1,56 +1,64 @@
-use crate::grub::executor::GrubInstructionExecutor;
+use modularitea_libs::infrastructure::grub::GrubInstructionExecutor;
+use std::process::Command;
+use std::io::ErrorKind;
+
 use crate::grub::initialization::GrubManager;
 use crate::grub::models::ThemeManifest;
-use crate::pkexec_args::{pkexec_stderr_local_result, run_pkexec_program};
-use crate::settings::ApiResultVoid;
-use crate::sysinfo::display_resolution::grub_screen_resolution_px;
-use crate::utils::modularitea_path::resolve_on_path;
+use crate::utils::error_libs::{LocalCommandOutput, LocalModulariteaError};
+
+const GRUB_THEME_DIR: &str = "/usr/share/modularitea-libs/grub-theme/";
 
 #[tauri::command]
 #[specta::specta]
-pub fn get_grub_themes(state: tauri::State<'_, std::sync::Mutex<GrubManager>>) -> Vec<ThemeManifest> {
-    let mut g = state.lock().expect("GrubManager mutex poisoned");
-    let (w, h) = grub_screen_resolution_px();
-    g.instruction.reload_manifest();
-    g.instruction = g.instruction.clone_with_resolution(w, h);
-    g.instruction.get_all_theme_available()
+pub fn get_grub_themes(state: tauri::State<'_, GrubManager>) -> Vec<ThemeManifest> {
+    let themes = state.instruction.get_all_theme_available();
+    themes.into_iter().map(ThemeManifest::from).collect()
 }
 
 #[tauri::command]
 #[specta::specta]
-pub fn set_grub_theme(state: tauri::State<'_, std::sync::Mutex<GrubManager>>, theme_name: String) -> ApiResultVoid {
-    use crate::settings::{err_void, map_mkerr_void, map_pkexec_void};
-    let theme_name = theme_name.trim().to_string();
-    if theme_name.is_empty() {
-        return err_void("empty theme name", "INVALID_ARGUMENT");
-    }
+pub fn set_grub_theme(
+    _state: tauri::State<'_, GrubManager>,
+    theme_name: String,
+) -> Result<LocalCommandOutput, LocalModulariteaError> {
+    let run_result = Command::new("pkexec")
+        .arg("modularitea-grub")
+        .arg(GRUB_THEME_DIR)
+        .arg(&theme_name)
+        .output();
 
-    let (themes_dir, known): (String, bool) = {
-        let mut g = match state.lock() {
-            Ok(l) => l,
-            Err(_) => return err_void("Grub manager lock poisoned", "UNKNOWN_ERROR"),
-        };
-        let (w, h) = grub_screen_resolution_px();
-        g.instruction.reload_manifest();
-        g.instruction = g.instruction.clone_with_resolution(w, h);
-        let themes_dir = g.instruction.themes_dir.clone();
-        let known = g.instruction.manifest.iter().any(|m| m.name == theme_name);
-        (themes_dir, known)
+    let run_output = match run_result {
+        Ok(output) => output,
+        Err(e) if e.kind() == ErrorKind::NotFound => {
+            return Err(LocalModulariteaError::RootBinaryNotFound {
+                binary: "modularitea-grub".to_string(),
+            })
+        }
+        Err(e) => {
+            return Err(LocalModulariteaError::CommandError {
+                command: "modularitea-grub".to_string(),
+                exit_code: None,
+                stderr: format!("Failed to run modularitea-grub: {}", e),
+            })
+        }
     };
 
-    if !known {
-        return err_void(format!("unknown theme: {}", theme_name), "INVALID_ARGUMENT");
+    if !run_output.status.success() {
+        if run_output.status.code() == Some(126) {
+            return Err(LocalModulariteaError::PolkitCancelled);
+        }
+
+        return Err(LocalModulariteaError::CommandError {
+            command: "modularitea-grub".to_string(),
+            exit_code: run_output.status.code(),
+            stderr: String::from_utf8_lossy(&run_output.stderr).to_string(),
+        });
     }
 
-    let Some(bin) = resolve_on_path("modularitea-grub") else {
-        return map_mkerr_void("modularitea-grub binary not found", "COMMAND_FAILED");
-    };
-
-    let (w, h) = grub_screen_resolution_px();
-    let args = vec![themes_dir, theme_name.clone(), w.to_string(), h.to_string()];
-
-    match run_pkexec_program(&bin, &args) {
-        Ok(output) => map_pkexec_void(pkexec_stderr_local_result("modularitea-grub", output)),
-        Err(e) => map_pkexec_void(Err(e)),
-    }
+    Ok(LocalCommandOutput {
+        success: run_output.status.success(),
+        exit_code: run_output.status.code().unwrap_or(-1),
+        stdout: String::from_utf8_lossy(&run_output.stdout).to_string(),
+        stderr: String::from_utf8_lossy(&run_output.stderr).to_string(),
+    })
 }
