@@ -172,9 +172,9 @@
 			Community (DOSCOM) dan kawan-kawan yang berorientasi pemrograman.
 		</p>
 
-		<p class="text-[#6A7282]" style="font-size: clamp(0.75rem, 1vw, 0.9rem);">
+		<!-- <p class="text-[#6A7282]" style="font-size: clamp(0.75rem, 1vw, 0.9rem);">
 			Released on December 24, 2024
-		</p>
+		</p> -->
 
 		{@render ChangelogModal()}
 	</div>
