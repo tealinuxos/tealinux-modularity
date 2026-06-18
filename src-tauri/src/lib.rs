@@ -5,6 +5,7 @@ use tauri_specta::{collect_commands, Builder};
 
 use crate::grub::initialization::GrubManager;
 
+mod aur;
 mod grub;
 mod installer;
 mod pkexec_args;
@@ -28,15 +29,28 @@ pub fn run() {
         installer::backend_runner::remove_packages,
         installer::backend_runner::update_db,
         installer::backend_runner::check_package_installed,
+        // Package size info
+        installer::backend_runner::get_package_sizes,
         // Profile commands (install/uninstall via pacman + systemctl directly)
         installer::backend_runner::install_profile,
         installer::backend_runner::uninstall_profile,
+        // Async streaming install
+        installer::backend_runner::install_profile_async,
+        installer::backend_runner::cancel_install,
+        installer::backend_runner::get_active_installs,
         // Service commands (via pkexec systemctl)
         installer::backend_runner::enable_service,
         installer::backend_runner::disable_service,
         // Profile loader (reads TOML files)
         installer::profiler::list_profiles,
         installer::profiler::get_profile,
+        // AUR commands
+        aur::commands::search_aur_packages,
+        aur::commands::get_aur_package_info,
+        aur::commands::install_aur_package,
+        aur::commands::remove_aur_package,
+        aur::commands::list_installed_aur,
+        aur::commands::get_top_aur_packages,
         // Splash/Setup
         splash::display_splash::init_configuration_file,
         splash::display_splash::check_configuration_file,
@@ -54,6 +68,17 @@ pub fn run() {
         settings::command::is_swap_enabled,
         settings::command::get_current_dns_provider,
         settings::command::get_cpu_governor_state,
+        // Settings (mod.rs) commands
+        settings::fetch_parsed_news,
+        settings::mirror_reflector_country_list,
+        settings::settings_refresh_mirror,
+        settings::settings_change_dns,
+        settings::settings_dns_status_line,
+        settings::settings_toggle_swap,
+        settings::settings_swap_enabled_state,
+        settings::settings_clean_package_cache,
+        settings::settings_set_cpu_profile,
+        settings::settings_cpu_governor_line,
     ]);
 
     #[cfg(debug_assertions)]

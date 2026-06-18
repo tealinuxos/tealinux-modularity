@@ -268,25 +268,3 @@
 		{/if}
 	</div>
 {/if}
-
-<style>
-	@keyframes shimmer {
-		0% {
-			transform: translateX(-100%);
-		}
-		100% {
-			transform: translateX(300%);
-		}
-	}
-
-	.scrollbar-thin::-webkit-scrollbar {
-		width: 4px;
-	}
-	.scrollbar-track-transparent::-webkit-scrollbar-track {
-		background: transparent;
-	}
-	.scrollbar-thumb-zinc-700::-webkit-scrollbar-thumb {
-		background: #3f3f46;
-		border-radius: 2px;
-	}
-</style>

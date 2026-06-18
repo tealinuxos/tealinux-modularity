@@ -22,11 +22,54 @@ pub struct GrubInstruction {
 }
 
 pub fn grub_themes_dir_path() -> String {
-    std::env::var("TEALINUX_GRUB_CHANGER_MANIFEST_DIR").unwrap_or_else(|_| {
-        option_env!("TEALINUX_GRUB_CHANGER_MANIFEST_DIR")
-            .unwrap_or("/usr/share/modularitea-libs/grub-theme")
-            .to_string()
-    })
+    // 1. Runtime env var
+    if let Ok(dir) = std::env::var("TEALINUX_GRUB_CHANGER_MANIFEST_DIR") {
+        if std::path::Path::new(&dir).is_dir() {
+            return dir;
+        }
+    }
+
+    // 2. Compile-time env var
+    if let Some(dir) = option_env!("TEALINUX_GRUB_CHANGER_MANIFEST_DIR") {
+        if std::path::Path::new(dir).is_dir() {
+            return dir.to_string();
+        }
+    }
+
+    // 3. Production path
+    let system_path = "/usr/share/tealinux/grub-themes";
+    if std::path::Path::new(system_path).is_dir() {
+        return system_path.to_string();
+    }
+
+    // 4. Dev fallback: sibling tealinux-modularitea-libs/data/grub-theme
+    let dev_candidates = [
+        // Relative to CWD (workspace root)
+        "../tealinux-modularitea-libs/data/grub-theme",
+        "../../tealinux-modularitea-libs/data/grub-theme",
+    ];
+    // Also try relative to CARGO_MANIFEST_DIR (src-tauri/)
+    if let Some(manifest_dir) = option_env!("CARGO_MANIFEST_DIR") {
+        let from_manifest = format!("{}/../../tealinux-modularitea-libs/data/grub-theme", manifest_dir);
+        if std::path::Path::new(&from_manifest).is_dir() {
+            if let Ok(abs) = std::fs::canonicalize(&from_manifest) {
+                eprintln!("[grub] Using dev fallback themes dir: {}", abs.display());
+                return abs.to_string_lossy().to_string();
+            }
+        }
+    }
+    for candidate in &dev_candidates {
+        let p = std::path::Path::new(candidate);
+        if p.is_dir() {
+            if let Ok(abs) = std::fs::canonicalize(p) {
+                eprintln!("[grub] Using dev fallback themes dir: {}", abs.display());
+                return abs.to_string_lossy().to_string();
+            }
+        }
+    }
+
+    // 5. Ultimate fallback (will return empty results)
+    system_path.to_string()
 }
 
 impl GrubInstruction {
