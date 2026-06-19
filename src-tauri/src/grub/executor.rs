@@ -24,7 +24,7 @@ pub fn grub_themes_dir_path() -> String {
     }
 
     // 3. Production path
-    let system_path = "/usr/share/tealinux/grub-themes";
+    let system_path = "/usr/share/modularitea-libs/grub-theme";
     if std::path::Path::new(system_path).is_dir() {
         eprintln!("[grub] Using system themes dir: {}", system_path);
         return system_path.to_string();
